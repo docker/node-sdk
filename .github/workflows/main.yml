@@ -31,6 +31,9 @@ jobs:
         env:
           CI: true
 
+      - name: Download CLI
+        run: yarn download-cli
+
       - name: Test
         run: yarn test --ci --coverage --maxWorkers=2
         env:

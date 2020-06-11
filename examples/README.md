@@ -32,3 +32,4 @@ $ npm run example examples/<file>
 
 * [Listing contexts](./context-ls.ts)
 * [Listing containers](./ps.ts)
+* [Exec interactively into a container](./exec.ts)
