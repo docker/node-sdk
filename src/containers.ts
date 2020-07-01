@@ -1,6 +1,8 @@
 export {
   ExecRequest,
   ExecResponse,
+  InspectRequest,
+  InspectResponse,
   ListRequest,
   ListResponse,
   LogsRequest,
