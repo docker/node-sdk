@@ -1,0 +1,11 @@
+generatorName: typescript
+templateDir: templates
+globalProperties:
+  supportingFiles: models/index.ts
+  models: ''
+  #apis: ''
+  #apiDocs: false
+files:
+  model/index.mustache:
+    templateType: SupportingFiles
+    destinationFilename: models/index.ts
