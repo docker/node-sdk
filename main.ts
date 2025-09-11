@@ -142,69 +142,6 @@ class DockerClient {
         });
     }
 
-    // Méthode pour envoyer une chaîne de caractères
-    public sendMessage(message: string): void {
-        if (this.socket.destroyed) {
-            console.error('Socket closed');
-            return;
-        }
-
-        this.socket.write(message, 'utf8', (error) => {
-            if (error) {
-                console.error(error.message);
-            } else {
-                console.log('Message sent:', message);
-            }
-        });
-    }
-
-    // Méthode pour envoyer un message et attendre la réponse
-    public sendMessageAndWaitResponse(message: string, timeout: number = 5000): Promise<string> {
-        return new Promise((resolve, reject) => {
-            if (this.socket.destroyed) {
-                reject(new Error('Socket closed'));
-                return;
-            }
-
-            let responseReceived = false;
-            let timeoutId: NodeJS.Timeout;
-
-            // Handler temporaire pour cette réponse
-            const dataHandler = (data: Buffer) => {
-                if (!responseReceived) {
-                    responseReceived = true;
-                    clearTimeout(timeoutId);
-                    const response = data.toString('utf8');
-                    resolve(response);
-                }
-            };
-
-            // Timeout pour éviter d'attendre indéfiniment
-            timeoutId = setTimeout(() => {
-                if (!responseReceived) {
-                    responseReceived = true;
-                    this.socket.off('data', dataHandler);
-                    reject(new Error('Timeout'));
-                }
-            }, timeout);
-
-            // Écouter les données une seule fois
-            this.socket.once('data', dataHandler);
-
-            // Envoyer le message
-            this.socket.write(message, 'utf8', (error) => {
-                if (error) {
-                    responseReceived = true;
-                    clearTimeout(timeoutId);
-                    this.socket.off('data', dataHandler);
-                    reject(error);
-                } else {
-                    console.log('Message sent:', message);
-                }
-            });
-        });
-    }
-
     // Méthode pour lire une réponse HTTP complète
     public readHTTPResponse(timeout: number = 10000): Promise<HTTPResponse> {
         return new Promise((resolve, reject) => {
