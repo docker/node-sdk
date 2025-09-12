@@ -27,7 +27,11 @@ export class DockerClient {
     public async systemDataUsage(): Promise<models.SystemDataUsageResponse> {
         return this.api.get<models.SystemDataUsageResponse>('/system/df');
     }
-    
+
+    public async systemAuth(authConfig: models.AuthConfig): Promise<models.SystemAuthResponse> {
+        return this.api.post<models.SystemAuthResponse>('/auth', authConfig);    
+    }    
+
     public async systemEvents(callback: (event: models.EventMessage) => void) {        
         await this.api.sendHTTPRequest(`GET /events HTTP/1.1
 Host: host

@@ -343,6 +343,30 @@ Accept: application/json
             });
         });
     }
+
+
+    public async post<T>(uri: string, data: object): Promise<T> {
+        const json = JSON.stringify(data)
+        return new Promise(async (resolve, reject) => {
+            this.sendHTTPRequest(`POST ${uri} HTTP/1.1
+Host: host
+User-Agent: docker-ts/0.0.1
+Accept: application/json
+Content-type: application/json
+Content-length: ${json.length}
+
+${json}
+`).then((response) => {
+                const contentType = response.headers['content-type']?.toLowerCase();
+                if (contentType?.includes('application/json')) {
+                    const parsedBody = JSON.parse(response.body);
+                    resolve(parsedBody as T);
+                } else {
+                    resolve(response.body as T);
+                };            
+            });
+        });
+    }    
 }
 
 export { HTTPResponse };
