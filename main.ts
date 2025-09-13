@@ -8,8 +8,18 @@ try {
     const socket = new net.Socket().connect('/var/run/docker.sock')
     const docker = new DockerClient(socket);
 
-    let test = await docker.systemVersion();
-    console.dir(test, { depth: null });
+    await docker.systemVersion().then((version) => console.dir(version, { depth: null }))
+
+    await docker.systemAuth({
+        "username": "hannibal",
+        "password": "xxxx",
+        "serveraddress": "https://index.docker.io/v1/"
+    }).then((result) => {
+        console.log('systemAuth success:');
+        console.dir(result, { depth: null });
+    }).catch((error) => {
+        console.error(error);
+    });
 
     /*
     await docker.systemEvents((event: models.EventMessage) => {

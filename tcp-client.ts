@@ -1,5 +1,41 @@
 import * as net from 'net';
 
+// Custom error class for 404 Not Found responses
+class NotFoundError extends Error {
+    public readonly statusCode: number = 404;
+    
+    constructor(message: string) {
+        super(message);
+        this.name = 'NotFoundError';
+    }
+}
+
+// Custom error class for 401 Unauthorized responses
+class UnauthorizedError extends Error {
+    public readonly statusCode: number = 401;
+    
+    constructor(message: string) {
+        super(message);
+        this.name = 'UnauthorizedError';
+    }
+}
+
+// Function to extract error message from response body
+function getErrorMessage(status: string, headers: { [key: string]: string }, body: string | undefined): string {
+    const contentType = headers['content-type']?.toLowerCase();
+    if (contentType?.includes('application/json') && body) {
+        try {
+            const jsonBody = JSON.parse(body);
+            if (jsonBody.message) {
+                return jsonBody.message;
+            }
+        } catch (parseError) {
+            // If JSON parsing fails, return the default message
+        }
+    }
+    return status;
+}
+
 // Interface pour représenter une réponse HTTP
 interface HTTPResponse {
     statusLine: string;
@@ -276,7 +312,19 @@ export class TCPClient {
                             body
                         };
                         
-                        resolve(response);
+                        // Reject promise for HTTP status codes >= 400
+                        if (statusCode >= 400) {
+                                const errorMessage = getErrorMessage(statusLine, headers, body);
+                            if (statusCode === 404) {
+                                reject(new NotFoundError(errorMessage));
+                            } else if (statusCode === 401) {
+                                reject(new UnauthorizedError(errorMessage));
+                            } else {
+                                reject(new Error(errorMessage));
+                            }
+                        } else {
+                            resolve(response);
+                        }
                     }
                 }
             };
@@ -340,7 +388,7 @@ Accept: application/json
                 } else {
                     resolve(response.body as T);
                 };            
-            });
+            }).catch(reject);
         });
     }
 
@@ -364,9 +412,9 @@ ${json}
                 } else {
                     resolve(response.body as T);
                 };            
-            });
+            }).catch(reject);
         });
     }    
 }
 
-export { HTTPResponse };
+export { HTTPResponse, NotFoundError, UnauthorizedError };
