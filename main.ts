@@ -10,7 +10,7 @@ try {
 
     await docker.systemPing().then((pong) => console.log(pong))
 
-    await docker.systemVersion().then((version) => console.dir(version, { depth: null }))
+    // await docker.systemVersion().then((version) => console.dir(version, { depth: null }))
 
     /*
     await docker.systemAuth({
@@ -33,34 +33,25 @@ try {
     });
     */
 
+    /*
 
-    let ctr = await docker.containerCreate({
-        Image: 'nginx'
-    }).then((result) => { 
-        return result.Id;
-    })
-    console.log(`container ${ctr} created`)
+    await docker.networkPrune();
 
-    await docker.containerStart(ctr)
-    console.log(`container ${ctr} started`)
+    let created = await docker.networkCreate({
+        Name: 'test',        
+        Labels: {
+            'com.docker.hello': 'world'
+        }
+    });
+    console.dir(created)
 
-    await docker.containerPause(ctr)
-    console.log(`container ${ctr} paused`)
+    await docker.networkInspect('test').then((network) => console.log(network))
 
-    await docker.containerUnpause(ctr)
-    console.log(`container ${ctr} unpaused`)
+    let list = await docker.networkList()
+    console.dir(list)
 
-    console.log(`container ${ctr} top:`)
-    await docker.containerTop(ctr).then((top) => console.log(top))
-
-    console.log(`container ${ctr} stats:`)
-    await docker.containerStats(ctr).then((stats) => console.log(stats))
-
-    await docker.containerRestart(ctr)
-    console.log(`container ${ctr} restarted`)
-
-
-    await docker.containerList().then((list) => console.dir(list, { depth: null }))
+    await docker.networkDelete('test')
+    */
 
     socket.destroy();
 } catch (error) {

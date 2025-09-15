@@ -56,7 +56,7 @@ Accept: application/x-ndjson
      */
     public systemPing(): Promise<string> {
         return this.api.sendHTTPRequest('HEAD', '/_ping', { accept: 'text/plain' })
-            .then(response => response.headers['Api-Version'] as string);
+            .then(response => response.headers['api-version'] as string);
     }
 
     /**
@@ -366,7 +366,7 @@ Accept: application/x-ndjson
      * @param container 
      */
     public async networkConnect(id: string, container: models.NetworkConnectRequest): Promise<void> {
-        return this.api.post(`/networks/${id}/connect`, undefined, container);
+        return this.api.post(`/networks/${id}/connect`, container);
     }
 
     /**
@@ -374,7 +374,7 @@ Accept: application/x-ndjson
      * @param networkConfig Network configuration
      */
     public async networkCreate(config: models.NetworkCreateRequest): Promise<models.NetworkCreateResponse> {
-        return this.api.post('/networks/create', config);
+        return this.api.post('/networks/create', undefined, config);
     }
 
     /**
@@ -391,7 +391,7 @@ Accept: application/x-ndjson
      * @param container 
      */
     public async networkDisconnect(id: string, container: models.NetworkDisconnectRequest): Promise<void> {
-        return this.api.post(`/networks/${id}/disconnect`, undefined, container);
+        return this.api.post(`/networks/${id}/disconnect`, container);
     }
 
     /**
@@ -421,7 +421,7 @@ Accept: application/x-ndjson
      * @param filters Filters to process on the prune list, encoded as JSON (a &#x60;map[string][]string&#x60;).  Available filters: - &#x60;until&#x3D;&lt;timestamp&gt;&#x60; Prune networks created before this timestamp. The &#x60;&lt;timestamp&gt;&#x60; can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. &#x60;10m&#x60;, &#x60;1h30m&#x60;) computed relative to the daemon machine’s time. - &#x60;label&#x60; (&#x60;label&#x3D;&lt;key&gt;&#x60;, &#x60;label&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;, &#x60;label!&#x3D;&lt;key&gt;&#x60;, or &#x60;label!&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;) Prune networks with (or without, in case &#x60;label!&#x3D;...&#x60; is used) the specified labels. 
      */
     public async networkPrune(filters?: Filter): Promise<models.NetworkPruneResponse> {
-        return this.api.post('/networks/prune', undefined, filters);
+        return this.api.post('/networks/prune', filters);
     }
 
     // --- Volumes API
@@ -431,7 +431,7 @@ Accept: application/x-ndjson
      * @param volumeConfig Volume configuration
      */
     public async volumeCreate(spec: models.VolumeCreateOptions): Promise<models.Volume> {
-        return this.api.post('volumes/create', spec);
+        return this.api.post('volumes/create', undefined, spec);
     }
 
     /**
@@ -469,8 +469,115 @@ Accept: application/x-ndjson
      * @param filters Filters to process on the prune list, encoded as JSON (a &#x60;map[string][]string&#x60;).  Available filters: - &#x60;label&#x60; (&#x60;label&#x3D;&lt;key&gt;&#x60;, &#x60;label&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;, &#x60;label!&#x3D;&lt;key&gt;&#x60;, or &#x60;label!&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;) Prune volumes with (or without, in case &#x60;label!&#x3D;...&#x60; is used) the specified labels. - &#x60;all&#x60; (&#x60;all&#x3D;true&#x60;) - Consider all (local) volumes for pruning and not just anonymous volumes. 
      */
     public async volumePrune(filters?: Filter): Promise<models.VolumePruneResponse> {
-        return this.api.post('/volumes/prune', undefined, {
+        return this.api.post('/volumes/prune', {
             filters: filters
         })
+    }
+
+    // --- Images API
+
+    /**
+     * Return image digest and platform information by contacting the registry. 
+     * Get image information from the registry
+     * @param name Image name or id
+     */
+    public async distributionInspect(name: string): Promise<models.DistributionInspect> {
+        return this.api.get(`/distribution/${name}/json`);
+    }
+
+    /**
+     * Pull or import an image.
+     * Create an image
+     * @param fromImage Name of the image to pull. If the name includes a tag or digest, specific behavior applies:  - If only &#x60;fromImage&#x60; includes a tag, that tag is used. - If both &#x60;fromImage&#x60; and &#x60;tag&#x60; are provided, &#x60;tag&#x60; takes precedence. - If &#x60;fromImage&#x60; includes a digest, the image is pulled by digest, and &#x60;tag&#x60; is ignored. - If neither a tag nor digest is specified, all tags are pulled. 
+     * @param fromSrc Source to import. The value may be a URL from which the image can be retrieved or &#x60;-&#x60; to read the image from the request body. This parameter may only be used when importing an image.
+     * @param repo Repository name given to an image when it is imported. The repo may include a tag. This parameter may only be used when importing an image.
+     * @param tag Tag or digest. If empty when pulling an image, this causes all tags for the given image to be pulled.
+     * @param message Set commit message for imported image.
+     * @param xRegistryAuth A base64url-encoded auth configuration.  Refer to the [authentication section](#section/Authentication) for details. 
+     * @param changes Apply &#x60;Dockerfile&#x60; instructions to the image that is created, for example: &#x60;changes&#x3D;ENV DEBUG&#x3D;true&#x60;. Note that &#x60;ENV DEBUG&#x3D;true&#x60; should be URI component encoded.  Supported &#x60;Dockerfile&#x60; instructions: &#x60;CMD&#x60;|&#x60;ENTRYPOINT&#x60;|&#x60;ENV&#x60;|&#x60;EXPOSE&#x60;|&#x60;ONBUILD&#x60;|&#x60;USER&#x60;|&#x60;VOLUME&#x60;|&#x60;WORKDIR&#x60; 
+     * @param platform Platform in the format os[/arch[/variant]].  When used in combination with the &#x60;fromImage&#x60; option, the daemon checks if the given image is present in the local image cache with the given OS and Architecture, and otherwise attempts to pull the image. If the option is not set, the host\&#39;s native OS and Architecture are used. If the given image does not exist in the local image cache, the daemon attempts to pull the image with the host\&#39;s native OS and Architecture. If the given image does exists in the local image cache, but its OS or architecture does not match, a warning is produced.  When used with the &#x60;fromSrc&#x60; option to import an image from an archive, this option sets the platform information for the imported image. If the option is not set, the host\&#39;s native OS and Architecture are used for the imported image. 
+     * @param inputImage Image content if the value &#x60;-&#x60; has been specified in fromSrc query parameter
+     */
+     public async imageCreate(options?: { 
+        fromImage?: string, 
+        fromSrc?: string, 
+        repo?: string, 
+        tag?: string, 
+        message?: string, 
+        xRegistryAuth?: string, 
+        changes?: Array<string>, 
+        platform?: string, 
+        inputImage?: string
+      }): Promise<void> {
+        // TODO xRegistryAuth?: string, 
+        return this.api.post('/images/create', {
+            fromImage: options?.fromImage, 
+            fromSrc: options?.fromSrc, 
+            repo: options?.repo, 
+            tag: options?.tag, 
+            message: options?.message, 
+            changes: options?.changes, 
+            platform: options?.platform, 
+            inputImage: options?.inputImage
+        });
+      }
+
+    /**
+     * Remove an image, along with any untagged parent images that were referenced by that image.  Images can\'t be removed if they have descendant images, are being used by a running container or are being used by a build. 
+     * Remove an image
+     * @param name Image name or ID
+     * @param force Remove the image even if it is being used by stopped containers or has other tags
+     * @param noprune Do not delete untagged parent images
+     * @param platforms Select platform-specific content to delete. Multiple values are accepted. Each platform is a OCI platform encoded as a JSON string. 
+     */
+    public async imageDelete(name: string, options?: { 
+        force?: boolean, 
+        noprune?: boolean, 
+        platforms?: Array<string>
+    }): Promise<Array<models.ImageDeleteResponseItem>> {
+        return this.api.delete(`/image/${name}`, options)
+    }
+
+    /**
+     * Return parent layers of an image.
+     * Get the history of an image
+     * @param name Image name or ID
+     * @param platform JSON-encoded OCI platform to select the platform-variant. If omitted, it defaults to any locally available platform, prioritizing the daemon\&#39;s host platform.  If the daemon provides a multi-platform image store, this selects the platform-variant to show the history for. If the image is a single-platform image, or if the multi-platform image does not provide a variant matching the given platform, an error is returned.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60; 
+     */
+    public async imageHistory(name: string, options?: {         
+        platform?: string
+    }): Promise<Array<models.HistoryResponseItem>> {
+            return this.api.get(`/image/${name}/history`, options);
+    }
+
+    /**
+     * Return low-level information about an image.
+     * Inspect an image
+     * @param name Image name or id
+     * @param manifests Include Manifests in the image summary.
+     */
+    public async imageInspect(name: string, options?: { 
+        manifests?: boolean
+    }): Promise<models.ImageInspect> {
+        return this.api.get(`/images/${name}/json`, options);
+    }
+
+    /**
+     * Returns a list of images on the server. Note that it uses a different, smaller representation of an image than inspecting a single image.
+     * List Images
+     * @param all Show all images. Only images from a final layer (no children) are shown by default.
+     * @param filters A JSON encoded value of the filters (a &#x60;map[string][]string&#x60;) to process on the images list.  Available filters:  - &#x60;before&#x60;&#x3D;(&#x60;&lt;image-name&gt;[:&lt;tag&gt;]&#x60;,  &#x60;&lt;image id&gt;&#x60; or &#x60;&lt;image@digest&gt;&#x60;) - &#x60;dangling&#x3D;true&#x60; - &#x60;label&#x3D;key&#x60; or &#x60;label&#x3D;\&quot;key&#x3D;value\&quot;&#x60; of an image label - &#x60;reference&#x60;&#x3D;(&#x60;&lt;image-name&gt;[:&lt;tag&gt;]&#x60;) - &#x60;since&#x60;&#x3D;(&#x60;&lt;image-name&gt;[:&lt;tag&gt;]&#x60;,  &#x60;&lt;image id&gt;&#x60; or &#x60;&lt;image@digest&gt;&#x60;) - &#x60;until&#x3D;&lt;timestamp&gt;&#x60; 
+     * @param sharedSize Compute and show shared size as a &#x60;SharedSize&#x60; field on each image.
+     * @param digests Show digest information as a &#x60;RepoDigests&#x60; field on each image.
+     * @param manifests Include &#x60;Manifests&#x60; in the image summary.
+     */
+    public async imageList(options?: { 
+        all?: boolean, 
+        filters?: Filter, 
+        sharedSize?: boolean, 
+        digests?: boolean, 
+        manifests?: boolean
+    }): Promise<Array<models.ImageSummary>> {
+        return this.api.get('/images/json', options);
     }
 }

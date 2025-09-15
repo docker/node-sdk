@@ -16,6 +16,14 @@ class UnauthorizedError extends Error {
     }
 }
 
+// Custom error class for 409 Conflict responses
+class ConflictError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'ConflictError';
+    }
+}
+
 // Function to extract error message from response body
 function getErrorMessage(status: string, headers: { [key: string]: string }, body: string | undefined): string {
     const contentType = headers['content-type']?.toLowerCase();
@@ -320,6 +328,8 @@ export class HTTPClient {
                                 reject(new NotFoundError(errorMessage));
                             } else if (statusCode === 401) {
                                 reject(new UnauthorizedError(errorMessage));
+                            } else if (statusCode === 409) {
+                                reject(new ConflictError(errorMessage));
                             } else {
                                 reject(new Error(errorMessage));
                             }
@@ -441,13 +451,8 @@ ${json}`;
         return this.handleResponse<T>(response);
     }
 
-    public async get<T>(uri: string, params?: Record<string, any>): Promise<T> {
-        const response = await this.sendHTTPRequest('GET', uri, { params: params });
-        return this.handleResponse<T>(response);
-    }
 
-
-    public async post<T>(uri: string, data?: object, params?: Record<string, any>, timeout?: number): Promise<T> {
+    public async post<T>(uri: string, params?: Record<string, any>, data?: object, timeout?: number): Promise<T> {
         const response = await this.sendHTTPRequest('POST', uri, { params: params, body: data, timeout: timeout });
         return this.handleResponse<T>(response);
     }    
@@ -458,4 +463,4 @@ ${json}`;
     }
 }
 
-export { HTTPResponse, NotFoundError, UnauthorizedError };
+export { HTTPResponse, NotFoundError, UnauthorizedError, ConflictError };
