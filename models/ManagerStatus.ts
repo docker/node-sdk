@@ -16,12 +16,12 @@ import { Reachability } from '../models/Reachability';
 * ManagerStatus represents the status of a manager.  It provides the current status of a node\'s manager component, if the node is a manager. 
 */
 export class ManagerStatus {
-    'leader'?: boolean;
-    'reachability'?: Reachability;
+    'Leader'?: boolean;
+    'Reachability'?: Reachability;
     /**
     * The IP address and port at which the manager is reachable. 
     */
-    'addr'?: string;
+    'Addr'?: string;
 }
 
 

@@ -15,5 +15,5 @@ export class NetworkPruneResponse {
     /**
     * Networks that were deleted
     */
-    'networksDeleted'?: Array<string>;
+    'NetworksDeleted'?: Array<string>;
 }

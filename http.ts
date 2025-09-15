@@ -2,8 +2,6 @@ import * as net from 'net';
 
 // Custom error class for 404 Not Found responses
 class NotFoundError extends Error {
-    public readonly statusCode: number = 404;
-    
     constructor(message: string) {
         super(message);
         this.name = 'NotFoundError';
@@ -12,8 +10,6 @@ class NotFoundError extends Error {
 
 // Custom error class for 401 Unauthorized responses
 class UnauthorizedError extends Error {
-    public readonly statusCode: number = 401;
-    
     constructor(message: string) {
         super(message);
         this.name = 'UnauthorizedError';
@@ -36,7 +32,7 @@ function getErrorMessage(status: string, headers: { [key: string]: string }, bod
     return status;
 }
 
-// Interface pour représenter une réponse HTTP
+// Interface to represent an HTTP response
 interface HTTPResponse {
     statusLine: string;
     statusCode: number;
@@ -44,7 +40,7 @@ interface HTTPResponse {
     body?: string;
 }
 
-// Classe pour parser les réponses HTTP
+// Class for parsing HTTP responses
 class HTTPParser {
     public static parseResponse(rawResponse: string): HTTPResponse {
         const lines = rawResponse.split('\r\n');
@@ -54,7 +50,7 @@ class HTTPParser {
         let headerEndIndex = -1;
         const headers: { [key: string]: string } = {};
         
-        // Trouver la fin des headers
+        // Find the end of headers
         for (let i = 1; i < lines.length; i++) {
             if (lines[i] === '') {
                 headerEndIndex = i;
@@ -86,7 +82,7 @@ class HTTPParser {
         let i = 0;
         
         while (i < lines.length) {
-            // Lire la taille du chunk (en hexadécimal)
+            // Read chunk size (in hexadecimal)
             const chunkSizeLine = lines[i].trim();
             if (!chunkSizeLine) {
                 i++;
@@ -100,9 +96,9 @@ class HTTPParser {
                 break;
             }
             
-            i++; // Passer à la ligne suivante (données du chunk)
+            i++; // Move to next line (chunk data)
             
-            // Collecter les données du chunk
+            // Collect chunk data
             let chunkData = '';
             let remainingSize = chunkSize;
             
@@ -115,7 +111,7 @@ class HTTPParser {
             }
             
             result += chunkData;
-            i++; // Passer la ligne vide après le chunk
+            i++; // Skip empty line after chunk
         }
         
         return result;
@@ -169,7 +165,12 @@ class HTTPParser {
     }
 }
 
-export class TCPClient {
+/**
+ * HTTPClient provides HTTP communication capabilities over TCP sockets.
+ * Supports GET, POST, and DELETE requests with query parameters and request bodies.
+ * Handles chunked transfer encoding and provides streaming response callbacks.
+ */
+export class HTTPClient {
     private socket: net.Socket;
 
     constructor(socket: net.Socket) {
@@ -178,26 +179,26 @@ export class TCPClient {
     }
 
     private setupEventHandlers(): void {
-        // Données reçues du serveur
+        // Data received from server
         this.socket.on('data', (data: Buffer) => {
             const response = data.toString('utf8');
             this.onDataReceived(response);
         });
 
-        // Gestion des erreurs
+        // Error handling
         this.socket.on('error', (error: Error) => {
             console.error('Error:', error.message);
         });
     }
 
-    // Callback appelé quand des données sont reçues
+    // Callback called when data is received
     private onDataReceived(data: string): void {
-        // Cette méthode peut être surchargée ou modifiée selon les besoins
-        // Par défaut, elle ne fait rien de plus que le log
+        // This method can be overridden or modified as needed
+        // By default, it does nothing more than logging
     }
 
-    // Méthode pour lire une réponse HTTP complète
-    public readHTTPResponse(timeout: number = 10000, chunkCallback?: (chunk: string) => void): Promise<HTTPResponse> {
+    // Method to read a complete HTTP response
+    public readHTTPResponse(timeout: number = 10000, callback?: (chunk: string) => void): Promise<HTTPResponse> {
         return new Promise((resolve, reject) => {
             let buffer = '';
             let timeoutId: NodeJS.Timeout;
@@ -265,13 +266,13 @@ export class TCPClient {
                     
                     if (isChunked) {
                         // Handle chunked transfer encoding
-                        if (chunkCallback) {
+                        if (callback) {
                             // Extract and process complete chunks
                             const { chunks, remainingBuffer } = HTTPParser.extractCompleteChunks(buffer);
                             buffer = remainingBuffer;
                             
                             // Invoke callback for each complete chunk
-                            chunks.forEach(chunk => chunkCallback(chunk));
+                            chunks.forEach(chunk => callback(chunk));
                         }
                         
                         // Check for end of chunked transfer (chunk of size 0)
@@ -296,7 +297,7 @@ export class TCPClient {
                         let body: string | undefined;
                         
                         // Only set body if no callback was provided
-                        if (!chunkCallback) {
+                        if (!callback) {
                             body = buffer;
                             
                             // Dechunk the body if necessary
@@ -334,7 +335,7 @@ export class TCPClient {
                     if (!resolved) {
                         resolved = true;
                         this.socket.off('data', dataHandler);
-                        reject(new Error('Timeout: réponse HTTP incomplète'));
+                        reject(new Error('Timeout: incomplete HTTP response'));
                     }
                 }, timeout);
             }
@@ -343,16 +344,16 @@ export class TCPClient {
         });
     }
 
-    // Méthode pour envoyer une requête HTTP et lire la réponse
-    public sendHTTPRequest(request: string, timeout: number = 10000, chunkCallback?: (chunk: string) => void): Promise<HTTPResponse> {
+    // Method to send a raw HTTP request and read the response
+    public sendHTTPRequestRaw(request: string, timeout: number = 10000, chunkCallback?: (chunk: string) => void): Promise<HTTPResponse> {
         return new Promise(async (resolve, reject) => {
             if (this.socket.destroyed) {
-                reject(new Error('Socket fermé'));
+                reject(new Error('Socket closed'));
                 return;
             }
 
             try {
-                // Envoyer la requête
+                // Send the request
                 await new Promise<void>((resolveWrite, rejectWrite) => {
                     this.socket.write(request, 'utf8', (error) => {
                         if (error) {
@@ -363,7 +364,7 @@ export class TCPClient {
                     });
                 });
 
-                // Lire la réponse
+                // Read the response
                 const response = await this.readHTTPResponse(timeout, chunkCallback);
                 resolve(response);
 
@@ -373,48 +374,83 @@ export class TCPClient {
         });
     }
 
-    public async get<T>(uri: string): Promise<T> {
-        return new Promise(async (resolve, reject) => {
-            this.sendHTTPRequest(`GET ${uri} HTTP/1.1
+    // Method to send an HTTP request with method, URI and parameters
+    public sendHTTPRequest(method: string, uri: string, options?: {
+        params?: Record<string, any>,
+        body?: object,
+        timeout?: number,
+        callback?: (data: string) => void,
+        accept?: string
+    }): Promise<HTTPResponse> {
+        const { params, body, timeout = 10000, callback, accept = 'application/json' } = options || {};
+        
+        const queryString = this.buildQueryString(params);
+        const fullUri = `${uri}${queryString}`;
+        
+        let request = `${method} ${fullUri} HTTP/1.1
 Host: host
 User-Agent: docker-ts/0.0.1
-Accept: application/json
+Accept: ${accept}
+`;
+        
+        if (body) {
+            const json = JSON.stringify(body);
+            request += `Content-type: application/json
+Content-length: ${json.length}
 
-`).then((response) => {
-                const contentType = response.headers['content-type']?.toLowerCase();
-                if (contentType?.includes('application/json')) {
-                    const parsedBody = JSON.parse(response.body);
-                    resolve(parsedBody as T);
+${json}`;
+        } else {
+            request += '\r\n';
+        }
+        
+        return this.sendHTTPRequestRaw(request, timeout, callback);
+    }
+
+    private handleResponse<T>(response: HTTPResponse): T {
+        const contentType = response.headers['content-type']?.toLowerCase();
+        if (contentType?.includes('application/json')) {
+            const parsedBody = JSON.parse(response.body);
+            return parsedBody as T;
+        } else {
+            return response.body as T;
+        }
+    }
+
+    private buildQueryString(params?: Record<string, any>): string {
+        if (!params || Object.keys(params).length === 0) {
+            return '';
+        }
+        
+        const searchParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                if (value && typeof value === 'object' && typeof value.toURLParameter === 'function') {
+                    searchParams.append(key, value.toURLParameter());
                 } else {
-                    resolve(response.body as T);
-                };            
-            }).catch(reject);
+                    searchParams.append(key, String(value));
+                }
+            }
         });
+        
+        const queryString = searchParams.toString();
+        return queryString ? `?${queryString}` : '';
+    }
+
+    public async get<T>(uri: string, params?: Record<string, any>): Promise<T> {
+        const response = await this.sendHTTPRequest('GET', uri, { params: params });
+        return this.handleResponse<T>(response);
     }
 
 
-    public async post<T>(uri: string, data: object): Promise<T> {
-        const json = JSON.stringify(data)
-        return new Promise(async (resolve, reject) => {
-            this.sendHTTPRequest(`POST ${uri} HTTP/1.1
-Host: host
-User-Agent: docker-ts/0.0.1
-Accept: application/json
-Content-type: application/json
-Content-length: ${json.length}
-
-${json}
-`).then((response) => {
-                const contentType = response.headers['content-type']?.toLowerCase();
-                if (contentType?.includes('application/json')) {
-                    const parsedBody = JSON.parse(response.body);
-                    resolve(parsedBody as T);
-                } else {
-                    resolve(response.body as T);
-                };            
-            }).catch(reject);
-        });
+    public async post<T>(uri: string, data?: object, params?: Record<string, any>, timeout?: number): Promise<T> {
+        const response = await this.sendHTTPRequest('POST', uri, { params: params, body: data, timeout: timeout });
+        return this.handleResponse<T>(response);
     }    
+
+    public async delete<T>(uri: string, params?: Record<string, any>): Promise<T> {
+        const response = await this.sendHTTPRequest('DELETE', uri, { params: params });
+        return this.handleResponse<T>(response);
+    }
 }
 
 export { HTTPResponse, NotFoundError, UnauthorizedError };

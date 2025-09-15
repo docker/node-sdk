@@ -19,12 +19,12 @@ import { TaskSpecContainerSpecPrivilegesSeccomp } from '../models/TaskSpecContai
 * Security options for the container
 */
 export class TaskSpecContainerSpecPrivileges {
-    'credentialSpec'?: TaskSpecContainerSpecPrivilegesCredentialSpec;
-    'sELinuxContext'?: TaskSpecContainerSpecPrivilegesSELinuxContext;
-    'seccomp'?: TaskSpecContainerSpecPrivilegesSeccomp;
-    'appArmor'?: TaskSpecContainerSpecPrivilegesAppArmor;
+    'CredentialSpec'?: TaskSpecContainerSpecPrivilegesCredentialSpec;
+    'SELinuxContext'?: TaskSpecContainerSpecPrivilegesSELinuxContext;
+    'Seccomp'?: TaskSpecContainerSpecPrivilegesSeccomp;
+    'AppArmor'?: TaskSpecContainerSpecPrivilegesAppArmor;
     /**
     * Configuration of the no_new_privs bit in the container
     */
-    'noNewPrivileges'?: boolean;
+    'NoNewPrivileges'?: boolean;
 }

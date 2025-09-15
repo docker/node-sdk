@@ -12,6 +12,6 @@
 
 
 export class ServiceEndpointVirtualIPsInner {
-    'networkID'?: string;
-    'addr'?: string;
+    'NetworkID'?: string;
+    'Addr'?: string;
 }

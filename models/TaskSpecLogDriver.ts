@@ -15,6 +15,6 @@
 * Specifies the log driver to use for tasks created from this spec. If not present, the default one for the swarm will be used, finally falling back to the engine default if not specified. 
 */
 export class TaskSpecLogDriver {
-    'name'?: string;
-    'options'?: { [key: string]: string; };
+    'Name'?: string;
+    'Options'?: { [key: string]: string; };
 }

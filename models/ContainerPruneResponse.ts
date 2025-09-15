@@ -15,9 +15,9 @@ export class ContainerPruneResponse {
     /**
     * Container IDs that were deleted
     */
-    'containersDeleted'?: Array<string>;
+    'ContainersDeleted'?: Array<string>;
     /**
     * Disk space reclaimed in bytes
     */
-    'spaceReclaimed'?: number;
+    'SpaceReclaimed'?: number;
 }

@@ -24,15 +24,15 @@ export class SwarmSpec {
     /**
     * Name of the swarm.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
-    'orchestration'?: SwarmSpecOrchestration | null;
-    'raft'?: SwarmSpecRaft;
-    'dispatcher'?: SwarmSpecDispatcher | null;
-    'cAConfig'?: SwarmSpecCAConfig | null;
-    'encryptionConfig'?: SwarmSpecEncryptionConfig;
-    'taskDefaults'?: SwarmSpecTaskDefaults;
+    'Labels'?: { [key: string]: string; };
+    'Orchestration'?: SwarmSpecOrchestration | null;
+    'Raft'?: SwarmSpecRaft;
+    'Dispatcher'?: SwarmSpecDispatcher | null;
+    'CAConfig'?: SwarmSpecCAConfig | null;
+    'EncryptionConfig'?: SwarmSpecEncryptionConfig;
+    'TaskDefaults'?: SwarmSpecTaskDefaults;
 }

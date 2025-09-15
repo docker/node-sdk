@@ -17,11 +17,11 @@ import { ServiceSpecModeReplicatedJob } from '../models/ServiceSpecModeReplicate
 * Scheduling mode for the service.
 */
 export class ServiceSpecMode {
-    'replicated'?: ServiceSpecModeReplicated;
-    'global'?: any;
-    'replicatedJob'?: ServiceSpecModeReplicatedJob;
+    'Replicated'?: ServiceSpecModeReplicated;
+    'Global'?: any;
+    'ReplicatedJob'?: ServiceSpecModeReplicatedJob;
     /**
     * The mode used for services which run a task to the completed state on each valid node. 
     */
-    'globalJob'?: any;
+    'GlobalJob'?: any;
 }

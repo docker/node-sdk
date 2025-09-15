@@ -15,19 +15,19 @@ export class NodeSpec {
     /**
     * Name for the node.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
+    'Labels'?: { [key: string]: string; };
     /**
     * Role of the node.
     */
-    'role'?: NodeSpecRoleEnum;
+    'Role'?: NodeSpecRoleEnum;
     /**
     * Availability of the node.
     */
-    'availability'?: NodeSpecAvailabilityEnum;
+    'Availability'?: NodeSpecAvailabilityEnum;
 }
 
 export enum NodeSpecRoleEnum {

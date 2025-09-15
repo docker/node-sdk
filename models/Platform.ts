@@ -18,7 +18,7 @@ export class Platform {
     /**
     * Architecture represents the hardware architecture (for example, `x86_64`). 
     */
-    'architecture'?: string;
+    'Architecture'?: string;
     /**
     * OS represents the Operating System (for example, `linux` or `windows`). 
     */

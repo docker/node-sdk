@@ -15,7 +15,7 @@
 * EndpointIPAMConfig represents an endpoint\'s IPAM configuration. 
 */
 export class EndpointIPAMConfig {
-    'iPv4Address'?: string;
-    'iPv6Address'?: string;
-    'linkLocalIPs'?: Array<string>;
+    'IPv4Address'?: string;
+    'IPv6Address'?: string;
+    'LinkLocalIPs'?: Array<string>;
 }

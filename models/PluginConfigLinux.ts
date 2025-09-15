@@ -13,7 +13,7 @@
 import { PluginDevice } from '../models/PluginDevice';
 
 export class PluginConfigLinux {
-    'capabilities': Array<string>;
-    'allowAllDevices': boolean;
-    'devices': Array<PluginDevice>;
+    'Capabilities': Array<string>;
+    'AllowAllDevices': boolean;
+    'Devices': Array<PluginDevice>;
 }

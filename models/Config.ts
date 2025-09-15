@@ -15,8 +15,8 @@ import { ObjectVersion } from '../models/ObjectVersion';
 
 export class Config {
     'ID'?: string;
-    'version'?: ObjectVersion;
-    'createdAt'?: string;
-    'updatedAt'?: string;
-    'spec'?: ConfigSpec;
+    'Version'?: ObjectVersion;
+    'CreatedAt'?: string;
+    'UpdatedAt'?: string;
+    'Spec'?: ConfigSpec;
 }

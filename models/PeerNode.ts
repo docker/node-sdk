@@ -18,9 +18,9 @@ export class PeerNode {
     /**
     * Unique identifier of for this node in the swarm.
     */
-    'nodeID'?: string;
+    'NodeID'?: string;
     /**
     * IP address and ports at which this node can be reached. 
     */
-    'addr'?: string;
+    'Addr'?: string;
 }

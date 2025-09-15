@@ -18,13 +18,13 @@ export class TLSInfo {
     /**
     * The root CA certificate(s) that are used to validate leaf TLS certificates. 
     */
-    'trustRoot'?: string;
+    'TrustRoot'?: string;
     /**
     * The base64-url-safe-encoded raw subject bytes of the issuer.
     */
-    'certIssuerSubject'?: string;
+    'CertIssuerSubject'?: string;
     /**
     * The base64-url-safe-encoded raw public key bytes of the issuer. 
     */
-    'certIssuerPublicKey'?: string;
+    'CertIssuerPublicKey'?: string;
 }

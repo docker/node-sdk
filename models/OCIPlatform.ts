@@ -18,21 +18,21 @@ export class OCIPlatform {
     /**
     * The CPU architecture, for example `amd64` or `ppc64`. 
     */
-    'architecture'?: string;
+    'Architecture'?: string;
     /**
     * The operating system, for example `linux` or `windows`. 
     */
-    'os'?: string;
+    'Os'?: string;
     /**
     * Optional field specifying the operating system version, for example on Windows `10.0.19041.1165`. 
     */
-    'osVersion'?: string;
+    'OsVersion'?: string;
     /**
     * Optional field specifying an array of strings, each listing a required OS feature (for example on Windows `win32k`). 
     */
-    'osFeatures'?: Array<string>;
+    'OsFeatures'?: Array<string>;
     /**
     * Optional field specifying a variant of the CPU, for example `v7` to specify ARMv7 when architecture is `arm`. 
     */
-    'variant'?: string;
+    'Variant'?: string;
 }

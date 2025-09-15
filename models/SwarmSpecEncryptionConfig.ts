@@ -18,5 +18,5 @@ export class SwarmSpecEncryptionConfig {
     /**
     * If set, generate a key and use it to lock data stored on the managers. 
     */
-    'autoLockManagers'?: boolean;
+    'AutoLockManagers'?: boolean;
 }

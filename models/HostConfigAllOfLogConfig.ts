@@ -18,11 +18,11 @@ export class HostConfigAllOfLogConfig {
     /**
     * Name of the logging driver used for the container or \"none\" if logging is disabled.
     */
-    'type'?: HostConfigAllOfLogConfigTypeEnum;
+    'Type'?: HostConfigAllOfLogConfigTypeEnum;
     /**
     * Driver-specific configuration options for the logging driver.
     */
-    'config'?: { [key: string]: string; };
+    'Config'?: { [key: string]: string; };
 }
 
 export enum HostConfigAllOfLogConfigTypeEnum {

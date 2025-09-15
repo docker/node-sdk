@@ -18,21 +18,21 @@ export class TaskSpecContainerSpecPrivilegesSELinuxContext {
     /**
     * Disable SELinux
     */
-    'disable'?: boolean;
+    'Disable'?: boolean;
     /**
     * SELinux user label
     */
-    'user'?: string;
+    'User'?: string;
     /**
     * SELinux role label
     */
-    'role'?: string;
+    'Role'?: string;
     /**
     * SELinux type label
     */
-    'type'?: string;
+    'Type'?: string;
     /**
     * SELinux level label
     */
-    'level'?: string;
+    'Level'?: string;
 }

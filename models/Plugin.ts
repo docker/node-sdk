@@ -17,16 +17,16 @@ import { PluginSettings } from '../models/PluginSettings';
 * A plugin for the Engine API
 */
 export class Plugin {
-    'id'?: string;
-    'name': string;
+    'Id'?: string;
+    'Name': string;
     /**
     * True if the plugin is running. False if the plugin is not running, only installed.
     */
-    'enabled': boolean;
-    'settings': PluginSettings;
+    'Enabled': boolean;
+    'Settings': PluginSettings;
     /**
     * plugin remote reference used to push/pull the plugin
     */
-    'pluginReference'?: string;
-    'config': PluginConfig;
+    'PluginReference'?: string;
+    'Config': PluginConfig;
 }

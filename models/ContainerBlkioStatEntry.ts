@@ -15,8 +15,8 @@
 * Blkio stats entry.  This type is Linux-specific and omitted for Windows containers. 
 */
 export class ContainerBlkioStatEntry {
-    'major'?: number;
-    'minor'?: number;
-    'op'?: string;
-    'value'?: number;
+    'Major'?: number;
+    'Minor'?: number;
+    'Op'?: string;
+    'Value'?: number;
 }

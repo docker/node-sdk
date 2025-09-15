@@ -18,9 +18,9 @@ export class ContainerdInfoNamespaces {
     /**
     * The default containerd namespace used for containers managed by the daemon.  The default namespace for containers is \"moby\", but will be suffixed with the `<uid>.<gid>` of the remapped `root` if user-namespaces are enabled and the containerd image-store is used. 
     */
-    'containers'?: string;
+    'Containers'?: string;
     /**
     * The default containerd namespace used for plugins managed by the daemon.  The default namespace for plugins is \"plugins.moby\", but will be suffixed with the `<uid>.<gid>` of the remapped `root` if user-namespaces are enabled and the containerd image-store is used. 
     */
-    'plugins'?: string;
+    'Plugins'?: string;
 }

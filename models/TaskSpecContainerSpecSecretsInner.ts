@@ -13,13 +13,13 @@
 import { TaskSpecContainerSpecSecretsInnerFile } from '../models/TaskSpecContainerSpecSecretsInnerFile';
 
 export class TaskSpecContainerSpecSecretsInner {
-    'file'?: TaskSpecContainerSpecSecretsInnerFile;
+    'File'?: TaskSpecContainerSpecSecretsInnerFile;
     /**
     * SecretID represents the ID of the specific secret that we\'re referencing. 
     */
-    'secretID'?: string;
+    'SecretID'?: string;
     /**
     * SecretName is the name of the secret that this references, but this is just provided for lookup/display purposes. The secret in the reference will be identified by its ID. 
     */
-    'secretName'?: string;
+    'SecretName'?: string;
 }

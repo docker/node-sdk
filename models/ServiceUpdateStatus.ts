@@ -15,10 +15,10 @@
 * The status of a service update.
 */
 export class ServiceUpdateStatus {
-    'state'?: ServiceUpdateStatusStateEnum;
-    'startedAt'?: string;
-    'completedAt'?: string;
-    'message'?: string;
+    'State'?: ServiceUpdateStatusStateEnum;
+    'StartedAt'?: string;
+    'CompletedAt'?: string;
+    'Message'?: string;
 }
 
 export enum ServiceUpdateStatusStateEnum {

@@ -22,5 +22,5 @@ export class ServiceCreateResponse {
     /**
     * Optional warning message.  FIXME(thaJeztah): this should have \"omitempty\" in the generated type. 
     */
-    'warnings'?: Array<string> | null;
+    'Warnings'?: Array<string> | null;
 }

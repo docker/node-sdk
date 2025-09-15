@@ -17,7 +17,7 @@ import { NetworkTaskInfo } from '../models/NetworkTaskInfo';
 */
 export class ServiceInfo {
     'VIP'?: string;
-    'ports'?: Array<string>;
-    'localLBIndex'?: number;
-    'tasks'?: Array<NetworkTaskInfo>;
+    'Ports'?: Array<string>;
+    'LocalLBIndex'?: number;
+    'Tasks'?: Array<NetworkTaskInfo>;
 }

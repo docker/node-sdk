@@ -23,23 +23,23 @@ import { TaskSpecRestartPolicy } from '../models/TaskSpecRestartPolicy';
 * User modifiable task configuration.
 */
 export class TaskSpec {
-    'pluginSpec'?: TaskSpecPluginSpec;
-    'containerSpec'?: TaskSpecContainerSpec;
-    'networkAttachmentSpec'?: TaskSpecNetworkAttachmentSpec;
-    'resources'?: TaskSpecResources;
-    'restartPolicy'?: TaskSpecRestartPolicy;
-    'placement'?: TaskSpecPlacement;
+    'PluginSpec'?: TaskSpecPluginSpec;
+    'ContainerSpec'?: TaskSpecContainerSpec;
+    'NetworkAttachmentSpec'?: TaskSpecNetworkAttachmentSpec;
+    'Resources'?: TaskSpecResources;
+    'RestartPolicy'?: TaskSpecRestartPolicy;
+    'Placement'?: TaskSpecPlacement;
     /**
     * A counter that triggers an update even if no relevant parameters have been changed. 
     */
-    'forceUpdate'?: number;
+    'ForceUpdate'?: number;
     /**
     * Runtime is the type of runtime specified for the task executor. 
     */
-    'runtime'?: string;
+    'Runtime'?: string;
     /**
     * Specifies which networks the service should attach to.
     */
-    'networks'?: Array<NetworkAttachmentConfig>;
-    'logDriver'?: TaskSpecLogDriver;
+    'Networks'?: Array<NetworkAttachmentConfig>;
+    'LogDriver'?: TaskSpecLogDriver;
 }

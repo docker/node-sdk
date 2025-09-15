@@ -15,5 +15,5 @@ export class ServiceUpdateResponse {
     /**
     * Optional warning messages
     */
-    'warnings'?: Array<string>;
+    'Warnings'?: Array<string>;
 }

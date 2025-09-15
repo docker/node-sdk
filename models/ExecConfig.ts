@@ -15,45 +15,45 @@ export class ExecConfig {
     /**
     * Attach to `stdin` of the exec command.
     */
-    'attachStdin'?: boolean;
+    'AttachStdin'?: boolean;
     /**
     * Attach to `stdout` of the exec command.
     */
-    'attachStdout'?: boolean;
+    'AttachStdout'?: boolean;
     /**
     * Attach to `stderr` of the exec command.
     */
-    'attachStderr'?: boolean;
+    'AttachStderr'?: boolean;
     /**
     * Initial console size, as an `[height, width]` array.
     */
-    'consoleSize'?: Array<number> | null;
+    'ConsoleSize'?: Array<number> | null;
     /**
     * Override the key sequence for detaching a container. Format is a single character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`, `@`, `^`, `[`, `,` or `_`. 
     */
-    'detachKeys'?: string;
+    'DetachKeys'?: string;
     /**
     * Allocate a pseudo-TTY.
     */
-    'tty'?: boolean;
+    'Tty'?: boolean;
     /**
     * A list of environment variables in the form `[\"VAR=value\", ...]`. 
     */
-    'env'?: Array<string>;
+    'Env'?: Array<string>;
     /**
     * Command to run, as a string or array of strings.
     */
-    'cmd'?: Array<string>;
+    'Cmd'?: Array<string>;
     /**
     * Runs the exec process with extended privileges.
     */
-    'privileged'?: boolean;
+    'Privileged'?: boolean;
     /**
     * The user, and optionally, group to run the exec process inside the container. Format is one of: `user`, `user:group`, `uid`, or `uid:gid`. 
     */
-    'user'?: string;
+    'User'?: string;
     /**
     * The working directory for the exec process inside the container. 
     */
-    'workingDir'?: string;
+    'WorkingDir'?: string;
 }

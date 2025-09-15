@@ -16,5 +16,5 @@ import { EndpointPortConfig } from '../models/EndpointPortConfig';
 * represents the port status of a task\'s host ports whose service has published host ports
 */
 export class PortStatus {
-    'ports'?: Array<EndpointPortConfig>;
+    'Ports'?: Array<EndpointPortConfig>;
 }

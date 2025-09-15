@@ -18,15 +18,15 @@ export class DeviceRequest {
     /**
     * The name of the device driver to use for this request.  Note that if this is specified the capabilities are ignored when selecting a device driver. 
     */
-    'driver'?: string;
-    'count'?: number;
-    'deviceIDs'?: Array<string>;
+    'Driver'?: string;
+    'Count'?: number;
+    'DeviceIDs'?: Array<string>;
     /**
     * A list of capabilities; an OR list of AND lists of capabilities.  Note that if a driver is specified the capabilities have no effect on selecting a driver as the driver name is used directly.  Note that if no driver is specified the capabilities are used to select a driver with the required capabilities. 
     */
-    'capabilities'?: Array<Array<string>>;
+    'Capabilities'?: Array<Array<string>>;
     /**
     * Driver-specific options, specified as a key/value pairs. These options are passed directly to the driver. 
     */
-    'options'?: { [key: string]: string; };
+    'Options'?: { [key: string]: string; };
 }

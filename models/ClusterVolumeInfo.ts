@@ -18,17 +18,17 @@ export class ClusterVolumeInfo {
     /**
     * The capacity of the volume in bytes. A value of 0 indicates that the capacity is unknown. 
     */
-    'capacityBytes'?: number;
+    'CapacityBytes'?: number;
     /**
     * A map of strings to strings returned from the storage plugin when the volume is created. 
     */
-    'volumeContext'?: { [key: string]: string; };
+    'VolumeContext'?: { [key: string]: string; };
     /**
     * The ID of the volume as returned by the CSI storage plugin. This is distinct from the volume\'s ID as provided by Docker. This ID is never used by the user when communicating with Docker to refer to this volume. If the ID is blank, then the Volume has not been successfully created in the plugin yet. 
     */
-    'volumeID'?: string;
+    'VolumeID'?: string;
     /**
     * The topology this volume is actually accessible from. 
     */
-    'accessibleTopology'?: Array<{ [key: string]: string; }>;
+    'AccessibleTopology'?: Array<{ [key: string]: string; }>;
 }

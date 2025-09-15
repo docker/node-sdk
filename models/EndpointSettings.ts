@@ -16,55 +16,55 @@ import { EndpointIPAMConfig } from '../models/EndpointIPAMConfig';
 * Configuration for a network endpoint.
 */
 export class EndpointSettings {
-    'iPAMConfig'?: EndpointIPAMConfig | null;
-    'links'?: Array<string>;
+    'IPAMConfig'?: EndpointIPAMConfig | null;
+    'Links'?: Array<string>;
     /**
     * MAC address for the endpoint on this network. The network driver might ignore this parameter. 
     */
-    'macAddress'?: string;
-    'aliases'?: Array<string>;
+    'MacAddress'?: string;
+    'Aliases'?: Array<string>;
     /**
     * DriverOpts is a mapping of driver options and values. These options are passed directly to the driver and are driver specific. 
     */
-    'driverOpts'?: { [key: string]: string; } | null;
+    'DriverOpts'?: { [key: string]: string; } | null;
     /**
     * This property determines which endpoint will provide the default gateway for a container. The endpoint with the highest priority will be used. If multiple endpoints have the same priority, endpoints are lexicographically sorted based on their network name, and the one that sorts first is picked. 
     */
-    'gwPriority'?: number;
+    'GwPriority'?: number;
     /**
     * Unique ID of the network. 
     */
-    'networkID'?: string;
+    'NetworkID'?: string;
     /**
     * Unique ID for the service endpoint in a Sandbox. 
     */
-    'endpointID'?: string;
+    'EndpointID'?: string;
     /**
     * Gateway address for this network. 
     */
-    'gateway'?: string;
+    'Gateway'?: string;
     /**
     * IPv4 address. 
     */
-    'iPAddress'?: string;
+    'IPAddress'?: string;
     /**
     * Mask length of the IPv4 address. 
     */
-    'iPPrefixLen'?: number;
+    'IPPrefixLen'?: number;
     /**
     * IPv6 gateway address. 
     */
-    'iPv6Gateway'?: string;
+    'IPv6Gateway'?: string;
     /**
     * Global IPv6 address. 
     */
-    'globalIPv6Address'?: string;
+    'GlobalIPv6Address'?: string;
     /**
     * Mask length of the global IPv6 address. 
     */
-    'globalIPv6PrefixLen'?: number;
+    'GlobalIPv6PrefixLen'?: number;
     /**
     * List of all DNS names an endpoint has on a specific network. This list is based on the container name, network aliases, container short ID, and hostname.  These DNS names are non-fully qualified but can contain several dots. You can get fully qualified DNS names by appending `.<network-name>`. For instance, if container name is `my.ctr` and the network is named `testnet`, `DNSNames` will contain `my.ctr` and the FQDN will be `my.ctr.testnet`. 
     */
-    'dNSNames'?: Array<string>;
+    'DNSNames'?: Array<string>;
 }

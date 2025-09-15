@@ -15,9 +15,9 @@ export class VolumePruneResponse {
     /**
     * Volumes that were deleted
     */
-    'volumesDeleted'?: Array<string>;
+    'VolumesDeleted'?: Array<string>;
     /**
     * Disk space reclaimed in bytes
     */
-    'spaceReclaimed'?: number;
+    'SpaceReclaimed'?: number;
 }

@@ -18,5 +18,5 @@ export class ContainerWaitExitError {
     /**
     * Details of an error
     */
-    'message'?: string;
+    'Message'?: string;
 }

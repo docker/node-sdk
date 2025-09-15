@@ -12,20 +12,20 @@
 
 
 export class EndpointPortConfig {
-    'name'?: string;
-    'protocol'?: EndpointPortConfigProtocolEnum;
+    'Name'?: string;
+    'Protocol'?: EndpointPortConfigProtocolEnum;
     /**
     * The port inside the container.
     */
-    'targetPort'?: number;
+    'TargetPort'?: number;
     /**
     * The port on the swarm hosts.
     */
-    'publishedPort'?: number;
+    'PublishedPort'?: number;
     /**
     * The mode in which port is published.  <p><br /></p>  - \"ingress\" makes the target port accessible on every node,   regardless of whether there is a task for the service running on   that node or not. - \"host\" bypasses the routing mesh and publish the port directly on   the swarm node where that service is running. 
     */
-    'publishMode'?: EndpointPortConfigPublishModeEnum;
+    'PublishMode'?: EndpointPortConfigPublishModeEnum;
 }
 
 export enum EndpointPortConfigProtocolEnum {

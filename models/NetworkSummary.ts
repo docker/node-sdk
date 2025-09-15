@@ -21,59 +21,59 @@ export class NetworkSummary {
     /**
     * Name of the network. 
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * ID that uniquely identifies a network on a single machine. 
     */
-    'id'?: string;
+    'Id'?: string;
     /**
     * Date and time at which the network was created in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
     */
-    'created'?: string;
+    'Created'?: string;
     /**
     * The level at which the network exists (e.g. `swarm` for cluster-wide or `local` for machine level) 
     */
-    'scope'?: string;
+    'Scope'?: string;
     /**
     * The name of the driver used to create the network (e.g. `bridge`, `overlay`). 
     */
-    'driver'?: string;
+    'Driver'?: string;
     /**
     * Whether the network was created with IPv4 enabled. 
     */
-    'enableIPv4'?: boolean;
+    'EnableIPv4'?: boolean;
     /**
     * Whether the network was created with IPv6 enabled. 
     */
-    'enableIPv6'?: boolean;
+    'EnableIPv6'?: boolean;
     'IPAM'?: IPAM;
     /**
     * Whether the network is created to only allow internal networking connectivity. 
     */
-    'internal'?: boolean;
+    'Internal'?: boolean;
     /**
     * Whether a global / swarm scope network is manually attachable by regular containers from workers in swarm mode. 
     */
-    'attachable'?: boolean;
+    'Attachable'?: boolean;
     /**
     * Whether the network is providing the routing-mesh for the swarm cluster. 
     */
-    'ingress'?: boolean;
-    'configFrom'?: ConfigReference;
+    'Ingress'?: boolean;
+    'ConfigFrom'?: ConfigReference;
     /**
     * Whether the network is a config-only network. Config-only networks are placeholder networks for network configurations to be used by other networks. Config-only networks cannot be used directly to run containers or services. 
     */
-    'configOnly'?: boolean;
+    'ConfigOnly'?: boolean;
     /**
     * Network-specific options uses when creating the network. 
     */
-    'options'?: { [key: string]: string; };
+    'Options'?: { [key: string]: string; };
     /**
     * Metadata specific to the network being created. 
     */
-    'labels'?: { [key: string]: string; };
+    'Labels'?: { [key: string]: string; };
     /**
     * List of peer nodes for an overlay network. This field is only present for overlay networks, and omitted for other network types. 
     */
-    'peers'?: Array<PeerInfo>;
+    'Peers'?: Array<PeerInfo>;
 }

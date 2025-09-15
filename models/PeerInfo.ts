@@ -18,7 +18,7 @@ export class PeerInfo {
     /**
     * ID of the peer-node in the Swarm cluster.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * IP-address of the peer-node in the Swarm cluster.
     */

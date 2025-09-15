@@ -18,13 +18,13 @@ export class MountTmpfsOptions {
     /**
     * The size for the tmpfs mount in bytes.
     */
-    'sizeBytes'?: number;
+    'SizeBytes'?: number;
     /**
     * The permission mode for the tmpfs mount in an integer.
     */
-    'mode'?: number;
+    'Mode'?: number;
     /**
     * The options to be passed to the tmpfs mount. An array of arrays. Flag options should be provided as 1-length arrays. Other types should be provided as as 2-length arrays, where the first item is the key and the second the value. 
     */
-    'options'?: Array<Array<string>>;
+    'Options'?: Array<Array<string>>;
 }

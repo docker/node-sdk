@@ -17,8 +17,8 @@ import { PluginMount } from '../models/PluginMount';
 * user-configurable settings for the plugin.
 */
 export class PluginSettings {
-    'mounts': Array<PluginMount>;
-    'env': Array<string>;
-    'args': Array<string>;
-    'devices': Array<PluginDevice>;
+    'Mounts': Array<PluginMount>;
+    'Env': Array<string>;
+    'Args': Array<string>;
+    'Devices': Array<PluginDevice>;
 }

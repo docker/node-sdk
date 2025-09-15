@@ -15,7 +15,7 @@ import { EndpointSpec } from '../models/EndpointSpec';
 import { ServiceEndpointVirtualIPsInner } from '../models/ServiceEndpointVirtualIPsInner';
 
 export class ServiceEndpoint {
-    'spec'?: EndpointSpec;
-    'ports'?: Array<EndpointPortConfig>;
-    'virtualIPs'?: Array<ServiceEndpointVirtualIPsInner>;
+    'Spec'?: EndpointSpec;
+    'Ports'?: Array<EndpointPortConfig>;
+    'VirtualIPs'?: Array<ServiceEndpointVirtualIPsInner>;
 }

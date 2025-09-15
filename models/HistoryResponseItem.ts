@@ -15,10 +15,10 @@
 * individual image layer information in response to ImageHistory operation
 */
 export class HistoryResponseItem {
-    'id': string;
-    'created': number;
-    'createdBy': string;
-    'tags': Array<string>;
-    'size': number;
-    'comment': string;
+    'Id': string;
+    'Created': number;
+    'CreatedBy': string;
+    'Tags': Array<string>;
+    'Size': number;
+    'Comment': string;
 }

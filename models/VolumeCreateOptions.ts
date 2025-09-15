@@ -19,18 +19,18 @@ export class VolumeCreateOptions {
     /**
     * The new volume\'s name. If not specified, Docker generates a name. 
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * Name of the volume driver to use.
     */
-    'driver'?: string;
+    'Driver'?: string;
     /**
     * A mapping of driver options and values. These options are passed directly to the driver and are driver specific. 
     */
-    'driverOpts'?: { [key: string]: string; };
+    'DriverOpts'?: { [key: string]: string; };
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
-    'clusterVolumeSpec'?: ClusterVolumeSpec;
+    'Labels'?: { [key: string]: string; };
+    'ClusterVolumeSpec'?: ClusterVolumeSpec;
 }

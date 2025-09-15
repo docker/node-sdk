@@ -12,6 +12,6 @@
 
 
 export class ResourcesBlkioWeightDeviceInner {
-    'path'?: string;
-    'weight'?: number;
+    'Path'?: string;
+    'Weight'?: number;
 }

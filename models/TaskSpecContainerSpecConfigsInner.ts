@@ -13,17 +13,17 @@
 import { TaskSpecContainerSpecConfigsInnerFile } from '../models/TaskSpecContainerSpecConfigsInnerFile';
 
 export class TaskSpecContainerSpecConfigsInner {
-    'file'?: TaskSpecContainerSpecConfigsInnerFile;
+    'File'?: TaskSpecContainerSpecConfigsInnerFile;
     /**
     * Runtime represents a target that is not mounted into the container but is used by the task  <p><br /><p>  > **Note**: `Configs.File` and `Configs.Runtime` are mutually > exclusive 
     */
-    'runtime'?: any;
+    'Runtime'?: any;
     /**
     * ConfigID represents the ID of the specific config that we\'re referencing. 
     */
-    'configID'?: string;
+    'ConfigID'?: string;
     /**
     * ConfigName is the name of the config that this references, but this is just provided for lookup/display purposes. The config in the reference will be identified by its ID. 
     */
-    'configName'?: string;
+    'ConfigName'?: string;
 }

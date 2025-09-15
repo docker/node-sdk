@@ -18,9 +18,9 @@ export class ServiceSpecModeReplicatedJob {
     /**
     * The maximum number of replicas to run simultaneously. 
     */
-    'maxConcurrent'?: number;
+    'MaxConcurrent'?: number;
     /**
     * The total number of replicas desired to reach the Completed state. If unset, will default to the value of `MaxConcurrent` 
     */
-    'totalCompletions'?: number;
+    'TotalCompletions'?: number;
 }

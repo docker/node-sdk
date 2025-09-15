@@ -19,9 +19,9 @@ import { TLSInfo } from '../models/TLSInfo';
 * NodeDescription encapsulates the properties of the Node as reported by the agent. 
 */
 export class NodeDescription {
-    'hostname'?: string;
-    'platform'?: Platform;
-    'resources'?: ResourceObject;
-    'engine'?: EngineDescription;
-    'tLSInfo'?: TLSInfo;
+    'Hostname'?: string;
+    'Platform'?: Platform;
+    'Resources'?: ResourceObject;
+    'Engine'?: EngineDescription;
+    'TLSInfo'?: TLSInfo;
 }

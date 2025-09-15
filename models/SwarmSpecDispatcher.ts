@@ -18,5 +18,5 @@ export class SwarmSpecDispatcher {
     /**
     * The delay for an agent to send a heartbeat to the dispatcher. 
     */
-    'heartbeatPeriod'?: number;
+    'HeartbeatPeriod'?: number;
 }

@@ -25,40 +25,40 @@ export class TaskSpecContainerSpec {
     /**
     * The image name to use for the container
     */
-    'image'?: string;
+    'Image'?: string;
     /**
     * User-defined key/value data.
     */
-    'labels'?: { [key: string]: string; };
+    'Labels'?: { [key: string]: string; };
     /**
     * The command to be run in the image.
     */
-    'command'?: Array<string>;
+    'Command'?: Array<string>;
     /**
     * Arguments to the command.
     */
-    'args'?: Array<string>;
+    'Args'?: Array<string>;
     /**
     * The hostname to use for the container, as a valid [RFC 1123](https://tools.ietf.org/html/rfc1123) hostname. 
     */
-    'hostname'?: string;
+    'Hostname'?: string;
     /**
     * A list of environment variables in the form `VAR=value`. 
     */
-    'env'?: Array<string>;
+    'Env'?: Array<string>;
     /**
     * The working directory for commands to run in.
     */
-    'dir'?: string;
+    'Dir'?: string;
     /**
     * The user inside the container.
     */
-    'user'?: string;
+    'User'?: string;
     /**
     * A list of additional groups that the container process will run as. 
     */
-    'groups'?: Array<string>;
-    'privileges'?: TaskSpecContainerSpecPrivileges;
+    'Groups'?: Array<string>;
+    'Privileges'?: TaskSpecContainerSpecPrivileges;
     /**
     * Whether a pseudo-TTY should be allocated.
     */
@@ -66,65 +66,65 @@ export class TaskSpecContainerSpec {
     /**
     * Open `stdin`
     */
-    'openStdin'?: boolean;
+    'OpenStdin'?: boolean;
     /**
     * Mount the container\'s root filesystem as read only.
     */
-    'readOnly'?: boolean;
+    'ReadOnly'?: boolean;
     /**
     * Specification for mounts to be added to containers created as part of the service. 
     */
-    'mounts'?: Array<Mount>;
+    'Mounts'?: Array<Mount>;
     /**
     * Signal to stop the container.
     */
-    'stopSignal'?: string;
+    'StopSignal'?: string;
     /**
     * Amount of time to wait for the container to terminate before forcefully killing it. 
     */
-    'stopGracePeriod'?: number;
-    'healthCheck'?: HealthConfig;
+    'StopGracePeriod'?: number;
+    'HealthCheck'?: HealthConfig;
     /**
     * A list of hostname/IP mappings to add to the container\'s `hosts` file. The format of extra hosts is specified in the [hosts(5)](http://man7.org/linux/man-pages/man5/hosts.5.html) man page:      IP_address canonical_hostname [aliases...] 
     */
-    'hosts'?: Array<string>;
-    'dNSConfig'?: TaskSpecContainerSpecDNSConfig;
+    'Hosts'?: Array<string>;
+    'DNSConfig'?: TaskSpecContainerSpecDNSConfig;
     /**
     * Secrets contains references to zero or more secrets that will be exposed to the service. 
     */
-    'secrets'?: Array<TaskSpecContainerSpecSecretsInner>;
+    'Secrets'?: Array<TaskSpecContainerSpecSecretsInner>;
     /**
     * An integer value containing the score given to the container in order to tune OOM killer preferences. 
     */
-    'oomScoreAdj'?: number;
+    'OomScoreAdj'?: number;
     /**
     * Configs contains references to zero or more configs that will be exposed to the service. 
     */
-    'configs'?: Array<TaskSpecContainerSpecConfigsInner>;
+    'Configs'?: Array<TaskSpecContainerSpecConfigsInner>;
     /**
     * Isolation technology of the containers running the service. (Windows only) 
     */
-    'isolation'?: TaskSpecContainerSpecIsolationEnum;
+    'Isolation'?: TaskSpecContainerSpecIsolationEnum;
     /**
     * Run an init inside the container that forwards signals and reaps processes. This field is omitted if empty, and the default (as configured on the daemon) is used. 
     */
-    'init'?: boolean | null;
+    'Init'?: boolean | null;
     /**
     * Set kernel namedspaced parameters (sysctls) in the container. The Sysctls option on services accepts the same sysctls as the are supported on containers. Note that while the same sysctls are supported, no guarantees or checks are made about their suitability for a clustered environment, and it\'s up to the user to determine whether a given sysctl will work properly in a Service. 
     */
-    'sysctls'?: { [key: string]: string; };
+    'Sysctls'?: { [key: string]: string; };
     /**
     * A list of kernel capabilities to add to the default set for the container. 
     */
-    'capabilityAdd'?: Array<string>;
+    'CapabilityAdd'?: Array<string>;
     /**
     * A list of kernel capabilities to drop from the default set for the container. 
     */
-    'capabilityDrop'?: Array<string>;
+    'CapabilityDrop'?: Array<string>;
     /**
     * A list of resource limits to set in the container. For example: `{\"Name\": \"nofile\", \"Soft\": 1024, \"Hard\": 2048}`\" 
     */
-    'ulimits'?: Array<ResourcesUlimitsInner>;
+    'Ulimits'?: Array<ResourcesUlimitsInner>;
 }
 
 export enum TaskSpecContainerSpecIsolationEnum {

@@ -15,13 +15,13 @@ export class SystemVersionComponentsInner {
     /**
     * Name of the component 
     */
-    'name': string;
+    'Name': string;
     /**
     * Version of the component 
     */
-    'version': string;
+    'Version': string;
     /**
     * Key/value pairs of strings with additional information about the component. These values are intended for informational purposes only, and their content is not defined, and not part of the API specification.  These messages can be printed by the client as information to the user. 
     */
-    'details'?: any | null;
+    'Details'?: any | null;
 }

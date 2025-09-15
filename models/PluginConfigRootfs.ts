@@ -12,6 +12,6 @@
 
 
 export class PluginConfigRootfs {
-    'type'?: string;
-    'diffIds'?: Array<string>;
+    'Type'?: string;
+    'DiffIds'?: Array<string>;
 }

@@ -19,30 +19,30 @@ export class OCIDescriptor {
     /**
     * The media type of the object this schema refers to. 
     */
-    'mediaType'?: string;
+    'MediaType'?: string;
     /**
     * The digest of the targeted content. 
     */
-    'digest'?: string;
+    'Digest'?: string;
     /**
     * The size in bytes of the blob. 
     */
-    'size'?: number;
+    'Size'?: number;
     /**
     * List of URLs from which this object MAY be downloaded.
     */
-    'urls'?: Array<string> | null;
+    'Urls'?: Array<string> | null;
     /**
     * Arbitrary metadata relating to the targeted content.
     */
-    'annotations'?: { [key: string]: string; } | null;
+    'Annotations'?: { [key: string]: string; } | null;
     /**
     * Data is an embedding of the targeted content. This is encoded as a base64 string when marshalled to JSON (automatically, by encoding/json). If present, Data can be used directly to avoid fetching the targeted content.
     */
-    'data'?: string | null;
-    'platform'?: OCIPlatform | null;
+    'Data'?: string | null;
+    'Platform'?: OCIPlatform | null;
     /**
     * ArtifactType is the IANA media type of this artifact.
     */
-    'artifactType'?: string | null;
+    'ArtifactType'?: string | null;
 }

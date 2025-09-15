@@ -15,13 +15,13 @@ export class ResourcesUlimitsInner {
     /**
     * Name of ulimit
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * Soft limit
     */
-    'soft'?: number;
+    'Soft'?: number;
     /**
     * Hard limit
     */
-    'hard'?: number;
+    'Hard'?: number;
 }

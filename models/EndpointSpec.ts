@@ -19,11 +19,11 @@ export class EndpointSpec {
     /**
     * The mode of resolution to use for internal load balancing between tasks. 
     */
-    'mode'?: EndpointSpecModeEnum;
+    'Mode'?: EndpointSpecModeEnum;
     /**
     * List of exposed ports that this service is accessible on from the outside. Ports can only be provided if `vip` resolution mode is used. 
     */
-    'ports'?: Array<EndpointPortConfig>;
+    'Ports'?: Array<EndpointPortConfig>;
 }
 
 export enum EndpointSpecModeEnum {

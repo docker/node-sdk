@@ -16,5 +16,5 @@ import { ClusterVolumeSpec } from '../models/ClusterVolumeSpec';
 * Volume configuration
 */
 export class VolumeUpdateRequest {
-    'spec'?: ClusterVolumeSpec;
+    'Spec'?: ClusterVolumeSpec;
 }

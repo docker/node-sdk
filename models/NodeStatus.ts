@@ -16,12 +16,12 @@ import { NodeState } from '../models/NodeState';
 * NodeStatus represents the status of a node.  It provides the current status of the node, as seen by the manager. 
 */
 export class NodeStatus {
-    'state'?: NodeState;
-    'message'?: string;
+    'State'?: NodeState;
+    'Message'?: string;
     /**
     * IP address of the node.
     */
-    'addr'?: string;
+    'Addr'?: string;
 }
 
 

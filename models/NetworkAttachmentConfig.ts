@@ -18,13 +18,13 @@ export class NetworkAttachmentConfig {
     /**
     * The target network for attachment. Must be a network name or ID. 
     */
-    'target'?: string;
+    'Target'?: string;
     /**
     * Discoverable alternate names for the service on this network. 
     */
-    'aliases'?: Array<string>;
+    'Aliases'?: Array<string>;
     /**
     * Driver attachment options for the network target. 
     */
-    'driverOpts'?: { [key: string]: string; };
+    'DriverOpts'?: { [key: string]: string; };
 }

@@ -18,9 +18,9 @@ export class ClusterVolumeSpecAccessModeAccessibilityRequirements {
     /**
     * A list of required topologies, at least one of which the volume must be accessible from. 
     */
-    'requisite'?: Array<{ [key: string]: string; }>;
+    'Requisite'?: Array<{ [key: string]: string; }>;
     /**
     * A list of topologies that the volume should attempt to be provisioned in. 
     */
-    'preferred'?: Array<{ [key: string]: string; }>;
+    'Preferred'?: Array<{ [key: string]: string; }>;
 }

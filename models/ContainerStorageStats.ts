@@ -15,8 +15,8 @@
 * StorageStats is the disk I/O stats for read/write on Windows.  This type is Windows-specific and omitted for Linux containers. 
 */
 export class ContainerStorageStats {
-    'readCountNormalized'?: number | null;
-    'readSizeBytes'?: number | null;
-    'writeCountNormalized'?: number | null;
-    'writeSizeBytes'?: number | null;
+    'ReadCountNormalized'?: number | null;
+    'ReadSizeBytes'?: number | null;
+    'WriteCountNormalized'?: number | null;
+    'WriteSizeBytes'?: number | null;
 }

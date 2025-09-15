@@ -23,18 +23,18 @@ export class ImageManifestSummary {
     * ID is the content-addressable ID of an image and is the same as the digest of the image manifest. 
     */
     'ID': string;
-    'descriptor': OCIDescriptor;
+    'Descriptor': OCIDescriptor;
     /**
     * Indicates whether all the child content (image config, layers) is fully available locally.
     */
-    'available': boolean;
-    'size': ImageManifestSummarySize;
+    'Available': boolean;
+    'Size': ImageManifestSummarySize;
     /**
     * The kind of the manifest.  kind         | description -------------|----------------------------------------------------------- image        | Image manifest that can be used to start a container. attestation  | Attestation manifest produced by the Buildkit builder for a specific image manifest. 
     */
-    'kind': ImageManifestSummaryKindEnum;
-    'imageData'?: ImageManifestSummaryImageData | null;
-    'attestationData'?: ImageManifestSummaryAttestationData | null;
+    'Kind': ImageManifestSummaryKindEnum;
+    'ImageData'?: ImageManifestSummaryImageData | null;
+    'AttestationData'?: ImageManifestSummaryAttestationData | null;
 }
 
 export enum ImageManifestSummaryKindEnum {

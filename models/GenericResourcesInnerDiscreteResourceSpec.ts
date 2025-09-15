@@ -12,6 +12,6 @@
 
 
 export class GenericResourcesInnerDiscreteResourceSpec {
-    'kind'?: string;
-    'value'?: number;
+    'Kind'?: string;
+    'Value'?: number;
 }

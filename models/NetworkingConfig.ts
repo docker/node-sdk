@@ -19,5 +19,5 @@ export class NetworkingConfig {
     /**
     * A mapping of network name to endpoint configuration for that network. The endpoint configuration can be left empty to connect to that network with no particular endpoint configuration. 
     */
-    'endpointsConfig'?: { [key: string]: EndpointSettings; };
+    'EndpointsConfig'?: { [key: string]: EndpointSettings; };
 }

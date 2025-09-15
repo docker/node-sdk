@@ -18,13 +18,13 @@ export class ContainerThrottlingData {
     /**
     * Number of periods with throttling active. 
     */
-    'periods'?: number;
+    'Periods'?: number;
     /**
     * Number of periods when the container hit its throttling limit. 
     */
-    'throttledPeriods'?: number;
+    'ThrottledPeriods'?: number;
     /**
     * Aggregated time (in nanoseconds) the container was throttled for. 
     */
-    'throttledTime'?: number;
+    'ThrottledTime'?: number;
 }

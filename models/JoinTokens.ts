@@ -18,9 +18,9 @@ export class JoinTokens {
     /**
     * The token workers can use to join the swarm. 
     */
-    'worker'?: string;
+    'Worker'?: string;
     /**
     * The token managers can use to join the swarm. 
     */
-    'manager'?: string;
+    'Manager'?: string;
 }

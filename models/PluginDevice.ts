@@ -12,8 +12,8 @@
 
 
 export class PluginDevice {
-    'name': string;
-    'description': string;
-    'settable': Array<string>;
-    'path': string;
+    'Name': string;
+    'Description': string;
+    'Settable': Array<string>;
+    'Path': string;
 }

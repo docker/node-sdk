@@ -29,136 +29,136 @@ export class SystemInfo {
     /**
     * Total number of containers on the host.
     */
-    'containers'?: number;
+    'Containers'?: number;
     /**
     * Number of containers with status `\"running\"`. 
     */
-    'containersRunning'?: number;
+    'ContainersRunning'?: number;
     /**
     * Number of containers with status `\"paused\"`. 
     */
-    'containersPaused'?: number;
+    'ContainersPaused'?: number;
     /**
     * Number of containers with status `\"stopped\"`. 
     */
-    'containersStopped'?: number;
+    'ContainersStopped'?: number;
     /**
     * Total number of images on the host.  Both _tagged_ and _untagged_ (dangling) images are counted. 
     */
-    'images'?: number;
+    'Images'?: number;
     /**
     * Name of the storage driver in use.
     */
-    'driver'?: string;
+    'Driver'?: string;
     /**
     * Information specific to the storage driver, provided as \"label\" / \"value\" pairs.  This information is provided by the storage driver, and formatted in a way consistent with the output of `docker info` on the command line.  <p><br /></p>  > **Note**: The information returned in this field, including the > formatting of values and labels, should not be considered stable, > and may change without notice. 
     */
-    'driverStatus'?: Array<Array<string>>;
+    'DriverStatus'?: Array<Array<string>>;
     /**
     * Root directory of persistent Docker state.  Defaults to `/var/lib/docker` on Linux, and `C:\\ProgramData\\docker` on Windows. 
     */
-    'dockerRootDir'?: string;
-    'plugins'?: PluginsInfo;
+    'DockerRootDir'?: string;
+    'Plugins'?: PluginsInfo;
     /**
     * Indicates if the host has memory limit support enabled.
     */
-    'memoryLimit'?: boolean;
+    'MemoryLimit'?: boolean;
     /**
     * Indicates if the host has memory swap limit support enabled.
     */
-    'swapLimit'?: boolean;
+    'SwapLimit'?: boolean;
     /**
     * Indicates if the host has kernel memory TCP limit support enabled. This field is omitted if not supported.  Kernel memory TCP limits are not supported when using cgroups v2, which does not support the corresponding `memory.kmem.tcp.limit_in_bytes` cgroup. 
     */
-    'kernelMemoryTCP'?: boolean;
+    'KernelMemoryTCP'?: boolean;
     /**
     * Indicates if CPU CFS(Completely Fair Scheduler) period is supported by the host. 
     */
-    'cpuCfsPeriod'?: boolean;
+    'CpuCfsPeriod'?: boolean;
     /**
     * Indicates if CPU CFS(Completely Fair Scheduler) quota is supported by the host. 
     */
-    'cpuCfsQuota'?: boolean;
+    'CpuCfsQuota'?: boolean;
     /**
     * Indicates if CPU Shares limiting is supported by the host. 
     */
-    'cPUShares'?: boolean;
+    'CPUShares'?: boolean;
     /**
     * Indicates if CPUsets (cpuset.cpus, cpuset.mems) are supported by the host.  See [cpuset(7)](https://www.kernel.org/doc/Documentation/cgroup-v1/cpusets.txt) 
     */
-    'cPUSet'?: boolean;
+    'CPUSet'?: boolean;
     /**
     * Indicates if the host kernel has PID limit support enabled.
     */
-    'pidsLimit'?: boolean;
+    'PidsLimit'?: boolean;
     /**
     * Indicates if OOM killer disable is supported on the host.
     */
-    'oomKillDisable'?: boolean;
+    'OomKillDisable'?: boolean;
     /**
     * Indicates IPv4 forwarding is enabled.
     */
-    'iPv4Forwarding'?: boolean;
+    'IPv4Forwarding'?: boolean;
     /**
     * Indicates if `bridge-nf-call-iptables` is available on the host when the daemon was started.  <p><br /></p>  > **Deprecated**: netfilter module is now loaded on-demand and no longer > during daemon startup, making this field obsolete. This field is always > `false` and will be removed in a API v1.49. 
     */
-    'bridgeNfIptables'?: boolean;
+    'BridgeNfIptables'?: boolean;
     /**
     * Indicates if `bridge-nf-call-ip6tables` is available on the host.  <p><br /></p>  > **Deprecated**: netfilter module is now loaded on-demand, and no longer > during daemon startup, making this field obsolete. This field is always > `false` and will be removed in a API v1.49. 
     */
-    'bridgeNfIp6tables'?: boolean;
+    'BridgeNfIp6tables'?: boolean;
     /**
     * Indicates if the daemon is running in debug-mode / with debug-level logging enabled. 
     */
-    'debug'?: boolean;
+    'Debug'?: boolean;
     /**
     * The total number of file Descriptors in use by the daemon process.  This information is only returned if debug-mode is enabled. 
     */
-    'nFd'?: number;
+    'NFd'?: number;
     /**
     * The  number of goroutines that currently exist.  This information is only returned if debug-mode is enabled. 
     */
-    'nGoroutines'?: number;
+    'NGoroutines'?: number;
     /**
     * Current system-time in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
     */
-    'systemTime'?: string;
+    'SystemTime'?: string;
     /**
     * The logging driver to use as a default for new containers. 
     */
-    'loggingDriver'?: string;
+    'LoggingDriver'?: string;
     /**
     * The driver to use for managing cgroups. 
     */
-    'cgroupDriver'?: SystemInfoCgroupDriverEnum;
+    'CgroupDriver'?: SystemInfoCgroupDriverEnum;
     /**
     * The version of the cgroup. 
     */
-    'cgroupVersion'?: SystemInfoCgroupVersionEnum;
+    'CgroupVersion'?: SystemInfoCgroupVersionEnum;
     /**
     * Number of event listeners subscribed.
     */
-    'nEventsListener'?: number;
+    'NEventsListener'?: number;
     /**
     * Kernel version of the host.  On Linux, this information obtained from `uname`. On Windows this information is queried from the <kbd>HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\\\\</kbd> registry value, for example _\"10.0 14393 (14393.1198.amd64fre.rs1_release_sec.170427-1353)\"_. 
     */
-    'kernelVersion'?: string;
+    'KernelVersion'?: string;
     /**
     * Name of the host\'s operating system, for example: \"Ubuntu 24.04 LTS\" or \"Windows Server 2016 Datacenter\" 
     */
-    'operatingSystem'?: string;
+    'OperatingSystem'?: string;
     /**
     * Version of the host\'s operating system  <p><br /></p>  > **Note**: The information returned in this field, including its > very existence, and the formatting of values, should not be considered > stable, and may change without notice. 
     */
-    'oSVersion'?: string;
+    'OSVersion'?: string;
     /**
     * Generic type of the operating system of the host, as returned by the Go runtime (`GOOS`).  Currently returned values are \"linux\" and \"windows\". A full list of possible values can be found in the [Go documentation](https://go.dev/doc/install/source#environment). 
     */
-    'oSType'?: string;
+    'OSType'?: string;
     /**
     * Hardware architecture of the host, as returned by the Go runtime (`GOARCH`).  A full list of possible values can be found in the [Go documentation](https://go.dev/doc/install/source#environment). 
     */
-    'architecture'?: string;
+    'Architecture'?: string;
     /**
     * The number of logical CPUs usable by the daemon.  The number of available CPUs is checked by querying the operating system when the daemon starts. Changes to operating system CPU allocation after the daemon is started are not reflected. 
     */
@@ -166,94 +166,94 @@ export class SystemInfo {
     /**
     * Total amount of physical memory available on the host, in bytes. 
     */
-    'memTotal'?: number;
+    'MemTotal'?: number;
     /**
     * Address / URL of the index server that is used for image search, and as a default for user authentication for Docker Hub and Docker Cloud. 
     */
-    'indexServerAddress'?: string;
-    'registryConfig'?: RegistryServiceConfig | null;
+    'IndexServerAddress'?: string;
+    'RegistryConfig'?: RegistryServiceConfig | null;
     /**
     * User-defined resources can be either Integer resources (e.g, `SSD=3`) or String resources (e.g, `GPU=UUID1`). 
     */
-    'genericResources'?: Array<GenericResourcesInner>;
+    'GenericResources'?: Array<GenericResourcesInner>;
     /**
     * HTTP-proxy configured for the daemon. This value is obtained from the [`HTTP_PROXY`](https://www.gnu.org/software/wget/manual/html_node/Proxies.html) environment variable. Credentials ([user info component](https://tools.ietf.org/html/rfc3986#section-3.2.1)) in the proxy URL are masked in the API response.  Containers do not automatically inherit this configuration. 
     */
-    'httpProxy'?: string;
+    'HttpProxy'?: string;
     /**
     * HTTPS-proxy configured for the daemon. This value is obtained from the [`HTTPS_PROXY`](https://www.gnu.org/software/wget/manual/html_node/Proxies.html) environment variable. Credentials ([user info component](https://tools.ietf.org/html/rfc3986#section-3.2.1)) in the proxy URL are masked in the API response.  Containers do not automatically inherit this configuration. 
     */
-    'httpsProxy'?: string;
+    'HttpsProxy'?: string;
     /**
     * Comma-separated list of domain extensions for which no proxy should be used. This value is obtained from the [`NO_PROXY`](https://www.gnu.org/software/wget/manual/html_node/Proxies.html) environment variable.  Containers do not automatically inherit this configuration. 
     */
-    'noProxy'?: string;
+    'NoProxy'?: string;
     /**
     * Hostname of the host.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * User-defined labels (key/value metadata) as set on the daemon.  <p><br /></p>  > **Note**: When part of a Swarm, nodes can both have _daemon_ labels, > set through the daemon configuration, and _node_ labels, set from a > manager node in the Swarm. Node labels are not included in this > field. Node labels can be retrieved using the `/nodes/(id)` endpoint > on a manager node in the Swarm. 
     */
-    'labels'?: Array<string>;
+    'Labels'?: Array<string>;
     /**
     * Indicates if experimental features are enabled on the daemon. 
     */
-    'experimentalBuild'?: boolean;
+    'ExperimentalBuild'?: boolean;
     /**
     * Version string of the daemon. 
     */
-    'serverVersion'?: string;
+    'ServerVersion'?: string;
     /**
     * List of [OCI compliant](https://github.com/opencontainers/runtime-spec) runtimes configured on the daemon. Keys hold the \"name\" used to reference the runtime.  The Docker daemon relies on an OCI compliant runtime (invoked via the `containerd` daemon) as its interface to the Linux kernel namespaces, cgroups, and SELinux.  The default runtime is `runc`, and automatically configured. Additional runtimes can be configured by the user and will be listed here. 
     */
-    'runtimes'?: { [key: string]: Runtime; };
+    'Runtimes'?: { [key: string]: Runtime; };
     /**
     * Name of the default OCI runtime that is used when starting containers.  The default can be overridden per-container at create time. 
     */
-    'defaultRuntime'?: string;
-    'swarm'?: SwarmInfo;
+    'DefaultRuntime'?: string;
+    'Swarm'?: SwarmInfo;
     /**
     * Indicates if live restore is enabled.  If enabled, containers are kept running when the daemon is shutdown or upon daemon start if running containers are detected. 
     */
-    'liveRestoreEnabled'?: boolean;
+    'LiveRestoreEnabled'?: boolean;
     /**
     * Represents the isolation technology to use as a default for containers. The supported values are platform-specific.  If no isolation value is specified on daemon start, on Windows client, the default is `hyperv`, and on Windows server, the default is `process`.  This option is currently not used on other platforms. 
     */
-    'isolation'?: SystemInfoIsolationEnum;
+    'Isolation'?: SystemInfoIsolationEnum;
     /**
     * Name and, optional, path of the `docker-init` binary.  If the path is omitted, the daemon searches the host\'s `$PATH` for the binary and uses the first result. 
     */
-    'initBinary'?: string;
-    'containerdCommit'?: Commit;
-    'runcCommit'?: Commit;
-    'initCommit'?: Commit;
+    'InitBinary'?: string;
+    'ContainerdCommit'?: Commit;
+    'RuncCommit'?: Commit;
+    'InitCommit'?: Commit;
     /**
     * List of security features that are enabled on the daemon, such as apparmor, seccomp, SELinux, user-namespaces (userns), rootless and no-new-privileges.  Additional configuration options for each security feature may be present, and are included as a comma-separated list of key/value pairs. 
     */
-    'securityOptions'?: Array<string>;
+    'SecurityOptions'?: Array<string>;
     /**
     * Reports a summary of the product license on the daemon.  If a commercial license has been applied to the daemon, information such as number of nodes, and expiration are included. 
     */
-    'productLicense'?: string;
+    'ProductLicense'?: string;
     /**
     * List of custom default address pools for local networks, which can be specified in the daemon.json file or dockerd option.  Example: a Base \"10.10.0.0/16\" with Size 24 will define the set of 256 10.10.[0-255].0/24 address pools. 
     */
-    'defaultAddressPools'?: Array<SystemInfoDefaultAddressPoolsInner>;
-    'firewallBackend'?: FirewallInfo | null;
+    'DefaultAddressPools'?: Array<SystemInfoDefaultAddressPoolsInner>;
+    'FirewallBackend'?: FirewallInfo | null;
     /**
     * List of devices discovered by device drivers.  Each device includes information about its source driver, kind, name, and additional driver-specific attributes. 
     */
-    'discoveredDevices'?: Array<DeviceInfo>;
+    'DiscoveredDevices'?: Array<DeviceInfo>;
     /**
     * List of warnings / informational messages about missing features, or issues related to the daemon configuration.  These messages can be printed by the client as information to the user. 
     */
-    'warnings'?: Array<string>;
+    'Warnings'?: Array<string>;
     /**
     * List of directories where (Container Device Interface) CDI specifications are located.  These specifications define vendor-specific modifications to an OCI runtime specification for a container being created.  An empty list indicates that CDI device injection is disabled.  Note that since using CDI device injection requires the daemon to have experimental enabled. For non-experimental daemons an empty list will always be returned. 
     */
-    'cDISpecDirs'?: Array<string>;
-    'containerd'?: ContainerdInfo | null;
+    'CDISpecDirs'?: Array<string>;
+    'Containerd'?: ContainerdInfo | null;
 }
 
 export enum SystemInfoCgroupDriverEnum {

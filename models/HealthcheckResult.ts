@@ -18,17 +18,17 @@ export class HealthcheckResult {
     /**
     * Date and time at which this check started in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
     */
-    'start'?: Date;
+    'Start'?: Date;
     /**
     * Date and time at which this check ended in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
     */
-    'end'?: string;
+    'End'?: string;
     /**
     * ExitCode meanings:  - `0` healthy - `1` unhealthy - `2` reserved (considered unhealthy) - other values: error running probe 
     */
-    'exitCode'?: number;
+    'ExitCode'?: number;
     /**
     * Output from last check
     */
-    'output'?: string;
+    'Output'?: string;
 }

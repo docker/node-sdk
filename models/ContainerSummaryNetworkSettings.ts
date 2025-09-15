@@ -19,5 +19,5 @@ export class ContainerSummaryNetworkSettings {
     /**
     * Summary of network-settings for each network the container is attached to.
     */
-    'networks'?: { [key: string]: EndpointSettings; };
+    'Networks'?: { [key: string]: EndpointSettings; };
 }

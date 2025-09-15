@@ -15,9 +15,9 @@
 * contains network resources allocated and used for a container in a network. 
 */
 export class EndpointResource {
-    'name'?: string;
-    'endpointID'?: string;
-    'macAddress'?: string;
-    'iPv4Address'?: string;
-    'iPv6Address'?: string;
+    'Name'?: string;
+    'EndpointID'?: string;
+    'MacAddress'?: string;
+    'IPv4Address'?: string;
+    'IPv6Address'?: string;
 }

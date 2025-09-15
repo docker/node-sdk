@@ -16,33 +16,33 @@ import { ContainerBlkioStatEntry } from '../models/ContainerBlkioStatEntry';
 * BlkioStats stores all IO service stats for data read and write.  This type is Linux-specific and holds many fields that are specific to cgroups v1. On a cgroup v2 host, all fields other than `io_service_bytes_recursive` are omitted or `null`.  This type is only populated on Linux and omitted for Windows containers. 
 */
 export class ContainerBlkioStats {
-    'ioServiceBytesRecursive'?: Array<ContainerBlkioStatEntry>;
+    'IoServiceBytesRecursive'?: Array<ContainerBlkioStatEntry>;
     /**
     * This field is only available when using Linux containers with cgroups v1. It is omitted or `null` when using cgroups v2. 
     */
-    'ioServicedRecursive'?: Array<ContainerBlkioStatEntry> | null;
+    'IoServicedRecursive'?: Array<ContainerBlkioStatEntry> | null;
     /**
     * This field is only available when using Linux containers with cgroups v1. It is omitted or `null` when using cgroups v2. 
     */
-    'ioQueueRecursive'?: Array<ContainerBlkioStatEntry> | null;
+    'IoQueueRecursive'?: Array<ContainerBlkioStatEntry> | null;
     /**
     * This field is only available when using Linux containers with cgroups v1. It is omitted or `null` when using cgroups v2. 
     */
-    'ioServiceTimeRecursive'?: Array<ContainerBlkioStatEntry> | null;
+    'IoServiceTimeRecursive'?: Array<ContainerBlkioStatEntry> | null;
     /**
     * This field is only available when using Linux containers with cgroups v1. It is omitted or `null` when using cgroups v2. 
     */
-    'ioWaitTimeRecursive'?: Array<ContainerBlkioStatEntry> | null;
+    'IoWaitTimeRecursive'?: Array<ContainerBlkioStatEntry> | null;
     /**
     * This field is only available when using Linux containers with cgroups v1. It is omitted or `null` when using cgroups v2. 
     */
-    'ioMergedRecursive'?: Array<ContainerBlkioStatEntry> | null;
+    'IoMergedRecursive'?: Array<ContainerBlkioStatEntry> | null;
     /**
     * This field is only available when using Linux containers with cgroups v1. It is omitted or `null` when using cgroups v2. 
     */
-    'ioTimeRecursive'?: Array<ContainerBlkioStatEntry> | null;
+    'IoTimeRecursive'?: Array<ContainerBlkioStatEntry> | null;
     /**
     * This field is only available when using Linux containers with cgroups v1. It is omitted or `null` when using cgroups v2. 
     */
-    'sectorsRecursive'?: Array<ContainerBlkioStatEntry> | null;
+    'SectorsRecursive'?: Array<ContainerBlkioStatEntry> | null;
 }

@@ -15,6 +15,6 @@
 * Information about the image\'s RootFS, including the layer IDs. 
 */
 export class ImageInspectRootFS {
-    'type': string;
-    'layers'?: Array<string>;
+    'Type': string;
+    'Layers'?: Array<string>;
 }

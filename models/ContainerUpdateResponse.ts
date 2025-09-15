@@ -18,5 +18,5 @@ export class ContainerUpdateResponse {
     /**
     * Warnings encountered when updating the container.
     */
-    'warnings'?: Array<string>;
+    'Warnings'?: Array<string>;
 }

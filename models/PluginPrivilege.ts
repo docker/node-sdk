@@ -15,7 +15,7 @@
 * Describes a permission the user has to accept upon installing the plugin. 
 */
 export class PluginPrivilege {
-    'name'?: string;
-    'description'?: string;
-    'value'?: Array<string>;
+    'Name'?: string;
+    'Description'?: string;
+    'Value'?: Array<string>;
 }

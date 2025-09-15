@@ -18,17 +18,17 @@ import { ObjectVersion } from '../models/ObjectVersion';
 
 export class Node {
     'ID'?: string;
-    'version'?: ObjectVersion;
+    'Version'?: ObjectVersion;
     /**
     * Date and time at which the node was added to the swarm in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
     */
-    'createdAt'?: string;
+    'CreatedAt'?: string;
     /**
     * Date and time at which the node was last updated in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
     */
-    'updatedAt'?: string;
-    'spec'?: NodeSpec;
-    'description'?: NodeDescription;
-    'status'?: NodeStatus;
-    'managerStatus'?: ManagerStatus | null;
+    'UpdatedAt'?: string;
+    'Spec'?: NodeSpec;
+    'Description'?: NodeDescription;
+    'Status'?: NodeStatus;
+    'ManagerStatus'?: ManagerStatus | null;
 }

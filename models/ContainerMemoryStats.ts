@@ -18,33 +18,33 @@ export class ContainerMemoryStats {
     /**
     * Current `res_counter` usage for memory.  This field is Linux-specific and omitted for Windows containers. 
     */
-    'usage'?: number | null;
+    'Usage'?: number | null;
     /**
     * Maximum usage ever recorded.  This field is Linux-specific and only supported on cgroups v1. It is omitted when using cgroups v2 and for Windows containers. 
     */
-    'maxUsage'?: number | null;
+    'MaxUsage'?: number | null;
     /**
     * All the stats exported via memory.stat. when using cgroups v2.  This field is Linux-specific and omitted for Windows containers. 
     */
-    'stats'?: { [key: string]: number | null; };
+    'Stats'?: { [key: string]: number | null; };
     /**
     * Number of times memory usage hits limits.  This field is Linux-specific and only supported on cgroups v1. It is omitted when using cgroups v2 and for Windows containers. 
     */
-    'failcnt'?: number | null;
+    'Failcnt'?: number | null;
     /**
     * This field is Linux-specific and omitted for Windows containers. 
     */
-    'limit'?: number | null;
+    'Limit'?: number | null;
     /**
     * Committed bytes.  This field is Windows-specific and omitted for Linux containers. 
     */
-    'commitbytes'?: number | null;
+    'Commitbytes'?: number | null;
     /**
     * Peak committed bytes.  This field is Windows-specific and omitted for Linux containers. 
     */
-    'commitpeakbytes'?: number | null;
+    'Commitpeakbytes'?: number | null;
     /**
     * Private working set.  This field is Windows-specific and omitted for Linux containers. 
     */
-    'privateworkingset'?: number | null;
+    'Privateworkingset'?: number | null;
 }

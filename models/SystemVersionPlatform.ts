@@ -12,5 +12,5 @@
 
 
 export class SystemVersionPlatform {
-    'name': string;
+    'Name': string;
 }

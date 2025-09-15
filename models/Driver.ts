@@ -18,9 +18,9 @@ export class Driver {
     /**
     * Name of the driver.
     */
-    'name': string;
+    'Name': string;
     /**
     * Key/value map of driver-specific options.
     */
-    'options'?: { [key: string]: string; };
+    'Options'?: { [key: string]: string; };
 }

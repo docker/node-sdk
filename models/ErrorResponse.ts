@@ -18,5 +18,5 @@ export class ErrorResponse {
     /**
     * The error message.
     */
-    'message': string;
+    'Message': string;
 }

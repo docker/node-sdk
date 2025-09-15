@@ -18,13 +18,13 @@ export class Runtime {
     /**
     * Name and, optional, path, of the OCI executable binary.  If the path is omitted, the daemon searches the host\'s `$PATH` for the binary and uses the first result. 
     */
-    'path'?: string;
+    'Path'?: string;
     /**
     * List of command-line arguments to pass to the runtime when invoked. 
     */
-    'runtimeArgs'?: Array<string> | null;
+    'RuntimeArgs'?: Array<string> | null;
     /**
     * Information specific to the runtime.  While this API specification does not define data provided by runtimes, the following well-known properties may be provided by runtimes:  `org.opencontainers.runtime-spec.features`: features structure as defined in the [OCI Runtime Specification](https://github.com/opencontainers/runtime-spec/blob/main/features.md), in a JSON string representation.  <p><br /></p>  > **Note**: The information returned in this field, including the > formatting of values and labels, should not be considered stable, > and may change without notice. 
     */
-    'status'?: { [key: string]: string; } | null;
+    'Status'?: { [key: string]: string; } | null;
 }

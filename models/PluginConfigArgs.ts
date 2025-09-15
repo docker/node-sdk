@@ -12,8 +12,8 @@
 
 
 export class PluginConfigArgs {
-    'name': string;
-    'description': string;
-    'settable': Array<string>;
-    'value': Array<string>;
+    'Name': string;
+    'Description': string;
+    'Settable': Array<string>;
+    'Value': Array<string>;
 }

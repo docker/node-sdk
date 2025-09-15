@@ -12,6 +12,6 @@
 
 
 export class GenericResourcesInnerNamedResourceSpec {
-    'kind'?: string;
-    'value'?: string;
+    'Kind'?: string;
+    'Value'?: string;
 }

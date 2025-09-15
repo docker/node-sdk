@@ -12,6 +12,6 @@
 
 
 export class ErrorDetail {
-    'code'?: number;
-    'message'?: string;
+    'Code'?: number;
+    'Message'?: string;
 }

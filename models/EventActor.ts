@@ -22,5 +22,5 @@ export class EventActor {
     /**
     * Various key/value attributes of the object, depending on its type. 
     */
-    'attributes'?: { [key: string]: string; };
+    'Attributes'?: { [key: string]: string; };
 }

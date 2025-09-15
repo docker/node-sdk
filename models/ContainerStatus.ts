@@ -15,7 +15,7 @@
 * represents the status of a container.
 */
 export class ContainerStatus {
-    'containerID'?: string;
+    'ContainerID'?: string;
     'PID'?: number;
-    'exitCode'?: number;
+    'ExitCode'?: number;
 }

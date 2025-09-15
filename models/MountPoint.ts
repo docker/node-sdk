@@ -18,27 +18,27 @@ export class MountPoint {
     /**
     * The mount type:  - `bind` a mount of a file or directory from the host into the container. - `volume` a docker volume with the given `Name`. - `image` a docker image - `tmpfs` a `tmpfs`. - `npipe` a named pipe from the host into the container. - `cluster` a Swarm cluster volume 
     */
-    'type'?: MountPointTypeEnum;
+    'Type'?: MountPointTypeEnum;
     /**
     * Name is the name reference to the underlying data defined by `Source` e.g., the volume name. 
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * Source location of the mount.  For volumes, this contains the storage location of the volume (within `/var/lib/docker/volumes/`). For bind-mounts, and `npipe`, this contains the source (host) part of the bind-mount. For `tmpfs` mount points, this field is empty. 
     */
-    'source'?: string;
+    'Source'?: string;
     /**
     * Destination is the path relative to the container root (`/`) where the `Source` is mounted inside the container. 
     */
-    'destination'?: string;
+    'Destination'?: string;
     /**
     * Driver is the volume driver used to create the volume (if it is a volume). 
     */
-    'driver'?: string;
+    'Driver'?: string;
     /**
     * Mode is a comma separated list of options supplied by the user when creating the bind/volume mount.  The default is platform-specific (`\"z\"` on Linux, empty on Windows). 
     */
-    'mode'?: string;
+    'Mode'?: string;
     /**
     * Whether the mount is mounted writable (read-write). 
     */
@@ -46,7 +46,7 @@ export class MountPoint {
     /**
     * Propagation describes how mounts are propagated from the host into the mount point, and vice-versa. Refer to the [Linux kernel documentation](https://www.kernel.org/doc/Documentation/filesystems/sharedsubtree.txt) for details. This field is not used on Windows. 
     */
-    'propagation'?: string;
+    'Propagation'?: string;
 }
 
 export enum MountPointTypeEnum {

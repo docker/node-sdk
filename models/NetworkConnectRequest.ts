@@ -16,6 +16,6 @@ export class NetworkConnectRequest {
     /**
     * The ID or name of the container to connect to the network.
     */
-    'container'?: string;
-    'endpointConfig'?: EndpointSettings;
+    'Container'?: string;
+    'EndpointConfig'?: EndpointSettings;
 }

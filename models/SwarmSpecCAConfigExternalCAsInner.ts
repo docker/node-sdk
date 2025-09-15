@@ -15,7 +15,7 @@ export class SwarmSpecCAConfigExternalCAsInner {
     /**
     * Protocol for communication with the external CA (currently only `cfssl` is supported). 
     */
-    'protocol'?: SwarmSpecCAConfigExternalCAsInnerProtocolEnum;
+    'Protocol'?: SwarmSpecCAConfigExternalCAsInnerProtocolEnum;
     /**
     * URL where certificate signing requests should be sent. 
     */
@@ -23,11 +23,11 @@ export class SwarmSpecCAConfigExternalCAsInner {
     /**
     * An object with key/value pairs that are interpreted as protocol-specific options for the external CA driver. 
     */
-    'options'?: { [key: string]: string; };
+    'Options'?: { [key: string]: string; };
     /**
     * The root CA certificate (in PEM format) this external CA uses to issue TLS certificates (assumed to be to the current swarm root CA certificate if not provided). 
     */
-    'cACert'?: string;
+    'CACert'?: string;
 }
 
 export enum SwarmSpecCAConfigExternalCAsInnerProtocolEnum {

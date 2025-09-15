@@ -18,9 +18,9 @@ export class NetworkCreateResponse {
     /**
     * The ID of the created network.
     */
-    'id': string;
+    'Id': string;
     /**
     * Warnings encountered when creating the container
     */
-    'warning': string;
+    'Warning': string;
 }

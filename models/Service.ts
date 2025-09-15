@@ -19,12 +19,12 @@ import { ServiceUpdateStatus } from '../models/ServiceUpdateStatus';
 
 export class Service {
     'ID'?: string;
-    'version'?: ObjectVersion;
-    'createdAt'?: string;
-    'updatedAt'?: string;
-    'spec'?: ServiceSpec;
-    'endpoint'?: ServiceEndpoint;
-    'updateStatus'?: ServiceUpdateStatus;
-    'serviceStatus'?: ServiceServiceStatus;
-    'jobStatus'?: ServiceJobStatus;
+    'Version'?: ObjectVersion;
+    'CreatedAt'?: string;
+    'UpdatedAt'?: string;
+    'Spec'?: ServiceSpec;
+    'Endpoint'?: ServiceEndpoint;
+    'UpdateStatus'?: ServiceUpdateStatus;
+    'ServiceStatus'?: ServiceServiceStatus;
+    'JobStatus'?: ServiceJobStatus;
 }

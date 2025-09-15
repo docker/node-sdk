@@ -15,9 +15,9 @@ export class NetworkDisconnectRequest {
     /**
     * The ID or name of the container to disconnect from the network. 
     */
-    'container'?: string;
+    'Container'?: string;
     /**
     * Force the container to disconnect from the network. 
     */
-    'force'?: boolean;
+    'Force'?: boolean;
 }

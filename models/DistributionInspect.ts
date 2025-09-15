@@ -17,9 +17,9 @@ import { OCIPlatform } from '../models/OCIPlatform';
 * Describes the result obtained from contacting the registry to retrieve image metadata. 
 */
 export class DistributionInspect {
-    'descriptor': OCIDescriptor;
+    'Descriptor': OCIDescriptor;
     /**
     * An array containing all platforms supported by the image. 
     */
-    'platforms': Array<OCIPlatform>;
+    'Platforms': Array<OCIPlatform>;
 }

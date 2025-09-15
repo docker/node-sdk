@@ -17,49 +17,49 @@ import { SystemVersionPlatform } from '../models/SystemVersionPlatform';
 * Response of Engine API: GET \"/version\" 
 */
 export class SystemVersion {
-    'platform'?: SystemVersionPlatform;
+    'Platform'?: SystemVersionPlatform;
     /**
     * Information about system components 
     */
-    'components'?: Array<SystemVersionComponentsInner>;
+    'Components'?: Array<SystemVersionComponentsInner>;
     /**
     * The version of the daemon
     */
-    'version'?: string;
+    'Version'?: string;
     /**
     * The default (and highest) API version that is supported by the daemon 
     */
-    'apiVersion'?: string;
+    'ApiVersion'?: string;
     /**
     * The minimum API version that is supported by the daemon 
     */
-    'minAPIVersion'?: string;
+    'MinAPIVersion'?: string;
     /**
     * The Git commit of the source code that was used to build the daemon 
     */
-    'gitCommit'?: string;
+    'GitCommit'?: string;
     /**
     * The version Go used to compile the daemon, and the version of the Go runtime in use. 
     */
-    'goVersion'?: string;
+    'GoVersion'?: string;
     /**
     * The operating system that the daemon is running on (\"linux\" or \"windows\") 
     */
-    'os'?: string;
+    'Os'?: string;
     /**
     * The architecture that the daemon is running on 
     */
-    'arch'?: string;
+    'Arch'?: string;
     /**
     * The kernel version (`uname -r`) that the daemon is running on.  This field is omitted when empty. 
     */
-    'kernelVersion'?: string;
+    'KernelVersion'?: string;
     /**
     * Indicates if the daemon is started with experimental features enabled.  This field is omitted when empty / false. 
     */
-    'experimental'?: boolean;
+    'Experimental'?: boolean;
     /**
     * The date and time that the daemon was compiled. 
     */
-    'buildTime'?: string;
+    'BuildTime'?: string;
 }

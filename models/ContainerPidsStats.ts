@@ -18,9 +18,9 @@ export class ContainerPidsStats {
     /**
     * Current is the number of PIDs in the cgroup. 
     */
-    'current'?: number | null;
+    'Current'?: number | null;
     /**
     * Limit is the hard limit on the number of pids in the cgroup. A \"Limit\" of 0 means that there is no limit. 
     */
-    'limit'?: number | null;
+    'Limit'?: number | null;
 }

@@ -18,9 +18,9 @@ export class MountVolumeOptionsDriverConfig {
     /**
     * Name of the driver to use to create the volume.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * key/value map of driver specific options.
     */
-    'options'?: { [key: string]: string; };
+    'Options'?: { [key: string]: string; };
 }

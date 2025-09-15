@@ -19,24 +19,24 @@ export class EventMessage {
     /**
     * The type of object emitting the event
     */
-    'type'?: EventMessageTypeEnum;
+    'Type'?: EventMessageTypeEnum;
     /**
     * The type of event
     */
-    'action'?: string;
-    'actor'?: EventActor;
+    'Action'?: string;
+    'Actor'?: EventActor;
     /**
     * Scope of the event. Engine events are `local` scope. Cluster (Swarm) events are `swarm` scope. 
     */
-    'scope'?: EventMessageScopeEnum;
+    'Scope'?: EventMessageScopeEnum;
     /**
     * Timestamp of event
     */
-    'time'?: number;
+    'Time'?: number;
     /**
     * Timestamp of event, with nanosecond accuracy
     */
-    'timeNano'?: number;
+    'TimeNano'?: number;
 }
 
 export enum EventMessageTypeEnum {

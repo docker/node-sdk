@@ -15,7 +15,7 @@
 * A device mapping between the host and container
 */
 export class DeviceMapping {
-    'pathOnHost'?: string;
-    'pathInContainer'?: string;
-    'cgroupPermissions'?: string;
+    'PathOnHost'?: string;
+    'PathInContainer'?: string;
+    'CgroupPermissions'?: string;
 }

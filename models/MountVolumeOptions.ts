@@ -19,14 +19,14 @@ export class MountVolumeOptions {
     /**
     * Populate volume with data from the target.
     */
-    'noCopy'?: boolean;
+    'NoCopy'?: boolean;
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
-    'driverConfig'?: MountVolumeOptionsDriverConfig;
+    'Labels'?: { [key: string]: string; };
+    'DriverConfig'?: MountVolumeOptionsDriverConfig;
     /**
     * Source path inside the volume. Must be relative without any back traversals.
     */
-    'subpath'?: string;
+    'Subpath'?: string;
 }

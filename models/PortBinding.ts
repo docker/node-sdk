@@ -18,9 +18,9 @@ export class PortBinding {
     /**
     * Host IP address that the container\'s port is mapped to.
     */
-    'hostIp'?: string;
+    'HostIp'?: string;
     /**
     * Host port number that the container\'s port is mapped to.
     */
-    'hostPort'?: string;
+    'HostPort'?: string;
 }

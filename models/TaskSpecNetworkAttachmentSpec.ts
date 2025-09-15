@@ -18,5 +18,5 @@ export class TaskSpecNetworkAttachmentSpec {
     /**
     * ID of the container represented by this task
     */
-    'containerID'?: string;
+    'ContainerID'?: string;
 }

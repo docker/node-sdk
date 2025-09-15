@@ -18,5 +18,5 @@ export class ConfigReference {
     /**
     * The name of the config-only network that provides the network\'s configuration. The specified network must be an existing config-only network. Only network names are allowed, not network IDs. 
     */
-    'network'?: string;
+    'Network'?: string;
 }

@@ -18,7 +18,7 @@ export class DeviceInfo {
     /**
     * The origin device driver. 
     */
-    'source'?: string;
+    'Source'?: string;
     /**
     * The unique identifier for the device within its source driver. For CDI devices, this would be an FQDN like \"vendor.com/gpu=0\". 
     */

@@ -18,9 +18,9 @@ export class ContainerSummaryHostConfig {
     /**
     * Networking mode (`host`, `none`, `container:<id>`) or name of the primary network the container is using.  This field is primarily for backward compatibility. The container can be connected to multiple networks for which information can be found in the `NetworkSettings.Networks` field, which enumerates settings per network.
     */
-    'networkMode'?: string;
+    'NetworkMode'?: string;
     /**
     * Arbitrary key-value metadata attached to the container.
     */
-    'annotations'?: { [key: string]: string; } | null;
+    'Annotations'?: { [key: string]: string; } | null;
 }

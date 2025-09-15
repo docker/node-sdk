@@ -16,7 +16,7 @@ import { EngineDescriptionPluginsInner } from '../models/EngineDescriptionPlugin
 * EngineDescription provides information about an engine.
 */
 export class EngineDescription {
-    'engineVersion'?: string;
-    'labels'?: { [key: string]: string; };
-    'plugins'?: Array<EngineDescriptionPluginsInner>;
+    'EngineVersion'?: string;
+    'Labels'?: { [key: string]: string; };
+    'Plugins'?: Array<EngineDescriptionPluginsInner>;
 }

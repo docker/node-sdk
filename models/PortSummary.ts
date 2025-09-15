@@ -22,12 +22,12 @@ export class PortSummary {
     /**
     * Port on the container
     */
-    'privatePort': number;
+    'PrivatePort': number;
     /**
     * Port exposed on the host
     */
-    'publicPort'?: number;
-    'type': PortSummaryTypeEnum;
+    'PublicPort'?: number;
+    'Type': PortSummaryTypeEnum;
 }
 
 export enum PortSummaryTypeEnum {

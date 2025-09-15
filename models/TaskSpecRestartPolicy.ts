@@ -18,19 +18,19 @@ export class TaskSpecRestartPolicy {
     /**
     * Condition for restart.
     */
-    'condition'?: TaskSpecRestartPolicyConditionEnum;
+    'Condition'?: TaskSpecRestartPolicyConditionEnum;
     /**
     * Delay between restart attempts.
     */
-    'delay'?: number;
+    'Delay'?: number;
     /**
     * Maximum attempts to restart a given container before giving up (default value is 0, which is ignored). 
     */
-    'maxAttempts'?: number;
+    'MaxAttempts'?: number;
     /**
     * Windows is the time window used to evaluate the restart policy (default value is 0, which is unbounded). 
     */
-    'window'?: number;
+    'Window'?: number;
 }
 
 export enum TaskSpecRestartPolicyConditionEnum {

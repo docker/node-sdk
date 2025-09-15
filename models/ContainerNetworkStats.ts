@@ -18,41 +18,41 @@ export class ContainerNetworkStats {
     /**
     * Bytes received. Windows and Linux. 
     */
-    'rxBytes'?: number;
+    'RxBytes'?: number;
     /**
     * Packets received. Windows and Linux. 
     */
-    'rxPackets'?: number;
+    'RxPackets'?: number;
     /**
     * Received errors. Not used on Windows.  This field is Linux-specific and always zero for Windows containers. 
     */
-    'rxErrors'?: number;
+    'RxErrors'?: number;
     /**
     * Incoming packets dropped. Windows and Linux. 
     */
-    'rxDropped'?: number;
+    'RxDropped'?: number;
     /**
     * Bytes sent. Windows and Linux. 
     */
-    'txBytes'?: number;
+    'TxBytes'?: number;
     /**
     * Packets sent. Windows and Linux. 
     */
-    'txPackets'?: number;
+    'TxPackets'?: number;
     /**
     * Sent errors. Not used on Windows.  This field is Linux-specific and always zero for Windows containers. 
     */
-    'txErrors'?: number;
+    'TxErrors'?: number;
     /**
     * Outgoing packets dropped. Windows and Linux. 
     */
-    'txDropped'?: number;
+    'TxDropped'?: number;
     /**
     * Endpoint ID. Not used on Linux.  This field is Windows-specific and omitted for Linux containers. 
     */
-    'endpointId'?: string | null;
+    'EndpointId'?: string | null;
     /**
     * Instance ID. Not used on Linux.  This field is Windows-specific and omitted for Linux containers. 
     */
-    'instanceId'?: string | null;
+    'InstanceId'?: string | null;
 }

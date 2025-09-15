@@ -18,9 +18,9 @@ export class ContainerCreateResponse {
     /**
     * The ID of the created container
     */
-    'id': string;
+    'Id': string;
     /**
     * Warnings encountered when creating the container
     */
-    'warnings': Array<string>;
+    'Warnings': Array<string>;
 }

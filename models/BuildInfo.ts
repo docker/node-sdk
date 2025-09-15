@@ -15,10 +15,10 @@ import { ImageID } from '../models/ImageID';
 import { ProgressDetail } from '../models/ProgressDetail';
 
 export class BuildInfo {
-    'id'?: string;
-    'stream'?: string;
-    'errorDetail'?: ErrorDetail;
-    'status'?: string;
-    'progressDetail'?: ProgressDetail;
-    'aux'?: ImageID;
+    'Id'?: string;
+    'Stream'?: string;
+    'ErrorDetail'?: ErrorDetail;
+    'Status'?: string;
+    'ProgressDetail'?: ProgressDetail;
+    'Aux'?: ImageID;
 }

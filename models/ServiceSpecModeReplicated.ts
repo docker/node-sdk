@@ -12,5 +12,5 @@
 
 
 export class ServiceSpecModeReplicated {
-    'replicas'?: number;
+    'Replicas'?: number;
 }

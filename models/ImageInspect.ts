@@ -24,66 +24,66 @@ export class ImageInspect {
     /**
     * ID is the content-addressable ID of an image.  This identifier is a content-addressable digest calculated from the image\'s configuration (which includes the digests of layers used by the image).  Note that this digest differs from the `RepoDigests` below, which holds digests of image manifests that reference the image. 
     */
-    'id'?: string;
-    'descriptor'?: OCIDescriptor;
+    'Id'?: string;
+    'Descriptor'?: OCIDescriptor;
     /**
     * Manifests is a list of image manifests available in this image. It provides a more detailed view of the platform-specific image manifests or other image-attached data like build attestations.  Only available if the daemon provides a multi-platform image store and the `manifests` option is set in the inspect request.  WARNING: This is experimental and may change at any time without any backward compatibility. 
     */
-    'manifests'?: Array<ImageManifestSummary> | null;
+    'Manifests'?: Array<ImageManifestSummary> | null;
     /**
     * List of image names/tags in the local image cache that reference this image.  Multiple image tags can refer to the same image, and this list may be empty if no tags reference the image, in which case the image is \"untagged\", in which case it can still be referenced by its ID. 
     */
-    'repoTags'?: Array<string>;
+    'RepoTags'?: Array<string>;
     /**
     * List of content-addressable digests of locally available image manifests that the image is referenced from. Multiple manifests can refer to the same image.  These digests are usually only available if the image was either pulled from a registry, or if the image was pushed to a registry, which is when the manifest is generated and its digest calculated. 
     */
-    'repoDigests'?: Array<string>;
+    'RepoDigests'?: Array<string>;
     /**
     * ID of the parent image.  Depending on how the image was created, this field may be empty and is only set for images that were built/created locally. This field is empty if the image was pulled from an image registry. 
     */
-    'parent'?: string;
+    'Parent'?: string;
     /**
     * Optional message that was set when committing or importing the image. 
     */
-    'comment'?: string;
+    'Comment'?: string;
     /**
     * Date and time at which the image was created, formatted in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds.  This information is only available if present in the image, and omitted otherwise. 
     */
-    'created'?: string | null;
+    'Created'?: string | null;
     /**
     * The version of Docker that was used to build the image.  Depending on how the image was created, this field may be empty. 
     */
-    'dockerVersion'?: string;
+    'DockerVersion'?: string;
     /**
     * Name of the author that was specified when committing the image, or as specified through MAINTAINER (deprecated) in the Dockerfile. 
     */
-    'author'?: string;
-    'config'?: ImageConfig;
+    'Author'?: string;
+    'Config'?: ImageConfig;
     /**
     * Hardware CPU architecture that the image runs on. 
     */
-    'architecture'?: string;
+    'Architecture'?: string;
     /**
     * CPU architecture variant (presently ARM-only). 
     */
-    'variant'?: string | null;
+    'Variant'?: string | null;
     /**
     * Operating System the image is built to run on. 
     */
-    'os'?: string;
+    'Os'?: string;
     /**
     * Operating System version the image is built to run on (especially for Windows). 
     */
-    'osVersion'?: string | null;
+    'OsVersion'?: string | null;
     /**
     * Total size of the image including all layers it is composed of. 
     */
-    'size'?: number;
+    'Size'?: number;
     /**
     * Total size of the image including all layers it is composed of.  Deprecated: this field is omitted in API v1.44, but kept for backward compatibility. Use Size instead. 
     */
-    'virtualSize'?: number;
-    'graphDriver'?: DriverData;
-    'rootFS'?: ImageInspectRootFS;
-    'metadata'?: ImageInspectMetadata;
+    'VirtualSize'?: number;
+    'GraphDriver'?: DriverData;
+    'RootFS'?: ImageInspectRootFS;
+    'Metadata'?: ImageInspectMetadata;
 }

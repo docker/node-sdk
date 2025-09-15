@@ -17,14 +17,14 @@ import { ContainerThrottlingData } from '../models/ContainerThrottlingData';
 * CPU related info of the container 
 */
 export class ContainerCPUStats {
-    'cpuUsage'?: ContainerCPUUsage | null;
+    'CpuUsage'?: ContainerCPUUsage | null;
     /**
     * System Usage.  This field is Linux-specific and omitted for Windows containers. 
     */
-    'systemCpuUsage'?: number | null;
+    'SystemCpuUsage'?: number | null;
     /**
     * Number of online CPUs.  This field is Linux-specific and omitted for Windows containers. 
     */
-    'onlineCpus'?: number | null;
-    'throttlingData'?: ContainerThrottlingData | null;
+    'OnlineCpus'?: number | null;
+    'ThrottlingData'?: ContainerThrottlingData | null;
 }

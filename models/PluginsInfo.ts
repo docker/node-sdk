@@ -18,17 +18,17 @@ export class PluginsInfo {
     /**
     * Names of available volume-drivers, and network-driver plugins.
     */
-    'volume'?: Array<string>;
+    'Volume'?: Array<string>;
     /**
     * Names of available network-drivers, and network-driver plugins.
     */
-    'network'?: Array<string>;
+    'Network'?: Array<string>;
     /**
     * Names of available authorization plugins.
     */
-    'authorization'?: Array<string>;
+    'Authorization'?: Array<string>;
     /**
     * Names of available logging-drivers, and logging-driver plugins.
     */
-    'log'?: Array<string>;
+    'Log'?: Array<string>;
 }

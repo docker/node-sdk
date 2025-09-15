@@ -18,7 +18,7 @@ export class TaskSpecContainerSpecSecretsInnerFile {
     /**
     * Name represents the final filename in the filesystem. 
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * UID represents the file UID.
     */
@@ -30,5 +30,5 @@ export class TaskSpecContainerSpecSecretsInnerFile {
     /**
     * Mode represents the FileMode of the file.
     */
-    'mode'?: number;
+    'Mode'?: number;
 }

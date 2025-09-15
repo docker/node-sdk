@@ -26,20 +26,20 @@ export class PluginConfig {
     /**
     * Docker Version used to create the plugin
     */
-    'dockerVersion'?: string;
-    'description': string;
-    'documentation': string;
+    'DockerVersion'?: string;
+    'Description': string;
+    'Documentation': string;
     '_interface': PluginConfigInterface;
-    'entrypoint': Array<string>;
-    'workDir': string;
-    'user'?: PluginConfigUser;
-    'network': PluginConfigNetwork;
-    'linux': PluginConfigLinux;
-    'propagatedMount': string;
-    'ipcHost': boolean;
-    'pidHost': boolean;
-    'mounts': Array<PluginMount>;
-    'env': Array<PluginEnv>;
-    'args': PluginConfigArgs;
-    'rootfs'?: PluginConfigRootfs;
+    'Entrypoint': Array<string>;
+    'WorkDir': string;
+    'User'?: PluginConfigUser;
+    'Network': PluginConfigNetwork;
+    'Linux': PluginConfigLinux;
+    'PropagatedMount': string;
+    'IpcHost': boolean;
+    'PidHost': boolean;
+    'Mounts': Array<PluginMount>;
+    'Env': Array<PluginEnv>;
+    'Args': PluginConfigArgs;
+    'Rootfs'?: PluginConfigRootfs;
 }

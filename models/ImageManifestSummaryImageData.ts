@@ -17,10 +17,10 @@ import { OCIPlatform } from '../models/OCIPlatform';
 * The image data for the image manifest. This field is only populated when Kind is \"image\". 
 */
 export class ImageManifestSummaryImageData {
-    'platform': OCIPlatform | null;
+    'Platform': OCIPlatform | null;
     /**
     * The IDs of the containers that are using this image. 
     */
-    'containers': Array<string>;
-    'size': ImageManifestSummaryImageDataSize;
+    'Containers': Array<string>;
+    'Size': ImageManifestSummaryImageDataSize;
 }

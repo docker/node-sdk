@@ -18,12 +18,12 @@ import { TaskState } from '../models/TaskState';
 * represents the status of a task.
 */
 export class TaskStatus {
-    'timestamp'?: string;
-    'state'?: TaskState;
-    'message'?: string;
-    'err'?: string;
-    'containerStatus'?: ContainerStatus;
-    'portStatus'?: PortStatus;
+    'Timestamp'?: string;
+    'State'?: TaskState;
+    'Message'?: string;
+    'Err'?: string;
+    'ContainerStatus'?: ContainerStatus;
+    'PortStatus'?: PortStatus;
 }
 
 

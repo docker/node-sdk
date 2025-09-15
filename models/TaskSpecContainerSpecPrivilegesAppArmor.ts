@@ -15,7 +15,7 @@
 * Options for configuring AppArmor on the container
 */
 export class TaskSpecContainerSpecPrivilegesAppArmor {
-    'mode'?: TaskSpecContainerSpecPrivilegesAppArmorModeEnum;
+    'Mode'?: TaskSpecContainerSpecPrivilegesAppArmorModeEnum;
 }
 
 export enum TaskSpecContainerSpecPrivilegesAppArmorModeEnum {

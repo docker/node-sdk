@@ -12,6 +12,6 @@
 
 
 export class EngineDescriptionPluginsInner {
-    'type'?: string;
-    'name'?: string;
+    'Type'?: string;
+    'Name'?: string;
 }

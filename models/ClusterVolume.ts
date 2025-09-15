@@ -23,13 +23,13 @@ export class ClusterVolume {
     * The Swarm ID of this volume. Because cluster volumes are Swarm objects, they have an ID, unlike non-cluster volumes. This ID can be used to refer to the Volume instead of the name. 
     */
     'ID'?: string;
-    'version'?: ObjectVersion;
-    'createdAt'?: string;
-    'updatedAt'?: string;
-    'spec'?: ClusterVolumeSpec;
-    'info'?: ClusterVolumeInfo;
+    'Version'?: ObjectVersion;
+    'CreatedAt'?: string;
+    'UpdatedAt'?: string;
+    'Spec'?: ClusterVolumeSpec;
+    'Info'?: ClusterVolumeInfo;
     /**
     * The status of the volume as it pertains to its publishing and use on specific nodes 
     */
-    'publishStatus'?: Array<ClusterVolumePublishStatusInner>;
+    'PublishStatus'?: Array<ClusterVolumePublishStatusInner>;
 }

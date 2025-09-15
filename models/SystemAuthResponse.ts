@@ -15,9 +15,9 @@ export class SystemAuthResponse {
     /**
     * The status of the authentication
     */
-    'status': string;
+    'Status': string;
     /**
     * An opaque token used to authenticate a user after a successful login
     */
-    'identityToken'?: string;
+    'IdentityToken'?: string;
 }

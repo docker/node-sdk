@@ -15,11 +15,11 @@
 * Options for configuring seccomp on the container
 */
 export class TaskSpecContainerSpecPrivilegesSeccomp {
-    'mode'?: TaskSpecContainerSpecPrivilegesSeccompModeEnum;
+    'Mode'?: TaskSpecContainerSpecPrivilegesSeccompModeEnum;
     /**
     * The custom seccomp profile as a json object
     */
-    'profile'?: string;
+    'Profile'?: string;
 }
 
 export enum TaskSpecContainerSpecPrivilegesSeccompModeEnum {

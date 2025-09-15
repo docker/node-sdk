@@ -21,27 +21,27 @@ export class SwarmInfo {
     /**
     * Unique identifier of for this node in the swarm.
     */
-    'nodeID'?: string;
+    'NodeID'?: string;
     /**
     * IP address at which this node can be reached by other nodes in the swarm. 
     */
-    'nodeAddr'?: string;
-    'localNodeState'?: LocalNodeState;
-    'controlAvailable'?: boolean;
-    'error'?: string;
+    'NodeAddr'?: string;
+    'LocalNodeState'?: LocalNodeState;
+    'ControlAvailable'?: boolean;
+    'Error'?: string;
     /**
     * List of ID\'s and addresses of other managers in the swarm. 
     */
-    'remoteManagers'?: Array<PeerNode> | null;
+    'RemoteManagers'?: Array<PeerNode> | null;
     /**
     * Total number of nodes in the swarm.
     */
-    'nodes'?: number | null;
+    'Nodes'?: number | null;
     /**
     * Total number of managers in the swarm.
     */
-    'managers'?: number | null;
-    'cluster'?: ClusterInfo | null;
+    'Managers'?: number | null;
+    'Cluster'?: ClusterInfo | null;
 }
 
 

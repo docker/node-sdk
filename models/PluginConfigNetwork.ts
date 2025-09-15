@@ -12,5 +12,5 @@
 
 
 export class PluginConfigNetwork {
-    'type': string;
+    'Type': string;
 }

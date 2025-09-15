@@ -13,5 +13,5 @@
 import { TaskSpecPlacementPreferencesInnerSpread } from '../models/TaskSpecPlacementPreferencesInnerSpread';
 
 export class TaskSpecPlacementPreferencesInner {
-    'spread'?: TaskSpecPlacementPreferencesInnerSpread;
+    'Spread'?: TaskSpecPlacementPreferencesInnerSpread;
 }

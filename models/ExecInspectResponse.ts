@@ -13,18 +13,18 @@
 import { ProcessConfig } from '../models/ProcessConfig';
 
 export class ExecInspectResponse {
-    'canRemove'?: boolean;
-    'detachKeys'?: string;
+    'CanRemove'?: boolean;
+    'DetachKeys'?: string;
     'ID'?: string;
-    'running'?: boolean;
-    'exitCode'?: number;
-    'processConfig'?: ProcessConfig;
-    'openStdin'?: boolean;
-    'openStderr'?: boolean;
-    'openStdout'?: boolean;
-    'containerID'?: string;
+    'Running'?: boolean;
+    'ExitCode'?: number;
+    'ProcessConfig'?: ProcessConfig;
+    'OpenStdin'?: boolean;
+    'OpenStderr'?: boolean;
+    'OpenStdout'?: boolean;
+    'ContainerID'?: string;
     /**
     * The system process ID for the exec process.
     */
-    'pid'?: number;
+    'Pid'?: number;
 }

@@ -17,37 +17,37 @@ export class Volume {
     /**
     * Name of the volume.
     */
-    'name': string;
+    'Name': string;
     /**
     * Name of the volume driver used by the volume.
     */
-    'driver': string;
+    'Driver': string;
     /**
     * Mount path of the volume on the host.
     */
-    'mountpoint': string;
+    'Mountpoint': string;
     /**
     * Date/Time the volume was created.
     */
-    'createdAt'?: string;
+    'CreatedAt'?: string;
     /**
     * Low-level details about the volume, provided by the volume driver. Details are returned as a map with key/value pairs: `{\"key\":\"value\",\"key2\":\"value2\"}`.  The `Status` field is optional, and is omitted if the volume driver does not support this feature. 
     */
-    'status'?: { [key: string]: any; };
+    'Status'?: { [key: string]: any; };
     /**
     * User-defined key/value metadata.
     */
-    'labels': { [key: string]: string; };
+    'Labels': { [key: string]: string; };
     /**
     * The level at which the volume exists. Either `global` for cluster-wide, or `local` for machine level. 
     */
-    'scope': VolumeScopeEnum;
-    'clusterVolume'?: ClusterVolume;
+    'Scope': VolumeScopeEnum;
+    'ClusterVolume'?: ClusterVolume;
     /**
     * The driver specific options used when creating the volume. 
     */
-    'options': { [key: string]: string; };
-    'usageData'?: VolumeUsageData | null;
+    'Options': { [key: string]: string; };
+    'UsageData'?: VolumeUsageData | null;
 }
 
 export enum VolumeScopeEnum {

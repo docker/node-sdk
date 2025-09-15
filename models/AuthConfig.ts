@@ -12,11 +12,11 @@
 
 
 export class AuthConfig {
-    'username'?: string;
-    'password'?: string;
+    'Username'?: string;
+    'Password'?: string;
     /**
     * Email is an optional value associated with the username.  > **Deprecated**: This field is deprecated since docker 1.11 (API v1.23) and will be removed in a future release. 
     */
-    'email'?: string;
-    'serveraddress'?: string;
+    'Email'?: string;
+    'Serveraddress'?: string;
 }

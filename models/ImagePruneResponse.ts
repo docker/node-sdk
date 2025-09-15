@@ -16,9 +16,9 @@ export class ImagePruneResponse {
     /**
     * Images that were deleted
     */
-    'imagesDeleted'?: Array<ImageDeleteResponseItem>;
+    'ImagesDeleted'?: Array<ImageDeleteResponseItem>;
     /**
     * Disk space reclaimed in bytes
     */
-    'spaceReclaimed'?: number;
+    'SpaceReclaimed'?: number;
 }

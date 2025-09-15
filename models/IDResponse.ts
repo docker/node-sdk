@@ -18,5 +18,5 @@ export class IDResponse {
     /**
     * The id of the newly created object.
     */
-    'id': string;
+    'Id': string;
 }

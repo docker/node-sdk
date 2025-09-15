@@ -15,9 +15,9 @@ export class SystemInfoDefaultAddressPoolsInner {
     /**
     * The network address in CIDR format
     */
-    'base'?: string;
+    'Base'?: string;
     /**
     * The network pool size
     */
-    'size'?: number;
+    'Size'?: number;
 }

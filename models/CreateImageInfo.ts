@@ -14,8 +14,8 @@ import { ErrorDetail } from '../models/ErrorDetail';
 import { ProgressDetail } from '../models/ProgressDetail';
 
 export class CreateImageInfo {
-    'id'?: string;
-    'errorDetail'?: ErrorDetail;
-    'status'?: string;
-    'progressDetail'?: ProgressDetail;
+    'Id'?: string;
+    'ErrorDetail'?: ErrorDetail;
+    'Status'?: string;
+    'ProgressDetail'?: ProgressDetail;
 }

@@ -12,9 +12,9 @@
 
 
 export class ProcessConfig {
-    'privileged'?: boolean;
-    'user'?: string;
-    'tty'?: boolean;
-    'entrypoint'?: string;
-    'arguments'?: Array<string>;
+    'Privileged'?: boolean;
+    'User'?: string;
+    'Tty'?: boolean;
+    'Entrypoint'?: string;
+    'Arguments'?: Array<string>;
 }

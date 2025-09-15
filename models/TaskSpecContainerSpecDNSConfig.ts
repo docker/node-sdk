@@ -18,13 +18,13 @@ export class TaskSpecContainerSpecDNSConfig {
     /**
     * The IP addresses of the name servers.
     */
-    'nameservers'?: Array<string>;
+    'Nameservers'?: Array<string>;
     /**
     * A search list for host-name lookup.
     */
-    'search'?: Array<string>;
+    'Search'?: Array<string>;
     /**
     * A list of internal resolver variables to be modified (e.g., `debug`, `ndots:3`, etc.). 
     */
-    'options'?: Array<string>;
+    'Options'?: Array<string>;
 }

@@ -22,40 +22,40 @@ export class BuildCache {
     /**
     * ID of the parent build cache record.  > **Deprecated**: This field is deprecated, and omitted if empty. 
     */
-    'parent'?: string | null;
+    'Parent'?: string | null;
     /**
     * List of parent build cache record IDs. 
     */
-    'parents'?: Array<string> | null;
+    'Parents'?: Array<string> | null;
     /**
     * Cache record type. 
     */
-    'type'?: BuildCacheTypeEnum;
+    'Type'?: BuildCacheTypeEnum;
     /**
     * Description of the build-step that produced the build cache. 
     */
-    'description'?: string;
+    'Description'?: string;
     /**
     * Indicates if the build cache is in use. 
     */
-    'inUse'?: boolean;
+    'InUse'?: boolean;
     /**
     * Indicates if the build cache is shared. 
     */
-    'shared'?: boolean;
+    'Shared'?: boolean;
     /**
     * Amount of disk space used by the build cache (in bytes). 
     */
-    'size'?: number;
+    'Size'?: number;
     /**
     * Date and time at which the build cache was created in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
     */
-    'createdAt'?: string;
+    'CreatedAt'?: string;
     /**
     * Date and time at which the build cache was last used in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
     */
-    'lastUsedAt'?: string | null;
-    'usageCount'?: number;
+    'LastUsedAt'?: string | null;
+    'UsageCount'?: number;
 }
 
 export enum BuildCacheTypeEnum {

@@ -18,9 +18,9 @@ export class ContainerTopResponse {
     /**
     * The ps column titles
     */
-    'titles'?: Array<string>;
+    'Titles'?: Array<string>;
     /**
     * Each process running in the container, where each process is an array of values corresponding to the titles.
     */
-    'processes'?: Array<Array<string>>;
+    'Processes'?: Array<Array<string>>;
 }

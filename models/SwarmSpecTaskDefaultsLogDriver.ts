@@ -18,9 +18,9 @@ export class SwarmSpecTaskDefaultsLogDriver {
     /**
     * The log driver to use as a default for new tasks. 
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * Driver-specific options for the selected log driver, specified as key/value pairs. 
     */
-    'options'?: { [key: string]: string; };
+    'Options'?: { [key: string]: string; };
 }

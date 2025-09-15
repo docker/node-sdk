@@ -12,8 +12,8 @@
 
 
 export class IPAMConfig {
-    'subnet'?: string;
-    'iPRange'?: string;
-    'gateway'?: string;
-    'auxiliaryAddresses'?: { [key: string]: string; };
+    'Subnet'?: string;
+    'IPRange'?: string;
+    'Gateway'?: string;
+    'AuxiliaryAddresses'?: { [key: string]: string; };
 }

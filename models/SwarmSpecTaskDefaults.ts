@@ -16,5 +16,5 @@ import { SwarmSpecTaskDefaultsLogDriver } from '../models/SwarmSpecTaskDefaultsL
 * Defaults for creating tasks in this cluster.
 */
 export class SwarmSpecTaskDefaults {
-    'logDriver'?: SwarmSpecTaskDefaultsLogDriver;
+    'LogDriver'?: SwarmSpecTaskDefaultsLogDriver;
 }

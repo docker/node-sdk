@@ -21,34 +21,34 @@ export class Task {
     * The ID of the task.
     */
     'ID'?: string;
-    'version'?: ObjectVersion;
-    'createdAt'?: string;
-    'updatedAt'?: string;
+    'Version'?: ObjectVersion;
+    'CreatedAt'?: string;
+    'UpdatedAt'?: string;
     /**
     * Name of the task.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
-    'spec'?: TaskSpec;
+    'Labels'?: { [key: string]: string; };
+    'Spec'?: TaskSpec;
     /**
     * The ID of the service this task is part of.
     */
-    'serviceID'?: string;
-    'slot'?: number;
+    'ServiceID'?: string;
+    'Slot'?: number;
     /**
     * The ID of the node that this task is on.
     */
-    'nodeID'?: string;
+    'NodeID'?: string;
     /**
     * User-defined resources can be either Integer resources (e.g, `SSD=3`) or String resources (e.g, `GPU=UUID1`). 
     */
-    'assignedGenericResources'?: Array<GenericResourcesInner>;
-    'status'?: TaskStatus;
-    'desiredState'?: TaskState;
-    'jobIteration'?: ObjectVersion;
+    'AssignedGenericResources'?: Array<GenericResourcesInner>;
+    'Status'?: TaskStatus;
+    'DesiredState'?: TaskState;
+    'JobIteration'?: ObjectVersion;
 }
 
 

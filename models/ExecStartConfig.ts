@@ -15,13 +15,13 @@ export class ExecStartConfig {
     /**
     * Detach from the command.
     */
-    'detach'?: boolean;
+    'Detach'?: boolean;
     /**
     * Allocate a pseudo-TTY.
     */
-    'tty'?: boolean;
+    'Tty'?: boolean;
     /**
     * Initial console size, as an `[height, width]` array.
     */
-    'consoleSize'?: Array<number> | null;
+    'ConsoleSize'?: Array<number> | null;
 }

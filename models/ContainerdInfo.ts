@@ -19,6 +19,6 @@ export class ContainerdInfo {
     /**
     * The address of the containerd socket.
     */
-    'address'?: string;
-    'namespaces'?: ContainerdInfoNamespaces;
+    'Address'?: string;
+    'Namespaces'?: ContainerdInfoNamespaces;
 }

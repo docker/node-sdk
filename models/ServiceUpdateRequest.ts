@@ -21,18 +21,18 @@ export class ServiceUpdateRequest {
     /**
     * Name of the service.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
-    'taskTemplate'?: TaskSpec;
-    'mode'?: ServiceSpecMode;
-    'updateConfig'?: ServiceSpecUpdateConfig;
-    'rollbackConfig'?: ServiceSpecRollbackConfig;
+    'Labels'?: { [key: string]: string; };
+    'TaskTemplate'?: TaskSpec;
+    'Mode'?: ServiceSpecMode;
+    'UpdateConfig'?: ServiceSpecUpdateConfig;
+    'RollbackConfig'?: ServiceSpecRollbackConfig;
     /**
     * Specifies which networks the service should attach to.  Deprecated: This field is deprecated since v1.44. The Networks field in TaskSpec should be used instead. 
     */
-    'networks'?: Array<NetworkAttachmentConfig>;
-    'endpointSpec'?: EndpointSpec;
+    'Networks'?: Array<NetworkAttachmentConfig>;
+    'EndpointSpec'?: EndpointSpec;
 }

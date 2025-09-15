@@ -18,9 +18,9 @@ export class DriverData {
     /**
     * Name of the storage driver.
     */
-    'name': string;
+    'Name': string;
     /**
     * Low-level storage metadata, provided as key/value pairs.  This information is driver-specific, and depends on the storage-driver in use, and should be used for informational purposes only. 
     */
-    'data': { [key: string]: string; };
+    'Data': { [key: string]: string; };
 }

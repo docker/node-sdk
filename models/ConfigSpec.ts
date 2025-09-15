@@ -16,14 +16,14 @@ export class ConfigSpec {
     /**
     * User-defined name of the config.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
+    'Labels'?: { [key: string]: string; };
     /**
     * Data is the data to store as a config, formatted as a Base64-url-safe-encoded ([RFC 4648](https://tools.ietf.org/html/rfc4648#section-5)) string. The maximum allowed size is 1000KB, as defined in [MaxConfigSize](https://pkg.go.dev/github.com/moby/swarmkit/v2@v2.0.0-20250103191802-8c1959736554/manager/controlapi#MaxConfigSize). 
     */
-    'data'?: string;
-    'templating'?: Driver;
+    'Data'?: string;
+    'Templating'?: Driver;
 }

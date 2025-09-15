@@ -15,5 +15,5 @@ export class UnlockKeyResponse {
     /**
     * The swarm\'s unlock key.
     */
-    'unlockKey'?: string;
+    'UnlockKey'?: string;
 }

@@ -19,42 +19,42 @@ export class ContainerState {
     /**
     * String representation of the container state. Can be one of \"created\", \"running\", \"paused\", \"restarting\", \"removing\", \"exited\", or \"dead\". 
     */
-    'status'?: ContainerStateStatusEnum;
+    'Status'?: ContainerStateStatusEnum;
     /**
     * Whether this container is running.  Note that a running container can be _paused_. The `Running` and `Paused` booleans are not mutually exclusive:  When pausing a container (on Linux), the freezer cgroup is used to suspend all processes in the container. Freezing the process requires the process to be running. As a result, paused containers are both `Running` _and_ `Paused`.  Use the `Status` field instead to determine if a container\'s state is \"running\". 
     */
-    'running'?: boolean;
+    'Running'?: boolean;
     /**
     * Whether this container is paused.
     */
-    'paused'?: boolean;
+    'Paused'?: boolean;
     /**
     * Whether this container is restarting.
     */
-    'restarting'?: boolean;
+    'Restarting'?: boolean;
     /**
     * Whether a process within this container has been killed because it ran out of memory since the container was last started. 
     */
-    'oOMKilled'?: boolean;
-    'dead'?: boolean;
+    'OOMKilled'?: boolean;
+    'Dead'?: boolean;
     /**
     * The process ID of this container
     */
-    'pid'?: number;
+    'Pid'?: number;
     /**
     * The last exit code of this container
     */
-    'exitCode'?: number;
-    'error'?: string;
+    'ExitCode'?: number;
+    'Error'?: string;
     /**
     * The time when this container was last started.
     */
-    'startedAt'?: string;
+    'StartedAt'?: string;
     /**
     * The time when this container last exited.
     */
-    'finishedAt'?: string;
-    'health'?: Health | null;
+    'FinishedAt'?: string;
+    'Health'?: Health | null;
 }
 
 export enum ContainerStateStatusEnum {

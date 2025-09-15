@@ -12,6 +12,6 @@
 
 
 export class ProgressDetail {
-    'current'?: number;
-    'total'?: number;
+    'Current'?: number;
+    'Total'?: number;
 }

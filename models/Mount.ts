@@ -19,27 +19,27 @@ export class Mount {
     /**
     * Container path.
     */
-    'target'?: string;
+    'Target'?: string;
     /**
     * Mount source (e.g. a volume name, a host path).
     */
-    'source'?: string;
+    'Source'?: string;
     /**
     * The mount type. Available types:  - `bind` Mounts a file or directory from the host into the container. Must exist prior to creating the container. - `volume` Creates a volume with the given name and options (or uses a pre-existing volume with the same name and options). These are **not** removed when the container is removed. - `image` Mounts an image. - `tmpfs` Create a tmpfs with the given options. The mount source cannot be specified for tmpfs. - `npipe` Mounts a named pipe from the host into the container. Must exist prior to creating the container. - `cluster` a Swarm cluster volume 
     */
-    'type'?: MountTypeEnum;
+    'Type'?: MountTypeEnum;
     /**
     * Whether the mount should be read-only.
     */
-    'readOnly'?: boolean;
+    'ReadOnly'?: boolean;
     /**
     * The consistency requirement for the mount: `default`, `consistent`, `cached`, or `delegated`.
     */
-    'consistency'?: string;
-    'bindOptions'?: MountBindOptions;
-    'volumeOptions'?: MountVolumeOptions;
-    'imageOptions'?: MountImageOptions;
-    'tmpfsOptions'?: MountTmpfsOptions;
+    'Consistency'?: string;
+    'BindOptions'?: MountBindOptions;
+    'VolumeOptions'?: MountVolumeOptions;
+    'ImageOptions'?: MountImageOptions;
+    'TmpfsOptions'?: MountTmpfsOptions;
 }
 
 export enum MountTypeEnum {

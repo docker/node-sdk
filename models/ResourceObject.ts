@@ -16,10 +16,10 @@ import { GenericResourcesInner } from '../models/GenericResourcesInner';
 * An object describing the resources which can be advertised by a node and requested by a task. 
 */
 export class ResourceObject {
-    'nanoCPUs'?: number;
-    'memoryBytes'?: number;
+    'NanoCPUs'?: number;
+    'MemoryBytes'?: number;
     /**
     * User-defined resources can be either Integer resources (e.g, `SSD=3`) or String resources (e.g, `GPU=UUID1`). 
     */
-    'genericResources'?: Array<GenericResourcesInner>;
+    'GenericResources'?: Array<GenericResourcesInner>;
 }

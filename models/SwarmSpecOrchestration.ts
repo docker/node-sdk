@@ -18,5 +18,5 @@ export class SwarmSpecOrchestration {
     /**
     * The number of historic tasks to keep per instance or node. If negative, never remove completed or failed tasks. 
     */
-    'taskHistoryRetentionLimit'?: number;
+    'TaskHistoryRetentionLimit'?: number;
 }

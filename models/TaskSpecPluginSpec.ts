@@ -19,14 +19,14 @@ export class TaskSpecPluginSpec {
     /**
     * The name or \'alias\' to use for the plugin.
     */
-    'name'?: string;
+    'Name'?: string;
     /**
     * The plugin image reference to use.
     */
-    'remote'?: string;
+    'Remote'?: string;
     /**
     * Disable the plugin once scheduled.
     */
-    'disabled'?: boolean;
-    'pluginPrivilege'?: Array<PluginPrivilege>;
+    'Disabled'?: boolean;
+    'PluginPrivilege'?: Array<PluginPrivilege>;
 }

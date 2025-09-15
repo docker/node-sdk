@@ -18,9 +18,9 @@ export class Address {
     /**
     * IP address.
     */
-    'addr'?: string;
+    'Addr'?: string;
     /**
     * Mask length of the IP address.
     */
-    'prefixLen'?: number;
+    'PrefixLen'?: number;
 }

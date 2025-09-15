@@ -15,5 +15,5 @@ export class TaskSpecPlacementPreferencesInnerSpread {
     /**
     * label descriptor, such as `engine.labels.az`. 
     */
-    'spreadDescriptor'?: string;
+    'SpreadDescriptor'?: string;
 }

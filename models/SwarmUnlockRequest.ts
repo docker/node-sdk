@@ -15,5 +15,5 @@ export class SwarmUnlockRequest {
     /**
     * The swarm\'s unlock key.
     */
-    'unlockKey'?: string;
+    'UnlockKey'?: string;
 }

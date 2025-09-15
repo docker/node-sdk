@@ -19,21 +19,21 @@ export class SwarmSpecCAConfig {
     /**
     * The duration node certificates are issued for.
     */
-    'nodeCertExpiry'?: number;
+    'NodeCertExpiry'?: number;
     /**
     * Configuration for forwarding signing requests to an external certificate authority. 
     */
-    'externalCAs'?: Array<SwarmSpecCAConfigExternalCAsInner>;
+    'ExternalCAs'?: Array<SwarmSpecCAConfigExternalCAsInner>;
     /**
     * The desired signing CA certificate for all swarm node TLS leaf certificates, in PEM format. 
     */
-    'signingCACert'?: string;
+    'SigningCACert'?: string;
     /**
     * The desired signing CA key for all swarm node TLS leaf certificates, in PEM format. 
     */
-    'signingCAKey'?: string;
+    'SigningCAKey'?: string;
     /**
     * An integer whose purpose is to force swarm to generate a new signing CA certificate and key, if none have been specified in `SigningCACert` and `SigningCAKey` 
     */
-    'forceRotate'?: number;
+    'ForceRotate'?: number;
 }

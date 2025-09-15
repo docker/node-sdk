@@ -23,31 +23,31 @@ export class ContainerStatsResponse {
     /**
     * Name of the container
     */
-    'name'?: string | null;
+    'Name'?: string | null;
     /**
     * ID of the container
     */
-    'id'?: string | null;
+    'Id'?: string | null;
     /**
     * Date and time at which this sample was collected. The value is formatted as [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) with nano-seconds. 
     */
-    'read'?: Date;
+    'Read'?: Date;
     /**
     * Date and time at which this first sample was collected. This field is not propagated if the \"one-shot\" option is set. If the \"one-shot\" option is set, this field may be omitted, empty, or set to a default date (`0001-01-01T00:00:00Z`).  The value is formatted as [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) with nano-seconds. 
     */
-    'preread'?: Date;
-    'pidsStats'?: ContainerPidsStats | null;
-    'blkioStats'?: ContainerBlkioStats | null;
+    'Preread'?: Date;
+    'PidsStats'?: ContainerPidsStats | null;
+    'BlkioStats'?: ContainerBlkioStats | null;
     /**
     * The number of processors on the system.  This field is Windows-specific and always zero for Linux containers. 
     */
-    'numProcs'?: number;
-    'storageStats'?: ContainerStorageStats | null;
-    'cpuStats'?: ContainerCPUStats | null;
-    'precpuStats'?: ContainerCPUStats | null;
-    'memoryStats'?: ContainerMemoryStats;
+    'NumProcs'?: number;
+    'StorageStats'?: ContainerStorageStats | null;
+    'CpuStats'?: ContainerCPUStats | null;
+    'PrecpuStats'?: ContainerCPUStats | null;
+    'MemoryStats'?: ContainerMemoryStats;
     /**
     * Network statistics for the container per interface.  This field is omitted if the container has no networking enabled. 
     */
-    'networks'?: any | null;
+    'Networks'?: any | null;
 }

@@ -15,9 +15,9 @@ export class ThrottleDevice {
     /**
     * Device path
     */
-    'path'?: string;
+    'Path'?: string;
     /**
     * Rate
     */
-    'rate'?: number;
+    'Rate'?: number;
 }

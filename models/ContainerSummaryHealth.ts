@@ -18,11 +18,11 @@ export class ContainerSummaryHealth {
     /**
     * the health status of the container
     */
-    'status'?: ContainerSummaryHealthStatusEnum;
+    'Status'?: ContainerSummaryHealthStatusEnum;
     /**
     * FailingStreak is the number of consecutive failures
     */
-    'failingStreak'?: number;
+    'FailingStreak'?: number;
 }
 
 export enum ContainerSummaryHealthStatusEnum {

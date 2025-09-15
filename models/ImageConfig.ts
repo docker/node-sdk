@@ -19,50 +19,50 @@ export class ImageConfig {
     /**
     * The user that commands are run as inside the container.
     */
-    'user'?: string;
+    'User'?: string;
     /**
     * An object mapping ports to an empty object in the form:  `{\"<port>/<tcp|udp|sctp>\": {}}` 
     */
-    'exposedPorts'?: { [key: string]: any; } | null;
+    'ExposedPorts'?: { [key: string]: any; } | null;
     /**
     * A list of environment variables to set inside the container in the form `[\"VAR=value\", ...]`. A variable without `=` is removed from the environment, rather than to have an empty value. 
     */
-    'env'?: Array<string>;
+    'Env'?: Array<string>;
     /**
     * Command to run specified as a string or an array of strings. 
     */
-    'cmd'?: Array<string>;
-    'healthcheck'?: HealthConfig;
+    'Cmd'?: Array<string>;
+    'Healthcheck'?: HealthConfig;
     /**
     * Command is already escaped (Windows only)
     */
-    'argsEscaped'?: boolean | null;
+    'ArgsEscaped'?: boolean | null;
     /**
     * An object mapping mount point paths inside the container to empty objects. 
     */
-    'volumes'?: { [key: string]: any; };
+    'Volumes'?: { [key: string]: any; };
     /**
     * The working directory for commands to run in.
     */
-    'workingDir'?: string;
+    'WorkingDir'?: string;
     /**
     * The entry point for the container as a string or an array of strings.  If the array consists of exactly one empty string (`[\"\"]`) then the entry point is reset to system default (i.e., the entry point used by docker when there is no `ENTRYPOINT` instruction in the `Dockerfile`). 
     */
-    'entrypoint'?: Array<string>;
+    'Entrypoint'?: Array<string>;
     /**
     * `ONBUILD` metadata that were defined in the image\'s `Dockerfile`. 
     */
-    'onBuild'?: Array<string> | null;
+    'OnBuild'?: Array<string> | null;
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
+    'Labels'?: { [key: string]: string; };
     /**
     * Signal to stop a container as a string or unsigned integer. 
     */
-    'stopSignal'?: string | null;
+    'StopSignal'?: string | null;
     /**
     * Shell for when `RUN`, `CMD`, and `ENTRYPOINT` uses a shell. 
     */
-    'shell'?: Array<string> | null;
+    'Shell'?: Array<string> | null;
 }

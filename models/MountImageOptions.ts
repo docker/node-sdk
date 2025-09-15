@@ -18,5 +18,5 @@ export class MountImageOptions {
     /**
     * Source path inside the image. Must be relative without any back traversals.
     */
-    'subpath'?: string;
+    'Subpath'?: string;
 }

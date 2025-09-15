@@ -12,8 +12,8 @@
 
 
 export class PluginEnv {
-    'name': string;
-    'description': string;
-    'settable': Array<string>;
-    'value': string;
+    'Name': string;
+    'Description': string;
+    'Settable': Array<string>;
+    'Value': string;
 }

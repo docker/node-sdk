@@ -18,100 +18,100 @@ export class ContainerCreateRequest {
     /**
     * The hostname to use for the container, as a valid RFC 1123 hostname. 
     */
-    'hostname'?: string;
+    'Hostname'?: string;
     /**
     * The domain name to use for the container. 
     */
-    'domainname'?: string;
+    'Domainname'?: string;
     /**
     * Commands run as this user inside the container. If omitted, commands run as the user specified in the image the container was started from.  Can be either user-name or UID, and optional group-name or GID, separated by a colon (`<user-name|UID>[<:group-name|GID>]`).
     */
-    'user'?: string;
+    'User'?: string;
     /**
     * Whether to attach to `stdin`.
     */
-    'attachStdin'?: boolean;
+    'AttachStdin'?: boolean;
     /**
     * Whether to attach to `stdout`.
     */
-    'attachStdout'?: boolean;
+    'AttachStdout'?: boolean;
     /**
     * Whether to attach to `stderr`.
     */
-    'attachStderr'?: boolean;
+    'AttachStderr'?: boolean;
     /**
     * An object mapping ports to an empty object in the form:  `{\"<port>/<tcp|udp|sctp>\": {}}` 
     */
-    'exposedPorts'?: { [key: string]: any; } | null;
+    'ExposedPorts'?: { [key: string]: any; } | null;
     /**
     * Attach standard streams to a TTY, including `stdin` if it is not closed. 
     */
-    'tty'?: boolean;
+    'Tty'?: boolean;
     /**
     * Open `stdin`
     */
-    'openStdin'?: boolean;
+    'OpenStdin'?: boolean;
     /**
     * Close `stdin` after one attached client disconnects
     */
-    'stdinOnce'?: boolean;
+    'StdinOnce'?: boolean;
     /**
     * A list of environment variables to set inside the container in the form `[\"VAR=value\", ...]`. A variable without `=` is removed from the environment, rather than to have an empty value. 
     */
-    'env'?: Array<string>;
+    'Env'?: Array<string>;
     /**
     * Command to run specified as a string or an array of strings. 
     */
-    'cmd'?: Array<string>;
-    'healthcheck'?: HealthConfig;
+    'Cmd'?: Array<string>;
+    'Healthcheck'?: HealthConfig;
     /**
     * Command is already escaped (Windows only)
     */
-    'argsEscaped'?: boolean | null;
+    'ArgsEscaped'?: boolean | null;
     /**
     * The name (or reference) of the image to use when creating the container, or which was used when the container was created. 
     */
-    'image'?: string;
+    'Image'?: string;
     /**
     * An object mapping mount point paths inside the container to empty objects. 
     */
-    'volumes'?: { [key: string]: any; };
+    'Volumes'?: { [key: string]: any; };
     /**
     * The working directory for commands to run in.
     */
-    'workingDir'?: string;
+    'WorkingDir'?: string;
     /**
     * The entry point for the container as a string or an array of strings.  If the array consists of exactly one empty string (`[\"\"]`) then the entry point is reset to system default (i.e., the entry point used by docker when there is no `ENTRYPOINT` instruction in the `Dockerfile`). 
     */
-    'entrypoint'?: Array<string>;
+    'Entrypoint'?: Array<string>;
     /**
     * Disable networking for the container.
     */
-    'networkDisabled'?: boolean | null;
+    'NetworkDisabled'?: boolean | null;
     /**
     * MAC address of the container.  Deprecated: this field is deprecated in API v1.44 and up. Use EndpointSettings.MacAddress instead. 
     */
-    'macAddress'?: string | null;
+    'MacAddress'?: string | null;
     /**
     * `ONBUILD` metadata that were defined in the image\'s `Dockerfile`. 
     */
-    'onBuild'?: Array<string> | null;
+    'OnBuild'?: Array<string> | null;
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
+    'Labels'?: { [key: string]: string; };
     /**
     * Signal to stop a container as a string or unsigned integer. 
     */
-    'stopSignal'?: string | null;
+    'StopSignal'?: string | null;
     /**
     * Timeout to stop a container in seconds.
     */
-    'stopTimeout'?: number | null;
+    'StopTimeout'?: number | null;
     /**
     * Shell for when `RUN`, `CMD`, and `ENTRYPOINT` uses a shell. 
     */
-    'shell'?: Array<string> | null;
-    'hostConfig'?: HostConfig;
-    'networkingConfig'?: NetworkingConfig;
+    'Shell'?: Array<string> | null;
+    'HostConfig'?: HostConfig;
+    'NetworkingConfig'?: NetworkingConfig;
 }

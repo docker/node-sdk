@@ -21,73 +21,73 @@ export class NetworkSettings {
     /**
     * Name of the default bridge interface when dockerd\'s --bridge flag is set.  Deprecated: This field is only set when the daemon is started with the --bridge flag specified. 
     */
-    'bridge'?: string;
+    'Bridge'?: string;
     /**
     * SandboxID uniquely represents a container\'s network stack.
     */
-    'sandboxID'?: string;
+    'SandboxID'?: string;
     /**
     * Indicates if hairpin NAT should be enabled on the virtual interface.  Deprecated: This field is never set and will be removed in a future release. 
     */
-    'hairpinMode'?: boolean;
+    'HairpinMode'?: boolean;
     /**
     * IPv6 unicast address using the link-local prefix.  Deprecated: This field is never set and will be removed in a future release. 
     */
-    'linkLocalIPv6Address'?: string;
+    'LinkLocalIPv6Address'?: string;
     /**
     * Prefix length of the IPv6 unicast address.  Deprecated: This field is never set and will be removed in a future release. 
     */
-    'linkLocalIPv6PrefixLen'?: number;
+    'LinkLocalIPv6PrefixLen'?: number;
     /**
     * PortMap describes the mapping of container ports to host ports, using the container\'s port-number and protocol as key in the format `<port>/<protocol>`, for example, `80/udp`.  If a container\'s port is mapped for multiple protocols, separate entries are added to the mapping table. 
     */
-    'ports'?: { [key: string]: Array<PortBinding> | null; };
+    'Ports'?: { [key: string]: Array<PortBinding> | null; };
     /**
     * SandboxKey is the full path of the netns handle
     */
-    'sandboxKey'?: string;
+    'SandboxKey'?: string;
     /**
     * Deprecated: This field is never set and will be removed in a future release.
     */
-    'secondaryIPAddresses'?: Array<Address> | null;
+    'SecondaryIPAddresses'?: Array<Address> | null;
     /**
     * Deprecated: This field is never set and will be removed in a future release.
     */
-    'secondaryIPv6Addresses'?: Array<Address> | null;
+    'SecondaryIPv6Addresses'?: Array<Address> | null;
     /**
     * EndpointID uniquely represents a service endpoint in a Sandbox.  <p><br /></p>  > **Deprecated**: This field is only propagated when attached to the > default \"bridge\" network. Use the information from the \"bridge\" > network inside the `Networks` map instead, which contains the same > information. This field was deprecated in Docker 1.9 and is scheduled > to be removed in Docker 17.12.0 
     */
-    'endpointID'?: string;
+    'EndpointID'?: string;
     /**
     * Gateway address for the default \"bridge\" network.  <p><br /></p>  > **Deprecated**: This field is only propagated when attached to the > default \"bridge\" network. Use the information from the \"bridge\" > network inside the `Networks` map instead, which contains the same > information. This field was deprecated in Docker 1.9 and is scheduled > to be removed in Docker 17.12.0 
     */
-    'gateway'?: string;
+    'Gateway'?: string;
     /**
     * Global IPv6 address for the default \"bridge\" network.  <p><br /></p>  > **Deprecated**: This field is only propagated when attached to the > default \"bridge\" network. Use the information from the \"bridge\" > network inside the `Networks` map instead, which contains the same > information. This field was deprecated in Docker 1.9 and is scheduled > to be removed in Docker 17.12.0 
     */
-    'globalIPv6Address'?: string;
+    'GlobalIPv6Address'?: string;
     /**
     * Mask length of the global IPv6 address.  <p><br /></p>  > **Deprecated**: This field is only propagated when attached to the > default \"bridge\" network. Use the information from the \"bridge\" > network inside the `Networks` map instead, which contains the same > information. This field was deprecated in Docker 1.9 and is scheduled > to be removed in Docker 17.12.0 
     */
-    'globalIPv6PrefixLen'?: number;
+    'GlobalIPv6PrefixLen'?: number;
     /**
     * IPv4 address for the default \"bridge\" network.  <p><br /></p>  > **Deprecated**: This field is only propagated when attached to the > default \"bridge\" network. Use the information from the \"bridge\" > network inside the `Networks` map instead, which contains the same > information. This field was deprecated in Docker 1.9 and is scheduled > to be removed in Docker 17.12.0 
     */
-    'iPAddress'?: string;
+    'IPAddress'?: string;
     /**
     * Mask length of the IPv4 address.  <p><br /></p>  > **Deprecated**: This field is only propagated when attached to the > default \"bridge\" network. Use the information from the \"bridge\" > network inside the `Networks` map instead, which contains the same > information. This field was deprecated in Docker 1.9 and is scheduled > to be removed in Docker 17.12.0 
     */
-    'iPPrefixLen'?: number;
+    'IPPrefixLen'?: number;
     /**
     * IPv6 gateway address for this network.  <p><br /></p>  > **Deprecated**: This field is only propagated when attached to the > default \"bridge\" network. Use the information from the \"bridge\" > network inside the `Networks` map instead, which contains the same > information. This field was deprecated in Docker 1.9 and is scheduled > to be removed in Docker 17.12.0 
     */
-    'iPv6Gateway'?: string;
+    'IPv6Gateway'?: string;
     /**
     * MAC address for the container on the default \"bridge\" network.  <p><br /></p>  > **Deprecated**: This field is only propagated when attached to the > default \"bridge\" network. Use the information from the \"bridge\" > network inside the `Networks` map instead, which contains the same > information. This field was deprecated in Docker 1.9 and is scheduled > to be removed in Docker 17.12.0 
     */
-    'macAddress'?: string;
+    'MacAddress'?: string;
     /**
     * Information about all networks that the container is connected to. 
     */
-    'networks'?: { [key: string]: EndpointSettings; };
+    'Networks'?: { [key: string]: EndpointSettings; };
 }

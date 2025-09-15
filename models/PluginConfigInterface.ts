@@ -15,12 +15,12 @@
 * The interface between Docker and the plugin
 */
 export class PluginConfigInterface {
-    'types': Array<string>;
-    'socket': string;
+    'Types': Array<string>;
+    'Socket': string;
     /**
     * Protocol to use for clients connecting to the plugin.
     */
-    'protocolScheme'?: PluginConfigInterfaceProtocolSchemeEnum;
+    'ProtocolScheme'?: PluginConfigInterfaceProtocolSchemeEnum;
 }
 
 export enum PluginConfigInterfaceProtocolSchemeEnum {

@@ -14,6 +14,6 @@ import { GenericResourcesInnerDiscreteResourceSpec } from '../models/GenericReso
 import { GenericResourcesInnerNamedResourceSpec } from '../models/GenericResourcesInnerNamedResourceSpec';
 
 export class GenericResourcesInner {
-    'namedResourceSpec'?: GenericResourcesInnerNamedResourceSpec;
-    'discreteResourceSpec'?: GenericResourcesInnerDiscreteResourceSpec;
+    'NamedResourceSpec'?: GenericResourcesInnerNamedResourceSpec;
+    'DiscreteResourceSpec'?: GenericResourcesInnerDiscreteResourceSpec;
 }

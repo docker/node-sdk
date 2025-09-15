@@ -15,8 +15,8 @@
 * carries the information about one backend task 
 */
 export class NetworkTaskInfo {
-    'name'?: string;
-    'endpointID'?: string;
-    'endpointIP'?: string;
-    'info'?: { [key: string]: string; };
+    'Name'?: string;
+    'EndpointID'?: string;
+    'EndpointIP'?: string;
+    'Info'?: { [key: string]: string; };
 }

@@ -16,9 +16,9 @@ import { ImageSummary } from '../models/ImageSummary';
 import { Volume } from '../models/Volume';
 
 export class SystemDataUsageResponse {
-    'layersSize'?: number;
-    'images'?: Array<ImageSummary>;
-    'containers'?: Array<ContainerSummary>;
-    'volumes'?: Array<Volume>;
-    'buildCache'?: Array<BuildCache>;
+    'LayersSize'?: number;
+    'Images'?: Array<ImageSummary>;
+    'Containers'?: Array<ContainerSummary>;
+    'Volumes'?: Array<Volume>;
+    'BuildCache'?: Array<BuildCache>;
 }

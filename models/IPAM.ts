@@ -16,13 +16,13 @@ export class IPAM {
     /**
     * Name of the IPAM driver to use.
     */
-    'driver'?: string;
+    'Driver'?: string;
     /**
     * List of IPAM configuration options, specified as a map:  ``` {\"Subnet\": <CIDR>, \"IPRange\": <CIDR>, \"Gateway\": <IP address>, \"AuxAddress\": <device_name:IP address>} ``` 
     */
-    'config'?: Array<IPAMConfig>;
+    'Config'?: Array<IPAMConfig>;
     /**
     * Driver-specific options, specified as a map.
     */
-    'options'?: { [key: string]: string; };
+    'Options'?: { [key: string]: string; };
 }

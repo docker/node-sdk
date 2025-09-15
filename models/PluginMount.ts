@@ -12,11 +12,11 @@
 
 
 export class PluginMount {
-    'name': string;
-    'description': string;
-    'settable': Array<string>;
-    'source': string;
-    'destination': string;
-    'type': string;
-    'options': Array<string>;
+    'Name': string;
+    'Description': string;
+    'Settable': Array<string>;
+    'Source': string;
+    'Destination': string;
+    'Type': string;
+    'Options': Array<string>;
 }

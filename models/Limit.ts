@@ -15,10 +15,10 @@
 * An object describing a limit on resources which can be requested by a task. 
 */
 export class Limit {
-    'nanoCPUs'?: number;
-    'memoryBytes'?: number;
+    'NanoCPUs'?: number;
+    'MemoryBytes'?: number;
     /**
     * Limits the maximum number of PIDs in the container. Set `0` for unlimited. 
     */
-    'pids'?: number;
+    'Pids'?: number;
 }

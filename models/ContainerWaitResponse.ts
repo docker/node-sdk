@@ -19,6 +19,6 @@ export class ContainerWaitResponse {
     /**
     * Exit code of the container
     */
-    'statusCode': number;
-    'error'?: ContainerWaitExitError;
+    'StatusCode': number;
+    'Error'?: ContainerWaitExitError;
 }

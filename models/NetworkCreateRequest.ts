@@ -17,47 +17,47 @@ export class NetworkCreateRequest {
     /**
     * The network\'s name.
     */
-    'name': string;
+    'Name': string;
     /**
     * Name of the network driver plugin to use.
     */
-    'driver'?: string;
+    'Driver'?: string;
     /**
     * The level at which the network exists (e.g. `swarm` for cluster-wide or `local` for machine level). 
     */
-    'scope'?: string;
+    'Scope'?: string;
     /**
     * Restrict external access to the network.
     */
-    'internal'?: boolean;
+    'Internal'?: boolean;
     /**
     * Globally scoped network is manually attachable by regular containers from workers in swarm mode. 
     */
-    'attachable'?: boolean;
+    'Attachable'?: boolean;
     /**
     * Ingress network is the network which provides the routing-mesh in swarm mode. 
     */
-    'ingress'?: boolean;
+    'Ingress'?: boolean;
     /**
     * Creates a config-only network. Config-only networks are placeholder networks for network configurations to be used by other networks. Config-only networks cannot be used directly to run containers or services. 
     */
-    'configOnly'?: boolean;
-    'configFrom'?: ConfigReference;
+    'ConfigOnly'?: boolean;
+    'ConfigFrom'?: ConfigReference;
     'IPAM'?: IPAM;
     /**
     * Enable IPv4 on the network.
     */
-    'enableIPv4'?: boolean;
+    'EnableIPv4'?: boolean;
     /**
     * Enable IPv6 on the network.
     */
-    'enableIPv6'?: boolean;
+    'EnableIPv6'?: boolean;
     /**
     * Network specific options to be used by the drivers.
     */
-    'options'?: { [key: string]: string; };
+    'Options'?: { [key: string]: string; };
     /**
     * User-defined key/value metadata.
     */
-    'labels'?: { [key: string]: string; };
+    'Labels'?: { [key: string]: string; };
 }

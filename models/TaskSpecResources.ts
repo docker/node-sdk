@@ -17,6 +17,6 @@ import { ResourceObject } from '../models/ResourceObject';
 * Resource requirements which apply to each individual container created as part of the service. 
 */
 export class TaskSpecResources {
-    'limits'?: Limit;
-    'reservations'?: ResourceObject;
+    'Limits'?: Limit;
+    'Reservations'?: ResourceObject;
 }

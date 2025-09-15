@@ -15,8 +15,8 @@ import { SecretSpec } from '../models/SecretSpec';
 
 export class Secret {
     'ID'?: string;
-    'version'?: ObjectVersion;
-    'createdAt'?: string;
-    'updatedAt'?: string;
-    'spec'?: SecretSpec;
+    'Version'?: ObjectVersion;
+    'CreatedAt'?: string;
+    'UpdatedAt'?: string;
+    'Spec'?: SecretSpec;
 }

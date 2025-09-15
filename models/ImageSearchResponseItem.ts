@@ -12,12 +12,12 @@
 
 
 export class ImageSearchResponseItem {
-    'description'?: string;
-    'isOfficial'?: boolean;
+    'Description'?: string;
+    'IsOfficial'?: boolean;
     /**
     * Whether this repository has automated builds enabled.  <p><br /></p>  > **Deprecated**: This field is deprecated and will always be \"false\". 
     */
-    'isAutomated'?: boolean;
-    'name'?: string;
-    'starCount'?: number;
+    'IsAutomated'?: boolean;
+    'Name'?: string;
+    'StarCount'?: number;
 }

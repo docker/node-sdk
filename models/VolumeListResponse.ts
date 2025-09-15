@@ -19,9 +19,9 @@ export class VolumeListResponse {
     /**
     * List of volumes
     */
-    'volumes'?: Array<Volume>;
+    'Volumes'?: Array<Volume>;
     /**
     * Warnings that occurred when fetching the list of volumes. 
     */
-    'warnings'?: Array<string>;
+    'Warnings'?: Array<string>;
 }

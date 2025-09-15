@@ -12,9 +12,9 @@
 
 
 export class BuildPruneResponse {
-    'cachesDeleted'?: Array<string>;
+    'CachesDeleted'?: Array<string>;
     /**
     * Disk space reclaimed in bytes
     */
-    'spaceReclaimed'?: number;
+    'SpaceReclaimed'?: number;
 }

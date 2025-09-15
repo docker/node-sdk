@@ -15,9 +15,9 @@ export class ImageDeleteResponseItem {
     /**
     * The image ID of an image that was untagged
     */
-    'untagged'?: string;
+    'Untagged'?: string;
     /**
     * The image ID of an image that was deleted
     */
-    'deleted'?: string;
+    'Deleted'?: string;
 }

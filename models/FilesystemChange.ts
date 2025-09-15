@@ -19,8 +19,8 @@ export class FilesystemChange {
     /**
     * Path to file or directory that has changed. 
     */
-    'path': string;
-    'kind': ChangeType;
+    'Path': string;
+    'Kind': ChangeType;
 }
 
 
