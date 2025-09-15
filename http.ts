@@ -441,6 +441,11 @@ ${json}`;
         return this.handleResponse<T>(response);
     }
 
+    public async get<T>(uri: string, params?: Record<string, any>): Promise<T> {
+        const response = await this.sendHTTPRequest('GET', uri, { params: params });
+        return this.handleResponse<T>(response);
+    }
+
 
     public async post<T>(uri: string, data?: object, params?: Record<string, any>, timeout?: number): Promise<T> {
         const response = await this.sendHTTPRequest('POST', uri, { params: params, body: data, timeout: timeout });
