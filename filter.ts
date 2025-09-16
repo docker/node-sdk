@@ -5,11 +5,12 @@ export class Filter {
     this.data.set(key, new Set(values));
   }
 
-  add(key: string, value: string): void {
+  add(key: string, value: string): Filter {
     if (!this.data.has(key)) {
       this.data.set(key, new Set());
     }
     this.data.get(key)!.add(value);
+    return this
   }
 
   get(key: string): string[] {

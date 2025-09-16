@@ -631,4 +631,46 @@ export class DockerClient {
     }): Promise<Array<models.ImageSummary>> {
         return this.api.get('/images/json', options);
     }
+
+    // -- Exec
+
+    /**
+     * Run a command inside a runnin
+     * Create an exec instance
+     * @param id ID or name of conta
+     * @param execConfig Exec config
+     */
+    public async containerExec(id: string, execConfig: models.ExecConfig): Promise<models.IDResponse> {
+        return this.api.post(`/containers/${id}/exec`, undefined, execConfig);
+    }
+
+    /**
+     * Return low-level information 
+     * Inspect an exec instance
+     * @param id Exec instance ID
+     */
+    public async execInspect(id: string): Promise<models.ExecInspectResponse> {
+        return this.api.get(`/exec/${id}/json`);
+    }
+
+    /**
+     * Resize the TTY session used b
+     * Resize an exec instance
+     * @param id Exec instance ID
+     * @param h Height of the TTY se
+     * @param w Width of the TTY ses
+     */
+    public async execResize(id: string, h: number, w: number): Promise<void> {
+        return this.api.post<void>(`/exec/${id}/resize?h=${h}&w=${w}`);
+    }
+
+    /**
+     * Starts a previously set up ex
+     * Start an exec instance
+     * @param id Exec instance ID
+     * @param execStartConfig 
+     */
+    public async execStart(id: string, execStartConfig?: models.ExecStartConfig): Promise<void> {
+        return this.api.post(`/exec/${id}/start`, undefined, execStartConfig);
+    }
 }

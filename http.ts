@@ -189,7 +189,6 @@ export class HTTPClient {
             let headers: { [key: string]: string } = {};
 
             const dataHandler = (data: Buffer) => {
-                console.log(data.toString('utf8'))
                 buffer += data.toString('utf8');
                 
                 if (!headersComplete) {

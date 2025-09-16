@@ -71,10 +71,10 @@ Copyright 2025, Docker Inc
 - [x] VolumeDelete
 - [x] VolumePrune
 ### Exec
-- [ ] ContainerExec
-- [ ] ExecStart
-- [ ] ExecResize
-- [ ] ExecInspect
+- [x] ContainerExec
+- [x] ExecStart
+- [x] ExecResize
+- [x] ExecInspect
 ### Plugin
 - [ ] PluginList
 - [ ] GetPluginPrivileges
