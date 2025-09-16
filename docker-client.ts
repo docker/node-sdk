@@ -275,7 +275,7 @@ export class DockerClient {
         name?: string, 
         platform?: string
       }): Promise<models.ContainerCreateResponse> {
-        return this.api.post<models.ContainerCreateResponse>('/containers/create', spec, options);
+        return this.api.post<models.ContainerCreateResponse>('/containers/create', options, spec);
     }
 
     /**
@@ -344,7 +344,7 @@ export class DockerClient {
         all?: boolean, 
         limit?: number, 
         size?: boolean, 
-        filters?: string
+        filters?: Filter
       }): Promise<Array<models.ContainerSummary>> {
         return this.api.get<Array<models.ContainerSummary>>('/containers/json', options);
     }
@@ -409,8 +409,11 @@ export class DockerClient {
      * @param h Height of the TTY session in characters
      * @param w Width of the TTY session in characters
      */
-    public async containerResize(id: string, h: number, w: number): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/resize?h=${h}&w=${w}`);
+    public async containerResize(id: string, width: number, height: number): Promise<void> {
+        return this.api.post<void>(`/containers/${id}/resize`, {
+            w: width,
+            h: height
+        });
     }
 
     /**
@@ -423,7 +426,7 @@ export class DockerClient {
         signal?: string, 
         timeout?: number
       }): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/restart`, undefined, {
+        return this.api.post<void>(`/containers/${id}/restart`, {
             signal: options?.signal,
             t: options?.timeout,
         });
@@ -437,7 +440,7 @@ export class DockerClient {
     public async containerStart(id: string, options?: {         
         detachKeys?: string
       }): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/start`, undefined, options);
+        return this.api.post<void>(`/containers/${id}/start`, options);
     }
 
     /**
@@ -467,7 +470,7 @@ export class DockerClient {
         signal?: string, 
         timeout?: number
       }): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/start`, undefined,  {
+        return this.api.post<void>(`/containers/${id}/stop`, {
             signal: options?.signal,
             t: options?.timeout,
         });
@@ -794,8 +797,11 @@ export class DockerClient {
      * @param h Height of the TTY se
      * @param w Width of the TTY ses
      */
-    public async execResize(id: string, h: number, w: number): Promise<void> {
-        return this.api.post<void>(`/exec/${id}/resize?h=${h}&w=${w}`);
+    public async execResize(id: string, width: number, height: number): Promise<void> {
+        return this.api.post<void>(`/exec/${id}/resize`, {
+            w: width,
+            h: height
+        });
     }
 
     /**

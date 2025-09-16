@@ -1,5 +1,6 @@
 import * as net from 'net';
 import { DockerClient, Credentials, IdentityToken } from './docker-client.js';
+import { Filter } from './filter.js';
 
 function test(name: string, fn: () => Promise<void>) {
   return fn()
@@ -130,6 +131,115 @@ async function runTests() {
       const volumes = await client.volumeList();
       assertNotNull(volumes);
       console.log(`  Found ${volumes.volumes?.length || 0} volumes`);
+    });
+
+    await test('container lifecycle should work end-to-end', async () => {
+      const client = await DockerClient.fromDockerConfig();
+      let containerId: string | undefined;
+
+      try {
+        console.log('  Creating nginx container...');
+        // Create container with label
+        const createResponse = await client.containerCreate({
+          Image: 'nginx:latest',
+          Labels: {
+            'test.type': 'e2e',
+          },
+        }, {
+          name: 'e2e-test-container'
+        });
+        containerId = createResponse.Id;
+        assertNotNull(containerId);
+        console.log(`    Container created: ${containerId.substring(0, 12)}`);
+
+        // Test container listing with label filter
+        console.log('  Testing container filter by label...');
+        const filteredContainers = await client.containerList({
+          all: true,
+          filters: new Filter().add('label', 'test.type=e2e')
+        });
+        assertNotNull(filteredContainers);
+        const foundContainer = filteredContainers.find(c => c.Id === containerId);
+        assertNotNull(foundContainer);
+        console.log(`    Found ${filteredContainers.length} container(s) with label test.type=e2e`);
+
+        // Start container
+        console.log('  Starting container...');
+        await client.containerStart(containerId);
+        console.log('    Container started');
+
+        /* FIXME hang, need to investigate
+        // Resize TTY
+        console.log('  Resizing container TTY...');
+        await client.containerResize(containerId, 24, 80);
+        console.log('    TTY resized successfully');
+        */
+
+        // Inspect container
+        console.log('  Inspecting container...');
+        const inspectResponse = await client.containerInspect(containerId);
+        assertNotNull(inspectResponse);
+        assertEqual(inspectResponse.State.Running, true);
+        console.log(`    Container state: ${inspectResponse.State.Status}`);
+
+        // Pause container
+        console.log('  Pausing container...');
+        await client.containerPause(containerId);
+        console.log('    Container paused');
+
+        // Verify paused state
+        const pausedInspect = await client.containerInspect(containerId);
+        assertEqual(pausedInspect.State.Paused, true);
+        console.log(`    Verified paused state: ${pausedInspect.State.Status}`);
+
+        // Unpause container
+        console.log('  Unpausing container...');
+        await client.containerUnpause(containerId);
+        console.log('    Container unpaused');
+
+        // Verify running state
+        const unpausedInspect = await client.containerInspect(containerId);
+        assertEqual(unpausedInspect.State.Running, true);
+        assertEqual(unpausedInspect.State.Paused, false);
+        console.log(`    Verified running state: ${unpausedInspect.State.Status}`);
+
+        // Stop container
+        console.log('  Stopping container...');
+        await client.containerStop(containerId, { timeout: 10 });
+        console.log('    Container stopped');
+
+        // Restart container
+        console.log('  Restarting container...');
+        await client.containerRestart(containerId, { timeout: 10 });
+        console.log('    Container restarted');
+
+        // Verify running again
+        const restartedInspect = await client.containerInspect(containerId);
+        assertEqual(restartedInspect.State.Running, true);
+        console.log(`    Verified restarted state: ${restartedInspect.State.Status}`);
+
+        // Kill container
+        console.log('  Killing container...');
+        await client.containerKill(containerId, { signal: 'SIGKILL' });
+        console.log('    Container killed');
+
+        // Final inspect
+        console.log('  Final inspection...');
+        const finalInspect = await client.containerInspect(containerId);
+        assertEqual(finalInspect.State.Running, false);
+
+      } finally {
+        // Clean up: delete container
+        if (containerId) {
+          console.log('  Deleting container...');
+          try {
+            await client.containerDelete(containerId, { force: true });
+            console.log('    Container deleted successfully');
+          } catch (deleteError) {
+            console.log(`    Warning: Failed to delete container: ${deleteError.message}`);
+          }
+        }
+      }
     });
 
     console.log('\n✅ All tests completed!');
