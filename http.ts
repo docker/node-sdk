@@ -156,6 +156,10 @@ export class HTTPClient {
         this.setupEventHandlers();
     }
 
+    private close() {
+        this.socket.destroy()
+    }
+
     private setupEventHandlers(): void {
         // Data received from server
         this.socket.on('data', (data: Buffer) => {

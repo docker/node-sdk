@@ -6,8 +6,13 @@ import { Filter } from './filter';
 
 
 try {
-    const socket = new net.Socket().connect('/var/run/docker.sock')
-    const docker = new DockerClient(socket);
+
+    const docker = await DockerClient.fromDockerConfig();
+
+    await docker.containerList({ all: true })
+        .then((containers) => {
+            console.dir(containers)
+        });
 
     // await docker.systemPing().then((pong) => console.log(pong))
 
@@ -26,6 +31,7 @@ try {
     });
     */
 
+    /*
     await docker.systemEvents((event: models.EventMessage) => {
         console.log(event);
     }, {
@@ -33,8 +39,8 @@ try {
     }).catch((error) => {
         console.log(error);
     });
+    */
 
-    /*
     await docker.networkPrune();
 
     let created = await docker.networkCreate({
@@ -51,9 +57,8 @@ try {
     console.dir(list)
 
     await docker.networkDelete('test')
-    */
 
-    socket.destroy();
+    docker.close();
 } catch (error) {
     console.error(error);
 }

@@ -1,4 +1,7 @@
 import * as net from 'net';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 import * as models from './models';
 import { HTTPClient } from './http';
 import { Filter } from './filter';
@@ -21,8 +24,139 @@ export class DockerClient {
     constructor(socket: net.Socket) {
         this.api = new HTTPClient(socket);
     }
+    
+    /**
+     * Create a DockerClient instance from a Docker host string
+     * @param dockerHost Docker host string (e.g., "unix:/var/run/docker.sock" or "tcp://localhost:2376")
+     * @returns Promise that resolves to a connected DockerClient instance
+     */
+    static fromDockerHost(dockerHost: string): Promise<DockerClient> {
+        return new Promise((resolve, reject) => {
+            let socket: net.Socket;
+
+            if (dockerHost.startsWith('unix:')) {
+                // Unix socket connection
+                const socketPath = dockerHost.substring(5); // Remove "unix:" prefix
+                socket = net.createConnection(socketPath);
+            } else if (dockerHost.startsWith('tcp:')) {
+                // TCP connection
+                const tcpAddress = dockerHost.substring(6); // Remove "tcp://" prefix
+                const [host, portStr] = tcpAddress.split(':');
+                const port = parseInt(portStr) || 2376; // Default Docker port
+                socket = net.createConnection(port, host);
+            } else {
+                reject(new Error(`Unsupported Docker host format: ${dockerHost}. Must start with "unix:" or "tcp:"`));
+                return;
+            }
+            // TODO ssh connection
+
+            socket.on('connect', () => {
+                resolve(new DockerClient(socket));
+            });
+
+            socket.on('error', (error) => {
+                reject(new Error(`Failed to connect to Docker host ${dockerHost}: ${error.message}`));
+            });
+        });
+    }
+
+    /**
+     * Create a DockerClient instance from a Docker context name
+     * @param contextName Docker context name to search for, or uses DOCKER_CONTEXT env var if not provided
+     * @returns Promise that resolves to a connected DockerClient instance
+     */
+    static async fromDockerContext(contextName?: string): Promise<DockerClient> {
+        // Use DOCKER_CONTEXT environment variable if contextName not provided
+        const targetContext = contextName || process.env.DOCKER_CONTEXT;
+        
+        if (!targetContext) {
+            throw new Error('No context name provided and DOCKER_CONTEXT environment variable is not set');
+        }
+        const contextsDir = path.join(os.homedir(), '.docker', 'contexts', 'meta');
+        
+        try {
+            // Read all directories in the contexts meta directory
+            const contextDirs = fs.readdirSync(contextsDir, { withFileTypes: true })
+                .filter(dirent => dirent.isDirectory())
+                .map(dirent => dirent.name);
+
+            for (const contextDir of contextDirs) {
+                const metaJsonPath = path.join(contextsDir, contextDir, 'meta.json');
+                
+                try {
+                    if (fs.existsSync(metaJsonPath)) {
+                        const metaContent = fs.readFileSync(metaJsonPath, 'utf8');
+                        const meta = JSON.parse(metaContent);
+                        
+                        if (meta.Name === targetContext) {
+                            // Found matching context, extract endpoint
+                            if (meta.Endpoints && meta.Endpoints.docker && meta.Endpoints.docker.Host) {
+                                const dockerHost = meta.Endpoints.docker.Host;
+                                return DockerClient.fromDockerHost(dockerHost);
+                            } else {
+                                throw new Error(`Docker context '${targetContext}' found but has no valid Docker endpoint`);
+                            }
+                        }
+                    }
+                } catch (parseError) {
+                    // Skip invalid meta.json files
+                    continue;
+                }
+            }
+            
+            throw new Error(`Docker context '${targetContext}' not found`);
+            
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                throw new Error(`Docker contexts directory not found: ${contextsDir}`);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Create a DockerClient instance using the current context from Docker config
+     * Reads config.json from DOCKER_CONFIG env var or ~/.docker/config.json to get the currentContext and connects to it
+     * @returns Promise that resolves to a connected DockerClient instance
+     */
+    static async fromDockerConfig(): Promise<DockerClient> {
+        // Check for DOCKER_CONFIG environment variable, otherwise use default path
+        const configPath = process.env.DOCKER_CONFIG || path.join(os.homedir(), '.docker', 'config.json');
+        
+        try {
+            if (!fs.existsSync(configPath)) {
+                // If no config file exists, use default context (usually unix socket)
+                return DockerClient.fromDockerHost('unix:/var/run/docker.sock');
+            }
+            
+            const configContent = fs.readFileSync(configPath, 'utf8');
+            const config = JSON.parse(configContent);
+            
+            if (config.currentContext) {
+                // Use the specified current context
+                return DockerClient.fromDockerContext(config.currentContext);
+            } else {
+                // No current context specified, use default
+                return DockerClient.fromDockerHost('unix:/var/run/docker.sock');
+            }
+            
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                // Config file doesn't exist, use default
+                return DockerClient.fromDockerHost('unix:/var/run/docker.sock');
+            } else if (error instanceof SyntaxError) {
+                throw new Error(`Invalid JSON in Docker config file: ${configPath}`);
+            }
+            throw error;
+        }
+    }
+
+    public close() {
+        this.api.close()
+    }
 
     // --- Authentication
+
     public authCredentials(credentials: Credentials|IdentityToken): string {
         const jsonString = JSON.stringify(credentials);
         const base64 = Buffer.from(jsonString, 'utf8').toString('base64');

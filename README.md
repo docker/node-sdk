@@ -4,6 +4,15 @@
 
 Docker-TS is a TypeScript library to access [Docker engine API](https://docs.docker.com/reference/api/engine/#view-the-api-reference) (a.k.a "Moby").
 
+## Usage
+
+```typescript
+const docker = await DockerClient.fromDockerConfig();
+
+const containers = await docker.containerList({ all: true })
+console.dir(containers)
+```
+
 ## License
 
 Licensed under [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
