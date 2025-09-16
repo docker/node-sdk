@@ -2,7 +2,7 @@ generatorName: typescript
 templateDir: templates
 globalProperties:
   supportingFiles: models/index.ts
-  models: ''
+  models: ""
 files:
   model/index.mustache:
     templateType: SupportingFiles

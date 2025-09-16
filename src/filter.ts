@@ -10,7 +10,7 @@ export class Filter {
       this.data.set(key, new Set());
     }
     this.data.get(key)!.add(value);
-    return this
+    return this;
   }
 
   get(key: string): string[] {
@@ -28,19 +28,18 @@ export class Filter {
 
   toJSON(): Record<string, Record<string, boolean>> {
     const result: Record<string, Record<string, boolean>> = {};
-    
+
     for (const [key, values] of this.data) {
       result[key] = {};
       for (const value of values) {
         result[key][value] = true;
       }
     }
-    
+
     return result;
   }
 
   toURLParameter(): string {
     return JSON.stringify(this.toJSON());
   }
-
 }
