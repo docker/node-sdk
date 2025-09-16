@@ -2,16 +2,131 @@
 
 ![logo](logo.png)
 
-Docker-TS is designed with some key principes:
+Docker-TS is a TypeScript library to access [Docker engine API](https://docs.docker.com/reference/api/engine/#view-the-api-reference) (a.k.a "Moby").
 
-## Keep it Simple Stupid 
-Docker-TS uses a strict minimum of dependencies. Typically, no high-level HTTP client library
-is used, so that we can easily connect to Unix Domain Socket or SSH remote engine as plain TCP,
-which is a requirement to implement the `ContainerAttach` API.
+## License
 
-## Reduce maintenance effort
-API model is generated from the official OpenAPI specification. If something is incorrect, we
-prefer to contribute to this specification so we later don't have to worry about it.
-We also rely on custom openapi-generator template to enforce minimalist code being generated
-for the purpose of a SDK.
+Licensed under [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+Copyright 2025, Docker Inc
 
+*tl;dr:* You're free to use this code, make any changes you need, have fun with it. Contributions are welcome if you miss something.
+
+## Supported APIs:
+
+### Container
+- [x] ContainerList
+- [x] ContainerCreate
+- [x] ContainerInspect
+- [x] ContainerTop
+- [x] ContainerLogs
+- [x] ContainerChanges
+- [ ] ContainerExport
+- [x] ContainerStats
+- [x] ContainerResize
+- [x] ContainerStart
+- [x] ContainerStop
+- [x] ContainerRestart
+- [x] ContainerKill
+- [x] ContainerUpdate
+- [x] ContainerRename
+- [x] ContainerPause
+- [x] ContainerUnpause
+- [ ] ContainerAttach
+- [ ] ContainerAttachWebsocket
+- [x] ContainerWait
+- [x] ContainerDelete
+- [ ] ContainerArchiveInfo
+- [ ] ContainerArchive
+- [ ] PutContainerArchive
+- [x] ContainerPrune
+### Image
+- [x] ImageList
+- [ ] ImageBuild
+- [x] BuildPrune
+- [x] ImageCreate
+- [x] ImageInspect
+- [x] ImageHistory
+- [ ] ImagePush
+- [x] ImageTag
+- [x] ImageDelete
+- [ ] ImageSearch
+- [x] ImagePrune
+- [ ] ImageCommit
+- [ ] ImageGet
+- [ ] ImageGetAll
+- [ ] ImageLoad
+### Network
+- [x] NetworkList
+- [x] NetworkInspect
+- [x] NetworkDelete
+- [x] NetworkCreate
+- [x] NetworkConnect
+- [x] NetworkDisconnect
+- [x] NetworkPrune
+### Volume
+- [x] VolumeList
+- [x] VolumeCreate
+- [x] VolumeInspect
+- [x] VolumeUpdate
+- [x] VolumeDelete
+- [x] VolumePrune
+### Exec
+- [ ] ContainerExec
+- [ ] ExecStart
+- [ ] ExecResize
+- [ ] ExecInspect
+### Plugin
+- [ ] PluginList
+- [ ] GetPluginPrivileges
+- [ ] PluginPull
+- [ ] PluginInspect
+- [ ] PluginDelete
+- [ ] PluginEnable
+- [ ] PluginDisable
+- [ ] PluginUpgrade
+- [ ] PluginCreate
+- [ ] PluginPush
+- [ ] PluginSet
+### System
+- [x] SystemAuth
+- [x] SystemInfo
+- [x] SystemVersion
+- [x] SystemPing
+- [ ] SystemPingHead
+- [x] SystemEvents
+- [x] SystemDataUsage
+### Distribution
+- [ ] DistributionInspect
+### Session
+- [ ] Session
+### Swarm
+- [ ] SwarmInspect
+- [ ] SwarmInit
+- [ ] SwarmJoin
+- [ ] SwarmLeave
+- [ ] SwarmUpdate
+- [ ] SwarmUnlockkey
+- [ ] SwarmUnlock
+- [ ] NodeList
+- [ ] NodeInspect
+- [ ] NodeDelete
+- [ ] NodeUpdate
+- [ ] ServiceList
+- [ ] ServiceCreate
+- [ ] ServiceInspect
+- [ ] ServiceDelete
+- [ ] ServiceUpdate
+- [ ] ServiceLogs
+- [ ] TaskList
+- [ ] TaskInspect
+- [ ] TaskLogs
+- [ ] SecretList
+- [ ] SecretCreate
+- [ ] SecretInspect
+- [ ] SecretDelete
+- [ ] SecretUpdate
+- [ ] ConfigList
+- [ ] ConfigCreate
+- [ ] ConfigInspect
+- [ ] ConfigDelete
+- [ ] ConfigUpdate

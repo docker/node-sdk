@@ -3,8 +3,6 @@ templateDir: templates
 globalProperties:
   supportingFiles: models/index.ts
   models: ''
-  #apis: ''
-  #apiDocs: false
 files:
   model/index.mustache:
     templateType: SupportingFiles

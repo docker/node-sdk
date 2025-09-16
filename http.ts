@@ -1,7 +1,11 @@
 import * as net from 'net';
 
+// Docker stream content type constants
+const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
+const DOCKER_MULTIPLEXED_STREAM = 'application/vnd.docker.multiplexed-stream';
+
 // Custom error class for 404 Not Found responses
-class NotFoundError extends Error {
+export class NotFoundError extends Error {
     constructor(message: string) {
         super(message);
         this.name = 'NotFoundError';
@@ -9,7 +13,7 @@ class NotFoundError extends Error {
 }
 
 // Custom error class for 401 Unauthorized responses
-class UnauthorizedError extends Error {
+export class UnauthorizedError extends Error {
     constructor(message: string) {
         super(message);
         this.name = 'UnauthorizedError';
@@ -17,7 +21,7 @@ class UnauthorizedError extends Error {
 }
 
 // Custom error class for 409 Conflict responses
-class ConflictError extends Error {
+export class ConflictError extends Error {
     constructor(message: string) {
         super(message);
         this.name = 'ConflictError';
@@ -41,7 +45,7 @@ function getErrorMessage(status: string, headers: { [key: string]: string }, bod
 }
 
 // Interface to represent an HTTP response
-interface HTTPResponse {
+export interface HTTPResponse {
     statusLine: string;
     statusCode: number;
     headers: { [key: string]: string };
@@ -49,41 +53,7 @@ interface HTTPResponse {
 }
 
 // Class for parsing HTTP responses
-class HTTPParser {
-    public static parseResponse(rawResponse: string): HTTPResponse {
-        const lines = rawResponse.split('\r\n');
-        const statusLine = lines[0];
-        const statusCode = parseInt(statusLine.split(' ')[1]) || 0;
-        
-        let headerEndIndex = -1;
-        const headers: { [key: string]: string } = {};
-        
-        // Find the end of headers
-        for (let i = 1; i < lines.length; i++) {
-            if (lines[i] === '') {
-                headerEndIndex = i;
-                break;
-            }
-            
-            const colonIndex = lines[i].indexOf(':');
-            if (colonIndex > 0) {
-                const headerName = lines[i].substring(0, colonIndex).trim().toLowerCase();
-                const headerValue = lines[i].substring(colonIndex + 1).trim();
-                headers[headerName] = headerValue;
-            }
-        }
-        
-        const bodyLines = lines.slice(headerEndIndex + 1);
-        const body = bodyLines.join('\r\n');
-        
-        return {
-            statusLine,
-            statusCode,
-            headers,
-            body
-        };
-    }
-    
+class HTTPParser {  
     public static parseChunkedBody(chunkedData: string): string {
         const lines = chunkedData.split('\r\n');
         let result = '';
@@ -219,6 +189,7 @@ export class HTTPClient {
             let headers: { [key: string]: string } = {};
 
             const dataHandler = (data: Buffer) => {
+                console.log(data.toString('utf8'))
                 buffer += data.toString('utf8');
                 
                 if (!headersComplete) {
@@ -261,6 +232,43 @@ export class HTTPClient {
                         // Check Transfer-Encoding: chunked
                         if (headers['transfer-encoding'] === 'chunked') {
                             isChunked = true;
+                        }
+                        
+                        // Check for Docker stream content types
+                        const contentType = headers['content-type'];
+                        const isDockerStream = contentType === DOCKER_RAW_STREAM || 
+                                             contentType === DOCKER_MULTIPLEXED_STREAM;
+                        
+                        if (isDockerStream && callback) {
+                            // For upgrade protocols, forward all remaining data directly to callback
+                            const bodyStartIndex = buffer.indexOf('\r\n\r\n') + 4;
+                            const remainingData = buffer.substring(bodyStartIndex);
+                            
+                            if (remainingData) {
+                                callback(remainingData);
+                            }
+                            
+                            // Set up direct forwarding for future data
+                            const upgradeHandler = (data: Buffer) => {
+                                callback(data.toString('utf8'));
+                            };
+                            
+                            this.socket.off('data', dataHandler);
+                            this.socket.on('data', upgradeHandler);
+                            
+                            // Resolve immediately with upgrade response
+                            resolved = true;
+                            clearTimeout(timeoutId);
+                            
+                            const response: HTTPResponse = {
+                                statusLine,
+                                statusCode,
+                                headers,
+                                body: undefined
+                            };
+                            
+                            resolve(response);
+                            return;
                         }
                         
                         // Reset buffer to contain only body data
@@ -390,9 +398,10 @@ export class HTTPClient {
         body?: object,
         timeout?: number,
         callback?: (data: string) => void,
-        accept?: string
+        accept?: string,
+        headers?: Record<string, string>
     }): Promise<HTTPResponse> {
-        const { params, body, timeout = 10000, callback, accept = 'application/json' } = options || {};
+        const { params, body, timeout = 10000, callback, accept = 'application/json', headers } = options || {};
         
         const queryString = this.buildQueryString(params);
         const fullUri = `${uri}${queryString}`;
@@ -402,6 +411,13 @@ Host: host
 User-Agent: docker-ts/0.0.1
 Accept: ${accept}
 `;
+        
+        // Add custom headers if provided
+        if (headers) {
+            Object.entries(headers).forEach(([key, value]) => {
+                request += `${key}: ${value}\r\n`;
+            });
+        }
         
         if (body) {
             const json = JSON.stringify(body);
@@ -447,20 +463,18 @@ ${json}`;
     }
 
     public async get<T>(uri: string, params?: Record<string, any>): Promise<T> {
-        const response = await this.sendHTTPRequest('GET', uri, { params: params });
-        return this.handleResponse<T>(response);
+        return this.sendHTTPRequest('GET', uri, { params: params })
+            .then(response => this.handleResponse<T>(response));
     }
 
 
-    public async post<T>(uri: string, params?: Record<string, any>, data?: object, timeout?: number): Promise<T> {
-        const response = await this.sendHTTPRequest('POST', uri, { params: params, body: data, timeout: timeout });
-        return this.handleResponse<T>(response);
+    public async post<T>(uri: string, params?: Record<string, any>, data?: object, timeout?: number, headers?: Record<string, string>): Promise<T> {
+        return this.sendHTTPRequest('POST', uri, { params: params, body: data, timeout: timeout, headers: headers })
+            .then(response => this.handleResponse<T>(response));
     }    
 
     public async delete<T>(uri: string, params?: Record<string, any>): Promise<T> {
-        const response = await this.sendHTTPRequest('DELETE', uri, { params: params });
-        return this.handleResponse<T>(response);
+        return this.sendHTTPRequest('DELETE', uri, { params: params })
+            .then(response => this.handleResponse<T>(response));
     }
 }
-
-export { HTTPResponse, NotFoundError, UnauthorizedError, ConflictError };

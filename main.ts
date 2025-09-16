@@ -2,13 +2,14 @@ import * as net from 'net';
 import * as models from './models';
 import { createMultiplexedStreamCallback } from './multiplexed-stream';
 import { DockerClient } from './docker-client';
+import { Filter } from './filter';
 
 
 try {
     const socket = new net.Socket().connect('/var/run/docker.sock')
     const docker = new DockerClient(socket);
 
-    await docker.systemPing().then((pong) => console.log(pong))
+    // await docker.systemPing().then((pong) => console.log(pong))
 
     // await docker.systemVersion().then((version) => console.dir(version, { depth: null }))
 
@@ -25,16 +26,15 @@ try {
     });
     */
 
-    /*
-    docker.systemEvents((event: models.EventMessage) => {
+    await docker.systemEvents((event: models.EventMessage) => {
         console.log(event);
+    }, {
+        filters: new Filter().add('type', 'container')
     }).catch((error) => {
         console.log(error);
     });
-    */
 
     /*
-
     await docker.networkPrune();
 
     let created = await docker.networkCreate({

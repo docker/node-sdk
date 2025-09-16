@@ -3,6 +3,17 @@ import * as models from './models';
 import { HTTPClient } from './http';
 import { Filter } from './filter';
 
+export class Credentials {
+  username: string;
+  password: string;
+  email: string;
+  serveraddress: string;
+}
+
+export class IdentityToken {
+    token: string
+}
+
 export class DockerClient {
 
     private api: HTTPClient;
@@ -10,6 +21,15 @@ export class DockerClient {
     constructor(socket: net.Socket) {
         this.api = new HTTPClient(socket);
     }
+
+    // --- Authentication
+    public authCredentials(credentials: Credentials|IdentityToken): string {
+        const jsonString = JSON.stringify(credentials);
+        const base64 = Buffer.from(jsonString, 'utf8').toString('base64');
+        // Convert standard Base64 to URL and filename safe alphabet (RFC 4648)
+        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    }
+
 
     // --- System API
 
@@ -37,17 +57,18 @@ export class DockerClient {
      * Monitor events
      * @param since Show events created since this timestamp then stream new events.
      * @param until Show events created until this timestamp then stop streaming.
-     * @param filters A JSON encoded value of filters (a &#x60;map[string][]string&#x60;) to process on the event list. Available filters:  - &#x60;config&#x3D;&lt;string&gt;&#x60; config name or ID - &#x60;container&#x3D;&lt;string&gt;&#x60; container name or ID - &#x60;daemon&#x3D;&lt;string&gt;&#x60; daemon name or ID - &#x60;event&#x3D;&lt;string&gt;&#x60; event type - &#x60;image&#x3D;&lt;string&gt;&#x60; image name or ID - &#x60;label&#x3D;&lt;string&gt;&#x60; image or container label - &#x60;network&#x3D;&lt;string&gt;&#x60; network name or ID - &#x60;node&#x3D;&lt;string&gt;&#x60; node ID - &#x60;plugin&#x60;&#x3D;&lt;string&gt; plugin name or ID - &#x60;scope&#x60;&#x3D;&lt;string&gt; local or swarm - &#x60;secret&#x3D;&lt;string&gt;&#x60; secret name or ID - &#x60;service&#x3D;&lt;string&gt;&#x60; service name or ID - &#x60;type&#x3D;&lt;string&gt;&#x60; object to filter by, one of &#x60;container&#x60;, &#x60;image&#x60;, &#x60;volume&#x60;, &#x60;network&#x60;, &#x60;daemon&#x60;, &#x60;plugin&#x60;, &#x60;node&#x60;, &#x60;service&#x60;, &#x60;secret&#x60; or &#x60;config&#x60; - &#x60;volume&#x3D;&lt;string&gt;&#x60; volume name 
+     * @param filters Filters to process on the event list. Available filters:  - 'config' config name or ID - 'container' container name or ID - 'daemon' daemon name or ID - 'event' event type - 'image' image name or ID - 'label' image or container label - 'network' network name or ID - 'node' node ID - 'plugin' plugin name or ID - 'scope' local or swarm - 'secret' secret name or ID - 'service' service name or ID - 'type' object to filter by, one of 'container', 'image', 'volume', 'network', 'daemon', 'plugin', 'node', 'service', 'secret' or 'config' - 'volume' volume name 
      */
-    public async systemEvents(callback: (event: models.EventMessage) => void) {        
-        await this.api.sendHTTPRequestRaw(`GET /events HTTP/1.1
-Host: host
-User-Agent: docker-ts/0.0.1
-Accept: application/x-ndjson
-
-`, -1, (chunk: string) => {
-            callback(JSON.parse(chunk) as models.EventMessage);
-        })
+    public async systemEvents(callback: (event: models.EventMessage) => void, options?: { 
+        since?: string, 
+        until?: string, 
+        filters?: Filter,
+      }) {        
+        await this.api.sendHTTPRequest('GET', '/events', {
+            params: options,
+            timeout: -1,
+            callback: (chunk: string) => callback(JSON.parse(chunk) as models.EventMessage)
+        });
     }
 
     /**
@@ -77,6 +98,31 @@ Accept: application/x-ndjson
     // --- Containers API
 
     /**
+     * Attach to a container to read its output or send it input. You can attach to the same container multiple times and you can reattach to containers that have been detached.  Either the `stream` or `logs` parameter must be `true` for this endpoint to do anything.  See the [documentation for the `docker attach` command](https://docs.docker.com/engine/reference/commandline/attach/) for more details.  ### Hijacking  This endpoint hijacks the HTTP connection to transport `stdin`, `stdout`, and `stderr` on the same socket.  This is the response from the daemon for an attach request:  ``` HTTP/1.1 200 OK Content-Type: application/vnd.docker.raw-stream  [STREAM] ```  After the headers and two new lines, the TCP connection can now be used for raw, bidirectional communication between the client and server.  To hint potential proxies about connection hijacking, the Docker client can also optionally send connection upgrade headers.  For example, the client sends this request to upgrade the connection:  ``` POST /containers/16253994b7c4/attach?stream=1&stdout=1 HTTP/1.1 Upgrade: tcp Connection: Upgrade ```  The Docker daemon will respond with a `101 UPGRADED` response, and will similarly follow with the raw stream:  ``` HTTP/1.1 101 UPGRADED Content-Type: application/vnd.docker.raw-stream Connection: Upgrade Upgrade: tcp  [STREAM] ```  ### Stream format  When the TTY setting is disabled in [`POST /containers/create`](#operation/ContainerCreate), the HTTP Content-Type header is set to application/vnd.docker.multiplexed-stream and the stream over the hijacked connected is multiplexed to separate out `stdout` and `stderr`. The stream consists of a series of frames, each containing a header and a payload.  The header contains the information which the stream writes (`stdout` or `stderr`). It also contains the size of the associated frame encoded in the last four bytes (`uint32`).  It is encoded on the first eight bytes like this:  ```go header := [8]byte{STREAM_TYPE, 0, 0, 0, SIZE1, SIZE2, SIZE3, SIZE4} ```  `STREAM_TYPE` can be:  - 0: `stdin` (is written on `stdout`) - 1: `stdout` - 2: `stderr`  `SIZE1, SIZE2, SIZE3, SIZE4` are the four bytes of the `uint32` size encoded as big endian.  Following the header is the payload, which is the specified number of bytes of `STREAM_TYPE`.  The simplest way to implement this protocol is the following:  1. Read 8 bytes. 2. Choose `stdout` or `stderr` depending on the first byte. 3. Extract the frame size from the last four bytes. 4. Read the extracted size and output it on the correct output. 5. Goto 1.  ### Stream format when using a TTY  When the TTY setting is enabled in [`POST /containers/create`](#operation/ContainerCreate), the stream is not multiplexed. The data exchanged over the hijacked connection is simply the raw data from the process PTY and client\'s `stdin`. 
+     * Attach to a container
+     * @param id ID or name of the container
+     * @param detachKeys Override the key sequence for detaching a container.Format is a single character '[a-Z]' or 'ctrl-&lt;value&gt;' where '&lt;value&gt;' is one of: 'a-z', '@', '^', '[', ',' or '_'. 
+     * @param logs Replay previous logs from the container.  This is useful for attaching to a container that has started and you want to output everything since the container started.  If 'stream' is also enabled, once all the previous output has been returned, it will seamlessly transition into streaming current output. 
+     * @param stream Stream attached streams from the time the request was made onwards. 
+     * @param stdin Attach to 'stdin'
+     * @param stdout Attach to 'stdout'
+     * @param stderr Attach to 'stderr'
+     */
+    public async containerAttach(id: string, callback: (data: Buffer) => void, options?: {         
+        detachKeys?: string, 
+        logs?: boolean, 
+        stream?: boolean, 
+        stdin?: boolean, 
+        stdout?: boolean, 
+        stderr?: boolean
+    }): Promise<void> {
+        return this.api.post(`/containers/${id}/attach`, options, undefined, undefined, {
+            'Connection': 'Upgrade',
+            'Upgrade': 'tcp'
+        })
+    }
+
+    /**
      * Returns which files in a container\'s filesystem have been added, deleted, or modified. The `Kind` of modification can be one of:  - `0`: Modified (\"C\") - `1`: Added (\"A\") - `2`: Deleted (\"D\") 
      * Get changes on a container’s filesystem
      * @param id ID or name of the container
@@ -88,8 +134,8 @@ Accept: application/x-ndjson
     /**
      * Create a container
      * @param spec Container to create
-     * @param name Assign the specified name to the container. Must match &#x60;/?[a-zA-Z0-9][a-zA-Z0-9_.-]+&#x60;. 
-     * @param platform Platform in the format &#x60;os[/arch[/variant]]&#x60; used for image lookup.  When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a &#x60;404&#x60; status.  If the option is not set, the host\&#39;s native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the &#x60;Warnings&#x60; field in the response, for example;      WARNING: The requested image\&#39;s platform (linux/arm64/v8) does not              match the detected host platform (linux/amd64) and no              specific platform was requested 
+     * @param name Assign the specified name to the container. Must match '/?[a-zA-Z0-9][a-zA-Z0-9_.-]+'. 
+     * @param platform Platform in the format 'os[/arch[/variant]]' used for image lookup.  When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a '404' status.  If the option is not set, the host\&#39;s native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the 'Warnings' field in the response, for example;      WARNING: The requested image\&#39;s platform (linux/arm64/v8) does not              match the detected host platform (linux/amd64) and no              specific platform was requested 
      */
     public async containerCreate(spec: models.ContainerCreateRequest, options?: { 
         name?: string, 
@@ -132,7 +178,7 @@ Accept: application/x-ndjson
      * Return low-level information about a container.
      * Inspect a container
      * @param id ID or name of the container
-     * @param size Return the size of container as fields &#x60;SizeRw&#x60; and &#x60;SizeRootFs&#x60;
+     * @param size Return the size of container as fields 'SizeRw' and 'SizeRootFs'
      */
     public async containerInspect(id: string, options?: { 
             size?: boolean
@@ -144,7 +190,7 @@ Accept: application/x-ndjson
      * Send a POSIX signal to a container, defaulting to killing to the container. 
      * Kill a container
      * @param id ID or name of the container
-     * @param signal Signal to send to the container as an integer or string (e.g. &#x60;SIGINT&#x60;). 
+     * @param signal Signal to send to the container as an integer or string (e.g. 'SIGINT'). 
      */    
     public async containerKill(id: string, options?: {          
         signal?: string
@@ -157,8 +203,8 @@ Accept: application/x-ndjson
      * List containers
      * @param all Return all containers. By default, only running containers are shown. 
      * @param limit Return this number of most recently created containers, including non-running ones. 
-     * @param size Return the size of container as fields &#x60;SizeRw&#x60; and &#x60;SizeRootFs&#x60;. 
-     * @param filters Filters to process on the container list, encoded as JSON (a &#x60;map[string][]string&#x60;). For example, &#x60;{\&quot;status\&quot;: [\&quot;paused\&quot;]}&#x60; will only return paused containers.  Available filters:  - &#x60;ancestor&#x60;&#x3D;(&#x60;&lt;image-name&gt;[:&lt;tag&gt;]&#x60;, &#x60;&lt;image id&gt;&#x60;, or &#x60;&lt;image@digest&gt;&#x60;) - &#x60;before&#x60;&#x3D;(&#x60;&lt;container id&gt;&#x60; or &#x60;&lt;container name&gt;&#x60;) - &#x60;expose&#x60;&#x3D;(&#x60;&lt;port&gt;[/&lt;proto&gt;]&#x60;|&#x60;&lt;startport-endport&gt;/[&lt;proto&gt;]&#x60;) - &#x60;exited&#x3D;&lt;int&gt;&#x60; containers with exit code of &#x60;&lt;int&gt;&#x60; - &#x60;health&#x60;&#x3D;(&#x60;starting&#x60;|&#x60;healthy&#x60;|&#x60;unhealthy&#x60;|&#x60;none&#x60;) - &#x60;id&#x3D;&lt;ID&gt;&#x60; a container\&#39;s ID - &#x60;isolation&#x3D;&#x60;(&#x60;default&#x60;|&#x60;process&#x60;|&#x60;hyperv&#x60;) (Windows daemon only) - &#x60;is-task&#x3D;&#x60;(&#x60;true&#x60;|&#x60;false&#x60;) - &#x60;label&#x3D;key&#x60; or &#x60;label&#x3D;\&quot;key&#x3D;value\&quot;&#x60; of a container label - &#x60;name&#x3D;&lt;name&gt;&#x60; a container\&#39;s name - &#x60;network&#x60;&#x3D;(&#x60;&lt;network id&gt;&#x60; or &#x60;&lt;network name&gt;&#x60;) - &#x60;publish&#x60;&#x3D;(&#x60;&lt;port&gt;[/&lt;proto&gt;]&#x60;|&#x60;&lt;startport-endport&gt;/[&lt;proto&gt;]&#x60;) - &#x60;since&#x60;&#x3D;(&#x60;&lt;container id&gt;&#x60; or &#x60;&lt;container name&gt;&#x60;) - &#x60;status&#x3D;&#x60;(&#x60;created&#x60;|&#x60;restarting&#x60;|&#x60;running&#x60;|&#x60;removing&#x60;|&#x60;paused&#x60;|&#x60;exited&#x60;|&#x60;dead&#x60;) - &#x60;volume&#x60;&#x3D;(&#x60;&lt;volume name&gt;&#x60; or &#x60;&lt;mount point destination&gt;&#x60;) 
+     * @param size Return the size of container as fields 'SizeRw' and 'SizeRootFs'. 
+     * @param filters Filters to process on the container list, encoded as JSON (a 'map[string][]string'). For example, '{\&quot;status\&quot;: [\&quot;paused\&quot;]}' will only return paused containers.  Available filters:  - 'ancestor''('&lt;image-name&gt;[:&lt;tag&gt;]', '&lt;image id&gt;', or '&lt;image@digest&gt;') - 'before''('&lt;container id&gt;' or '&lt;container name&gt;') - 'expose''('&lt;port&gt;[/&lt;proto&gt;]'|'&lt;startport-endport&gt;/[&lt;proto&gt;]') - 'exited'&lt;int&gt;' containers with exit code of '&lt;int&gt;' - 'health''('starting'|'healthy'|'unhealthy'|'none') - 'id'&lt;ID&gt;' a container\&#39;s ID - 'isolation''('default'|'process'|'hyperv') (Windows daemon only) - 'is-task''('true'|'false') - 'label'key' or 'label'\&quot;key'value\&quot;' of a container label - 'name'&lt;name&gt;' a container\&#39;s name - 'network''('&lt;network id&gt;' or '&lt;network name&gt;') - 'publish''('&lt;port&gt;[/&lt;proto&gt;]'|'&lt;startport-endport&gt;/[&lt;proto&gt;]') - 'since''('&lt;container id&gt;' or '&lt;container name&gt;') - 'status''('created'|'restarting'|'running'|'removing'|'paused'|'exited'|'dead') - 'volume''('&lt;volume name&gt;' or '&lt;mount point destination&gt;') 
      */
     public async containerList(options?: { 
         all?: boolean, 
@@ -174,12 +220,12 @@ Accept: application/x-ndjson
      * Get container logs
      * @param id ID or name of the container
      * @param follow Keep connection after returning logs.
-     * @param stdout Return logs from &#x60;stdout&#x60;
-     * @param stderr Return logs from &#x60;stderr&#x60;
+     * @param stdout Return logs from 'stdout'
+     * @param stderr Return logs from 'stderr'
      * @param since Only return logs since this time, as a UNIX timestamp
      * @param until Only return logs before this time, as a UNIX timestamp
      * @param timestamps Add timestamps to every log line
-     * @param tail Only return this number of log lines from the end of the logs. Specify as an integer or &#x60;all&#x60; to output all log lines. 
+     * @param tail Only return this number of log lines from the end of the logs. Specify as an integer or 'all' to output all log lines. 
      */
      public async containerLogs(options?: { 
         id: string, 
@@ -205,7 +251,7 @@ Accept: application/x-ndjson
 
     /**
      * Delete stopped containers
-     * @param filters Filters to process on the prune list, encoded as JSON (a &#x60;map[string][]string&#x60;).  Available filters: - &#x60;until&#x3D;&lt;timestamp&gt;&#x60; Prune containers created before this timestamp. The &#x60;&lt;timestamp&gt;&#x60; can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. &#x60;10m&#x60;, &#x60;1h30m&#x60;) computed relative to the daemon machine’s time. - &#x60;label&#x60; (&#x60;label&#x3D;&lt;key&gt;&#x60;, &#x60;label&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;, &#x60;label!&#x3D;&lt;key&gt;&#x60;, or &#x60;label!&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;) Prune containers with (or without, in case &#x60;label!&#x3D;...&#x60; is used) the specified labels. 
+     * @param filters Filters to process on the prune list, encoded as JSON (a 'map[string][]string').  Available filters: - 'until'&lt;timestamp&gt;' Prune containers created before this timestamp. The '&lt;timestamp&gt;' can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. '10m', '1h30m') computed relative to the daemon machine’s time. - 'label' ('label'&lt;key&gt;', 'label'&lt;key&gt;'&lt;value&gt;', 'label!'&lt;key&gt;', or 'label!'&lt;key&gt;'&lt;value&gt;') Prune containers with (or without, in case 'label!'...' is used) the specified labels. 
      */
     public async containerPrune(options?: { 
         filters?: string
@@ -236,7 +282,7 @@ Accept: application/x-ndjson
     /**
      * Restart a container
      * @param id ID or name of the container
-     * @param signal Signal to send to the container as an integer or string (e.g. &#x60;SIGINT&#x60;). 
+     * @param signal Signal to send to the container as an integer or string (e.g. 'SIGINT'). 
      * @param t Number of seconds to wait before killing the container
      */    
     public async containerRestart(id: string, options?: {         
@@ -252,7 +298,7 @@ Accept: application/x-ndjson
     /**
      * Start a container
      * @param id ID or name of the container
-     * @param detachKeys Override the key sequence for detaching a container. Format is a single character &#x60;[a-Z]&#x60; or &#x60;ctrl-&lt;value&gt;&#x60; where &#x60;&lt;value&gt;&#x60; is one of: &#x60;a-z&#x60;, &#x60;@&#x60;, &#x60;^&#x60;, &#x60;[&#x60;, &#x60;,&#x60; or &#x60;_&#x60;. 
+     * @param detachKeys Override the key sequence for detaching a container. Format is a single character '[a-Z]' or 'ctrl-&lt;value&gt;' where '&lt;value&gt;' is one of: 'a-z', '@', '^', '[', ',' or '_'. 
      */    
     public async containerStart(id: string, options?: {         
         detachKeys?: string
@@ -265,7 +311,7 @@ Accept: application/x-ndjson
      * Get container stats based on resource usage
      * @param id ID or name of the container
      * @param stream Stream the output. If false, the stats will be output once and then it will disconnect. 
-     * @param oneShot Only get a single stat instead of waiting for 2 cycles. Must be used with &#x60;stream&#x3D;false&#x60;. 
+     * @param oneShot Only get a single stat instead of waiting for 2 cycles. Must be used with 'stream'false'. 
      */
     public async containerStats(id: string, options?: {             
             stream?: boolean, 
@@ -280,7 +326,7 @@ Accept: application/x-ndjson
     /**
      * Stop a container
      * @param id ID or name of the container
-     * @param signal Signal to send to the container as an integer or string (e.g. &#x60;SIGINT&#x60;). 
+     * @param signal Signal to send to the container as an integer or string (e.g. 'SIGINT'). 
      * @param t Number of seconds to wait before killing the container
      */
     public async containerStop(id: string, options?: {         
@@ -297,7 +343,7 @@ Accept: application/x-ndjson
      * On Unix systems, this is done by running the `ps` command. This endpoint is not supported on Windows. 
      * List processes running inside a container
      * @param id ID or name of the container
-     * @param psArgs The arguments to pass to &#x60;ps&#x60;. For example, &#x60;aux&#x60;
+     * @param psArgs The arguments to pass to 'ps'. For example, 'aux'
      */    
     public async containerTop(id: string, options?: { 
         psArgs?: string
@@ -330,7 +376,7 @@ Accept: application/x-ndjson
      * Block until a container stops, then returns the exit code.
      * Wait for a container
      * @param id ID or name of the container
-     * @param condition Wait until a container state reaches the given condition.  Defaults to &#x60;not-running&#x60; if omitted or empty. 
+     * @param condition Wait until a container state reaches the given condition.  Defaults to 'not-running' if omitted or empty. 
      */
     public async containerWait(id: string, options?: {             
         condition?: 'not-running' | 'next-exit' | 'removed'
@@ -343,9 +389,9 @@ Accept: application/x-ndjson
      * Extract an archive of files or folders to a directory in a container
      * @param id ID or name of the container
      * @param path Path to a directory in the container to extract the archive’s contents into. 
-     * @param inputStream The input stream must be a tar archive compressed with one of the following algorithms: &#x60;identity&#x60; (no compression), &#x60;gzip&#x60;, &#x60;bzip2&#x60;, or &#x60;xz&#x60;. 
-     * @param noOverwriteDirNonDir If &#x60;1&#x60;, &#x60;true&#x60;, or &#x60;True&#x60; then it will be an error if unpacking the given content would cause an existing directory to be replaced with a non-directory and vice versa. 
-     * @param copyUIDGID If &#x60;1&#x60;, &#x60;true&#x60;, then it will copy UID/GID maps to the dest file or dir 
+     * @param inputStream The input stream must be a tar archive compressed with one of the following algorithms: 'identity' (no compression), 'gzip', 'bzip2', or 'xz'. 
+     * @param noOverwriteDirNonDir If '1', 'true', or 'True' then it will be an error if unpacking the given content would cause an existing directory to be replaced with a non-directory and vice versa. 
+     * @param copyUIDGID If '1', 'true', then it will copy UID/GID maps to the dest file or dir 
      */
      public async putContainerArchive(options?: { 
         id: string, 
@@ -410,7 +456,7 @@ Accept: application/x-ndjson
     /**
      * Returns a list of networks. For details on the format, see the [network inspect endpoint](#operation/NetworkInspect).  Note that it uses a different, smaller representation of a network than inspecting a single network. For example, the list of containers attached to the network is not propagated in API versions 1.28 and up. 
      * List networks
-     * @param filters JSON encoded value of the filters (a &#x60;map[string][]string&#x60;) to process on the networks list.  Available filters:  - &#x60;dangling&#x3D;&lt;boolean&gt;&#x60; When set to &#x60;true&#x60; (or &#x60;1&#x60;), returns all    networks that are not in use by a container. When set to &#x60;false&#x60;    (or &#x60;0&#x60;), only networks that are in use by one or more    containers are returned. - &#x60;driver&#x3D;&lt;driver-name&gt;&#x60; Matches a network\&#39;s driver. - &#x60;id&#x3D;&lt;network-id&gt;&#x60; Matches all or part of a network ID. - &#x60;label&#x3D;&lt;key&gt;&#x60; or &#x60;label&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60; of a network label. - &#x60;name&#x3D;&lt;network-name&gt;&#x60; Matches all or part of a network name. - &#x60;scope&#x3D;[\&quot;swarm\&quot;|\&quot;global\&quot;|\&quot;local\&quot;]&#x60; Filters networks by scope (&#x60;swarm&#x60;, &#x60;global&#x60;, or &#x60;local&#x60;). - &#x60;type&#x3D;[\&quot;custom\&quot;|\&quot;builtin\&quot;]&#x60; Filters networks by type. The &#x60;custom&#x60; keyword returns all user-defined networks. 
+     * @param filters JSON encoded value of the filters (a 'map[string][]string') to process on the networks list.  Available filters:  - 'dangling'&lt;boolean&gt;' When set to 'true' (or '1'), returns all    networks that are not in use by a container. When set to 'false'    (or '0'), only networks that are in use by one or more    containers are returned. - 'driver'&lt;driver-name&gt;' Matches a network\&#39;s driver. - 'id'&lt;network-id&gt;' Matches all or part of a network ID. - 'label'&lt;key&gt;' or 'label'&lt;key&gt;'&lt;value&gt;' of a network label. - 'name'&lt;network-name&gt;' Matches all or part of a network name. - 'scope'[\&quot;swarm\&quot;|\&quot;global\&quot;|\&quot;local\&quot;]' Filters networks by scope ('swarm', 'global', or 'local'). - 'type'[\&quot;custom\&quot;|\&quot;builtin\&quot;]' Filters networks by type. The 'custom' keyword returns all user-defined networks. 
      */
     public async networkList(filters?: Filter): Promise<Array<models.NetworkSummary>> {
         return this.api.get('/networks', filters);
@@ -418,7 +464,7 @@ Accept: application/x-ndjson
 
     /**
      * Delete unused networks
-     * @param filters Filters to process on the prune list, encoded as JSON (a &#x60;map[string][]string&#x60;).  Available filters: - &#x60;until&#x3D;&lt;timestamp&gt;&#x60; Prune networks created before this timestamp. The &#x60;&lt;timestamp&gt;&#x60; can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. &#x60;10m&#x60;, &#x60;1h30m&#x60;) computed relative to the daemon machine’s time. - &#x60;label&#x60; (&#x60;label&#x3D;&lt;key&gt;&#x60;, &#x60;label&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;, &#x60;label!&#x3D;&lt;key&gt;&#x60;, or &#x60;label!&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;) Prune networks with (or without, in case &#x60;label!&#x3D;...&#x60; is used) the specified labels. 
+     * @param filters Filters to process on the prune list, encoded as JSON (a 'map[string][]string').  Available filters: - 'until'&lt;timestamp&gt;' Prune networks created before this timestamp. The '&lt;timestamp&gt;' can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. '10m', '1h30m') computed relative to the daemon machine’s time. - 'label' ('label'&lt;key&gt;', 'label'&lt;key&gt;'&lt;value&gt;', 'label!'&lt;key&gt;', or 'label!'&lt;key&gt;'&lt;value&gt;') Prune networks with (or without, in case 'label!'...' is used) the specified labels. 
      */
     public async networkPrune(filters?: Filter): Promise<models.NetworkPruneResponse> {
         return this.api.post('/networks/prune', filters);
@@ -456,7 +502,7 @@ Accept: application/x-ndjson
 
     /**
      * List volumes
-     * @param filters JSON encoded value of the filters (a &#x60;map[string][]string&#x60;) to process on the volumes list. Available filters:  - &#x60;dangling&#x3D;&lt;boolean&gt;&#x60; When set to &#x60;true&#x60; (or &#x60;1&#x60;), returns all    volumes that are not in use by a container. When set to &#x60;false&#x60;    (or &#x60;0&#x60;), only volumes that are in use by one or more    containers are returned. - &#x60;driver&#x3D;&lt;volume-driver-name&gt;&#x60; Matches volumes based on their driver. - &#x60;label&#x3D;&lt;key&gt;&#x60; or &#x60;label&#x3D;&lt;key&gt;:&lt;value&gt;&#x60; Matches volumes based on    the presence of a &#x60;label&#x60; alone or a &#x60;label&#x60; and a value. - &#x60;name&#x3D;&lt;volume-name&gt;&#x60; Matches all or part of a volume name. 
+     * @param filters JSON encoded value of the filters (a 'map[string][]string') to process on the volumes list. Available filters:  - 'dangling'&lt;boolean&gt;' When set to 'true' (or '1'), returns all    volumes that are not in use by a container. When set to 'false'    (or '0'), only volumes that are in use by one or more    containers are returned. - 'driver'&lt;volume-driver-name&gt;' Matches volumes based on their driver. - 'label'&lt;key&gt;' or 'label'&lt;key&gt;:&lt;value&gt;' Matches volumes based on    the presence of a 'label' alone or a 'label' and a value. - 'name'&lt;volume-name&gt;' Matches all or part of a volume name. 
      */
     public async volumeList(filters?: Filter): Promise<models.VolumeListResponse> {
         return this.api.get(`/volumes`, {
@@ -466,7 +512,7 @@ Accept: application/x-ndjson
 
     /**
      * Delete unused volumes
-     * @param filters Filters to process on the prune list, encoded as JSON (a &#x60;map[string][]string&#x60;).  Available filters: - &#x60;label&#x60; (&#x60;label&#x3D;&lt;key&gt;&#x60;, &#x60;label&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;, &#x60;label!&#x3D;&lt;key&gt;&#x60;, or &#x60;label!&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;) Prune volumes with (or without, in case &#x60;label!&#x3D;...&#x60; is used) the specified labels. - &#x60;all&#x60; (&#x60;all&#x3D;true&#x60;) - Consider all (local) volumes for pruning and not just anonymous volumes. 
+     * @param filters Filters to process on the prune list, encoded as JSON (a 'map[string][]string').  Available filters: - 'label' ('label'&lt;key&gt;', 'label'&lt;key&gt;'&lt;value&gt;', 'label!'&lt;key&gt;', or 'label!'&lt;key&gt;'&lt;value&gt;') Prune volumes with (or without, in case 'label!'...' is used) the specified labels. - 'all' ('all'true') - Consider all (local) volumes for pruning and not just anonymous volumes. 
      */
     public async volumePrune(filters?: Filter): Promise<models.VolumePruneResponse> {
         return this.api.post('/volumes/prune', {
@@ -488,15 +534,15 @@ Accept: application/x-ndjson
     /**
      * Pull or import an image.
      * Create an image
-     * @param fromImage Name of the image to pull. If the name includes a tag or digest, specific behavior applies:  - If only &#x60;fromImage&#x60; includes a tag, that tag is used. - If both &#x60;fromImage&#x60; and &#x60;tag&#x60; are provided, &#x60;tag&#x60; takes precedence. - If &#x60;fromImage&#x60; includes a digest, the image is pulled by digest, and &#x60;tag&#x60; is ignored. - If neither a tag nor digest is specified, all tags are pulled. 
-     * @param fromSrc Source to import. The value may be a URL from which the image can be retrieved or &#x60;-&#x60; to read the image from the request body. This parameter may only be used when importing an image.
+     * @param fromImage Name of the image to pull. If the name includes a tag or digest, specific behavior applies:  - If only 'fromImage' includes a tag, that tag is used. - If both 'fromImage' and 'tag' are provided, 'tag' takes precedence. - If 'fromImage' includes a digest, the image is pulled by digest, and 'tag' is ignored. - If neither a tag nor digest is specified, all tags are pulled. 
+     * @param fromSrc Source to import. The value may be a URL from which the image can be retrieved or '-' to read the image from the request body. This parameter may only be used when importing an image.
      * @param repo Repository name given to an image when it is imported. The repo may include a tag. This parameter may only be used when importing an image.
      * @param tag Tag or digest. If empty when pulling an image, this causes all tags for the given image to be pulled.
      * @param message Set commit message for imported image.
-     * @param xRegistryAuth A base64url-encoded auth configuration.  Refer to the [authentication section](#section/Authentication) for details. 
-     * @param changes Apply &#x60;Dockerfile&#x60; instructions to the image that is created, for example: &#x60;changes&#x3D;ENV DEBUG&#x3D;true&#x60;. Note that &#x60;ENV DEBUG&#x3D;true&#x60; should be URI component encoded.  Supported &#x60;Dockerfile&#x60; instructions: &#x60;CMD&#x60;|&#x60;ENTRYPOINT&#x60;|&#x60;ENV&#x60;|&#x60;EXPOSE&#x60;|&#x60;ONBUILD&#x60;|&#x60;USER&#x60;|&#x60;VOLUME&#x60;|&#x60;WORKDIR&#x60; 
-     * @param platform Platform in the format os[/arch[/variant]].  When used in combination with the &#x60;fromImage&#x60; option, the daemon checks if the given image is present in the local image cache with the given OS and Architecture, and otherwise attempts to pull the image. If the option is not set, the host\&#39;s native OS and Architecture are used. If the given image does not exist in the local image cache, the daemon attempts to pull the image with the host\&#39;s native OS and Architecture. If the given image does exists in the local image cache, but its OS or architecture does not match, a warning is produced.  When used with the &#x60;fromSrc&#x60; option to import an image from an archive, this option sets the platform information for the imported image. If the option is not set, the host\&#39;s native OS and Architecture are used for the imported image. 
-     * @param inputImage Image content if the value &#x60;-&#x60; has been specified in fromSrc query parameter
+     * @param credentials A base64url-encoded auth configuration.  Refer to the [authentication section](#section/Authentication) for details. 
+     * @param changes Apply 'Dockerfile' instructions to the image that is created, for example: 'changes'ENV DEBUG'true'. Note that 'ENV DEBUG'true' should be URI component encoded.  Supported 'Dockerfile' instructions: 'CMD'|'ENTRYPOINT'|'ENV'|'EXPOSE'|'ONBUILD'|'USER'|'VOLUME'|'WORKDIR' 
+     * @param platform Platform in the format os[/arch[/variant]].  When used in combination with the 'fromImage' option, the daemon checks if the given image is present in the local image cache with the given OS and Architecture, and otherwise attempts to pull the image. If the option is not set, the host\&#39;s native OS and Architecture are used. If the given image does not exist in the local image cache, the daemon attempts to pull the image with the host\&#39;s native OS and Architecture. If the given image does exists in the local image cache, but its OS or architecture does not match, a warning is produced.  When used with the 'fromSrc' option to import an image from an archive, this option sets the platform information for the imported image. If the option is not set, the host\&#39;s native OS and Architecture are used for the imported image. 
+     * @param inputImage Image content if the value '-' has been specified in fromSrc query parameter
      */
      public async imageCreate(options?: { 
         fromImage?: string, 
@@ -504,12 +550,17 @@ Accept: application/x-ndjson
         repo?: string, 
         tag?: string, 
         message?: string, 
-        xRegistryAuth?: string, 
+        credentials?: Credentials|IdentityToken, 
         changes?: Array<string>, 
         platform?: string, 
         inputImage?: string
       }): Promise<void> {
-        // TODO xRegistryAuth?: string, 
+        const headers: Record<string, string> = {};
+        
+        if (options?.credentials) {
+            headers['X-Registry-Auth'] = this.authCredentials(options.credentials);
+        }
+        
         return this.api.post('/images/create', {
             fromImage: options?.fromImage, 
             fromSrc: options?.fromSrc, 
@@ -519,7 +570,7 @@ Accept: application/x-ndjson
             changes: options?.changes, 
             platform: options?.platform, 
             inputImage: options?.inputImage
-        });
+        }, undefined, undefined, headers);
       }
 
     /**
@@ -542,7 +593,7 @@ Accept: application/x-ndjson
      * Return parent layers of an image.
      * Get the history of an image
      * @param name Image name or ID
-     * @param platform JSON-encoded OCI platform to select the platform-variant. If omitted, it defaults to any locally available platform, prioritizing the daemon\&#39;s host platform.  If the daemon provides a multi-platform image store, this selects the platform-variant to show the history for. If the image is a single-platform image, or if the multi-platform image does not provide a variant matching the given platform, an error is returned.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60; 
+     * @param platform JSON-encoded OCI platform to select the platform-variant. If omitted, it defaults to any locally available platform, prioritizing the daemon\&#39;s host platform.  If the daemon provides a multi-platform image store, this selects the platform-variant to show the history for. If the image is a single-platform image, or if the multi-platform image does not provide a variant matching the given platform, an error is returned.  Example: '{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}' 
      */
     public async imageHistory(name: string, options?: {         
         platform?: string
@@ -566,10 +617,10 @@ Accept: application/x-ndjson
      * Returns a list of images on the server. Note that it uses a different, smaller representation of an image than inspecting a single image.
      * List Images
      * @param all Show all images. Only images from a final layer (no children) are shown by default.
-     * @param filters A JSON encoded value of the filters (a &#x60;map[string][]string&#x60;) to process on the images list.  Available filters:  - &#x60;before&#x60;&#x3D;(&#x60;&lt;image-name&gt;[:&lt;tag&gt;]&#x60;,  &#x60;&lt;image id&gt;&#x60; or &#x60;&lt;image@digest&gt;&#x60;) - &#x60;dangling&#x3D;true&#x60; - &#x60;label&#x3D;key&#x60; or &#x60;label&#x3D;\&quot;key&#x3D;value\&quot;&#x60; of an image label - &#x60;reference&#x60;&#x3D;(&#x60;&lt;image-name&gt;[:&lt;tag&gt;]&#x60;) - &#x60;since&#x60;&#x3D;(&#x60;&lt;image-name&gt;[:&lt;tag&gt;]&#x60;,  &#x60;&lt;image id&gt;&#x60; or &#x60;&lt;image@digest&gt;&#x60;) - &#x60;until&#x3D;&lt;timestamp&gt;&#x60; 
-     * @param sharedSize Compute and show shared size as a &#x60;SharedSize&#x60; field on each image.
-     * @param digests Show digest information as a &#x60;RepoDigests&#x60; field on each image.
-     * @param manifests Include &#x60;Manifests&#x60; in the image summary.
+     * @param filters A JSON encoded value of the filters (a 'map[string][]string') to process on the images list.  Available filters:  - 'before''('&lt;image-name&gt;[:&lt;tag&gt;]',  '&lt;image id&gt;' or '&lt;image@digest&gt;') - 'dangling'true' - 'label'key' or 'label'\&quot;key'value\&quot;' of an image label - 'reference''('&lt;image-name&gt;[:&lt;tag&gt;]') - 'since''('&lt;image-name&gt;[:&lt;tag&gt;]',  '&lt;image id&gt;' or '&lt;image@digest&gt;') - 'until'&lt;timestamp&gt;' 
+     * @param sharedSize Compute and show shared size as a 'SharedSize' field on each image.
+     * @param digests Show digest information as a 'RepoDigests' field on each image.
+     * @param manifests Include 'Manifests' in the image summary.
      */
     public async imageList(options?: { 
         all?: boolean, 
