@@ -595,8 +595,10 @@ export class DockerClient {
      * List networks
      * @param filters JSON encoded value of the filters (a 'map[string][]string') to process on the networks list.  Available filters:  - 'dangling'&lt;boolean&gt;' When set to 'true' (or '1'), returns all    networks that are not in use by a container. When set to 'false'    (or '0'), only networks that are in use by one or more    containers are returned. - 'driver'&lt;driver-name&gt;' Matches a network\&#39;s driver. - 'id'&lt;network-id&gt;' Matches all or part of a network ID. - 'label'&lt;key&gt;' or 'label'&lt;key&gt;'&lt;value&gt;' of a network label. - 'name'&lt;network-name&gt;' Matches all or part of a network name. - 'scope'[\&quot;swarm\&quot;|\&quot;global\&quot;|\&quot;local\&quot;]' Filters networks by scope ('swarm', 'global', or 'local'). - 'type'[\&quot;custom\&quot;|\&quot;builtin\&quot;]' Filters networks by type. The 'custom' keyword returns all user-defined networks. 
      */
-    public async networkList(filters?: Filter): Promise<Array<models.NetworkSummary>> {
-        return this.api.get('/networks', filters);
+    public async networkList(options?: { 
+        filters?: Filter
+    }): Promise<Array<models.NetworkSummary>> {
+        return this.api.get('/networks', options);
     }
 
     /**

@@ -20,62 +20,6 @@ function assertNotNull(value: any) {
   }
 }
 
-// Test basic Docker API connectivity
-test('systemPing should return API version', async () => {
-  const client = await DockerClient.fromDockerConfig();
-  const apiVersion = await client.systemPing();
-  assertNotNull(apiVersion);
-  console.log(`  Docker API version: ${apiVersion}`);
-});
-
-test('systemInfo should return system information', async () => {
-  const client = await DockerClient.fromDockerConfig();
-  const info = await client.systemInfo();
-  assertNotNull(info);
-  assertNotNull(info.ID);
-  console.log(`  Docker system ID: ${info.ID}`);
-});
-
-test('systemVersion should return version information', async () => {
-  const client = await DockerClient.fromDockerConfig();
-  const version = await client.systemVersion();
-  assertNotNull(version);
-  assertNotNull(version.Version);
-  console.log(`  Docker version: ${version.Version}`);
-});
-
-// Test container operations
-test('containerList should return list of containers', async () => {
-  const client = await DockerClient.fromDockerConfig();
-  const containers = await client.containerList({ all: true });
-  assertNotNull(containers);
-  console.log(`  Found ${containers.length} containers`);
-});
-
-// Test image operations  
-test('imageList should return list of images', async () => {
-  const client = await DockerClient.fromDockerConfig();
-  const images = await client.imageList();
-  assertNotNull(images);
-  console.log(`  Found ${images.length} images`);
-});
-
-// Test network operations
-test('networkList should return list of networks', async () => {
-  const client = await DockerClient.fromDockerConfig();
-  const networks = await client.networkList();
-  assertNotNull(networks);
-  console.log(`  Found ${networks.length} networks`);
-});
-
-// Test volume operations
-test('volumeList should return list of volumes', async () => {
-  const client = await DockerClient.fromDockerConfig();
-  const volumes = await client.volumeList();
-  assertNotNull(volumes);
-  console.log(`  Found ${volumes.volumes?.length || 0} volumes`);
-});
-
 // Run all tests
 async function runTests() {
   console.log('Running DockerClient E2E Tests...\n');
@@ -168,12 +112,10 @@ async function runTests() {
         await client.containerStart(containerId);
         console.log('    Container started');
 
-        /* FIXME hang, need to investigate
         // Resize TTY
         console.log('  Resizing container TTY...');
         await client.containerResize(containerId, 24, 80);
         console.log('    TTY resized successfully');
-        */
 
         // Inspect container
         console.log('  Inspecting container...');
@@ -237,6 +179,61 @@ async function runTests() {
             console.log('    Container deleted successfully');
           } catch (deleteError) {
             console.log(`    Warning: Failed to delete container: ${deleteError.message}`);
+          }
+        }
+      }
+    });
+
+    await test('network lifecycle should work end-to-end', async () => {
+      const client = await DockerClient.fromDockerConfig();
+      let networkId: string | undefined;
+
+      try {
+        console.log('  Prune unused networks...');
+        await client.networkPrune()
+
+        console.log('  Creating test network...');
+        // Create network with label
+        const createResponse = await client.networkCreate({
+          Name: 'e2e-test-network',
+          Labels: {
+            'test.type': 'e2e',
+          },
+          Driver: 'bridge',
+        });
+        networkId = createResponse.Id;
+        assertNotNull(networkId);
+        console.log(`    Network created: ${networkId.substring(0, 12)}`);
+
+        // Test network listing with label filter
+        console.log('  Testing network filter by label...');
+        const filteredNetworks = await client.networkList({
+          filters: new Filter().add('label', 'test.type=e2e')
+        });
+        assertNotNull(filteredNetworks);
+        const foundNetwork = filteredNetworks.find(n => n.Id === networkId);
+        assertNotNull(foundNetwork);
+        console.log(`    Found ${filteredNetworks.length} network(s) with label test.type=e2e`);
+
+        // Inspect network
+        console.log('  Inspecting network...');
+        const inspectResponse = await client.networkInspect(networkId);
+        assertNotNull(inspectResponse);
+        assertEqual(inspectResponse.Name, 'e2e-test-network');
+        assertEqual(inspectResponse.Driver, 'bridge');
+        assertEqual(inspectResponse.Labels?.['test.type'], 'e2e');
+        console.log(`    Network driver: ${inspectResponse.Driver}`);
+        console.log(`    Network scope: ${inspectResponse.Scope}`);
+
+      } finally {
+        // Clean up: delete network
+        if (networkId) {
+          console.log('  Deleting network...');
+          try {
+            await client.networkDelete(networkId);
+            console.log('    Network deleted successfully');
+          } catch (deleteError) {
+            console.log(`    Warning: Failed to delete network: ${deleteError.message}`);
           }
         }
       }

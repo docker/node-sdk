@@ -95,7 +95,7 @@ class HTTPParser {
         return result;
     }
     
-    public static extractCompleteChunks(buffer: string): { chunks: string[], remainingBuffer: string } {
+    public static extractChunks(buffer: string): { chunks: string[], remainingBuffer: string } {
         const chunks: string[] = [];
         let remainingBuffer = buffer;
         let pos = 0;
@@ -113,8 +113,10 @@ class HTTPParser {
             
             const chunkSize = parseInt(chunkSizeLine, 16);
             
-            // If chunk size is 0, this is the end marker
+            // If chunk size is 0, this is the end marker (empty chunk)
             if (chunkSize === 0) {
+                // Add empty chunk to indicate end of transfer
+                chunks.push('');
                 // Include the end marker in remaining buffer for proper completion detection
                 remainingBuffer = remainingBuffer.substring(pos);
                 break;
@@ -183,6 +185,7 @@ export class HTTPClient {
     public readHTTPResponse(timeout: number = 10000, callback?: (chunk: string) => void): Promise<HTTPResponse> {
         return new Promise((resolve, reject) => {
             let buffer = '';
+            let body = '';
             let timeoutId: NodeJS.Timeout;
             let resolved = false;
             let headersComplete = false;
@@ -284,20 +287,23 @@ export class HTTPClient {
                     let isComplete = false;
                     
                     if (isChunked) {
-                        // Handle chunked transfer encoding
-                        if (callback) {
-                            // Extract and process complete chunks
-                            const { chunks, remainingBuffer } = HTTPParser.extractCompleteChunks(buffer);
-                            buffer = remainingBuffer;
-                            
-                            // Invoke callback for each complete chunk
-                            chunks.forEach(chunk => callback(chunk));
-                        }
+                        // Always extract complete chunks
+                        const { chunks, remainingBuffer } = HTTPParser.extractChunks(buffer);
+                        buffer = remainingBuffer;
                         
-                        // Check for end of chunked transfer (chunk of size 0)
-                        if (buffer.includes('\r\n0\r\n\r\n')) {
-                            isComplete = true;
-                        }
+                        // Process chunks and detect end of transfer
+                        chunks.forEach(chunk => {
+                            if (chunk === '') {
+                                // Empty chunk indicates end of chunked transfer
+                                isComplete = true;
+                            } else {
+                                if (callback) {
+                                    callback(chunk);
+                                } else {
+                                    body += chunk;
+                                }
+                            }
+                        });
                     } else if (expectedBodyLength >= 0) {
                         // For Content-Length, check if we have enough data
                         if (buffer.length >= expectedBodyLength) {
@@ -313,15 +319,16 @@ export class HTTPClient {
                         clearTimeout(timeoutId);
                         this.socket.off('data', dataHandler);
                         
-                        let body: string | undefined;
+                        let responseBody: string | undefined;
                         
                         // Only set body if no callback was provided
                         if (!callback) {
-                            body = buffer;
-                            
-                            // Dechunk the body if necessary
-                            if (isChunked && body) {
-                                body = HTTPParser.parseChunkedBody(body);
+                            if (isChunked) {
+                                // Use the concatenated body from chunks
+                                responseBody = body;
+                            } else {
+                                // Use the buffer for non-chunked responses
+                                responseBody = buffer;
                             }
                         }
                         
@@ -329,12 +336,12 @@ export class HTTPClient {
                             statusLine,
                             statusCode,
                             headers,
-                            body
+                            body: responseBody
                         };
-                        
+                       
                         // Reject promise for HTTP status codes >= 400
                         if (statusCode >= 400) {
-                                const errorMessage = getErrorMessage(statusLine, headers, body);
+                                const errorMessage = getErrorMessage(statusLine, headers, responseBody);
                             if (statusCode === 404) {
                                 reject(new NotFoundError(errorMessage));
                             } else if (statusCode === 401) {
