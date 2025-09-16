@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { EndpointPortConfig } from '../models/EndpointPortConfig';
+import { EndpointPortConfig } from '../models/EndpointPortConfig.js';
 
 /**
 * represents the port status of a task\'s host ports whose service has published host ports

@@ -10,10 +10,10 @@
  * Do not edit the class manually.
  */
 
-import { MountBindOptions } from '../models/MountBindOptions';
-import { MountImageOptions } from '../models/MountImageOptions';
-import { MountTmpfsOptions } from '../models/MountTmpfsOptions';
-import { MountVolumeOptions } from '../models/MountVolumeOptions';
+import { MountBindOptions } from '../models/MountBindOptions.js';
+import { MountImageOptions } from '../models/MountImageOptions.js';
+import { MountTmpfsOptions } from '../models/MountTmpfsOptions.js';
+import { MountVolumeOptions } from '../models/MountVolumeOptions.js';
 
 export class Mount {
     /**

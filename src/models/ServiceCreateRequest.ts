@@ -10,12 +10,12 @@
  * Do not edit the class manually.
  */
 
-import { EndpointSpec } from '../models/EndpointSpec';
-import { NetworkAttachmentConfig } from '../models/NetworkAttachmentConfig';
-import { ServiceSpecMode } from '../models/ServiceSpecMode';
-import { ServiceSpecRollbackConfig } from '../models/ServiceSpecRollbackConfig';
-import { ServiceSpecUpdateConfig } from '../models/ServiceSpecUpdateConfig';
-import { TaskSpec } from '../models/TaskSpec';
+import { EndpointSpec } from '../models/EndpointSpec.js';
+import { NetworkAttachmentConfig } from '../models/NetworkAttachmentConfig.js';
+import { ServiceSpecMode } from '../models/ServiceSpecMode.js';
+import { ServiceSpecRollbackConfig } from '../models/ServiceSpecRollbackConfig.js';
+import { ServiceSpecUpdateConfig } from '../models/ServiceSpecUpdateConfig.js';
+import { TaskSpec } from '../models/TaskSpec.js';
 
 export class ServiceCreateRequest {
     /**

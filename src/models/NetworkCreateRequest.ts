@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { ConfigReference } from '../models/ConfigReference';
-import { IPAM } from '../models/IPAM';
+import { ConfigReference } from '../models/ConfigReference.js';
+import { IPAM } from '../models/IPAM.js';
 
 export class NetworkCreateRequest {
     /**

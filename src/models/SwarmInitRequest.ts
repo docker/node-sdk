@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { SwarmSpec } from '../models/SwarmSpec';
+import { SwarmSpec } from '../models/SwarmSpec.js';
 
 export class SwarmInitRequest {
     /**

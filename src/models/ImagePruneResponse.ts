@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { ImageDeleteResponseItem } from '../models/ImageDeleteResponseItem';
+import { ImageDeleteResponseItem } from '../models/ImageDeleteResponseItem.js';
 
 export class ImagePruneResponse {
     /**

@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { PluginDevice } from '../models/PluginDevice';
+import { PluginDevice } from '../models/PluginDevice.js';
 
 export class PluginConfigLinux {
     'Capabilities': Array<string>;

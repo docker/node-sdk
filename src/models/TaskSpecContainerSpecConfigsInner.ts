@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { TaskSpecContainerSpecConfigsInnerFile } from '../models/TaskSpecContainerSpecConfigsInnerFile';
+import { TaskSpecContainerSpecConfigsInnerFile } from '../models/TaskSpecContainerSpecConfigsInnerFile.js';
 
 export class TaskSpecContainerSpecConfigsInner {
     'File'?: TaskSpecContainerSpecConfigsInnerFile;

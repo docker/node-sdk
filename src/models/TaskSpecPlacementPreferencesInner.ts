@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { TaskSpecPlacementPreferencesInnerSpread } from '../models/TaskSpecPlacementPreferencesInnerSpread';
+import { TaskSpecPlacementPreferencesInnerSpread } from '../models/TaskSpecPlacementPreferencesInnerSpread.js';
 
 export class TaskSpecPlacementPreferencesInner {
     'Spread'?: TaskSpecPlacementPreferencesInnerSpread;

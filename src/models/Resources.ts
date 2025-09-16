@@ -10,11 +10,11 @@
  * Do not edit the class manually.
  */
 
-import { DeviceMapping } from '../models/DeviceMapping';
-import { DeviceRequest } from '../models/DeviceRequest';
-import { ResourcesBlkioWeightDeviceInner } from '../models/ResourcesBlkioWeightDeviceInner';
-import { ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner';
-import { ThrottleDevice } from '../models/ThrottleDevice';
+import { DeviceMapping } from '../models/DeviceMapping.js';
+import { DeviceRequest } from '../models/DeviceRequest.js';
+import { ResourcesBlkioWeightDeviceInner } from '../models/ResourcesBlkioWeightDeviceInner.js';
+import { ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner.js';
+import { ThrottleDevice } from '../models/ThrottleDevice.js';
 
 /**
 * A container\'s resources (cgroups config, ulimits, etc)

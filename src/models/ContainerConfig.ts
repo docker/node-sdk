@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { HealthConfig } from '../models/HealthConfig';
+import { HealthConfig } from '../models/HealthConfig.js';
 
 /**
 * Configuration for a container that is portable between hosts. 

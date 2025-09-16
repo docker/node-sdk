@@ -10,12 +10,12 @@
  * Do not edit the class manually.
  */
 
-import { ObjectVersion } from '../models/ObjectVersion';
-import { ServiceEndpoint } from '../models/ServiceEndpoint';
-import { ServiceJobStatus } from '../models/ServiceJobStatus';
-import { ServiceServiceStatus } from '../models/ServiceServiceStatus';
-import { ServiceSpec } from '../models/ServiceSpec';
-import { ServiceUpdateStatus } from '../models/ServiceUpdateStatus';
+import { ObjectVersion } from '../models/ObjectVersion.js';
+import { ServiceEndpoint } from '../models/ServiceEndpoint.js';
+import { ServiceJobStatus } from '../models/ServiceJobStatus.js';
+import { ServiceServiceStatus } from '../models/ServiceServiceStatus.js';
+import { ServiceSpec } from '../models/ServiceSpec.js';
+import { ServiceUpdateStatus } from '../models/ServiceUpdateStatus.js';
 
 export class Service {
     'ID'?: string;

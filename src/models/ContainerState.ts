@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { Health } from '../models/Health';
+import { Health } from '../models/Health.js';
 
 /**
 * ContainerState stores container\'s running state. It\'s part of ContainerJSONBase and will be returned by the \"inspect\" command. 

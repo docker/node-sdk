@@ -10,11 +10,11 @@
  * Do not edit the class manually.
  */
 
-import { GenericResourcesInner } from '../models/GenericResourcesInner';
-import { ObjectVersion } from '../models/ObjectVersion';
-import { TaskSpec } from '../models/TaskSpec';
-import { TaskState } from '../models/TaskState';
-import { TaskStatus } from '../models/TaskStatus';
+import { GenericResourcesInner } from '../models/GenericResourcesInner.js';
+import { ObjectVersion } from '../models/ObjectVersion.js';
+import { TaskSpec } from '../models/TaskSpec.js';
+import { TaskState } from '../models/TaskState.js';
+import { TaskStatus } from '../models/TaskStatus.js';
 
 export class Task {
     /**

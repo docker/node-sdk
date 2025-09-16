@@ -1,5 +1,8 @@
 generatorName: typescript
 templateDir: templates
+importFileExtension: .js
+supportsES6: true
+platform: node
 globalProperties:
   supportingFiles: models/index.ts
   models: ""

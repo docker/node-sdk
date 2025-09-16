@@ -10,12 +10,12 @@
  * Do not edit the class manually.
  */
 
-import { SwarmSpecCAConfig } from '../models/SwarmSpecCAConfig';
-import { SwarmSpecDispatcher } from '../models/SwarmSpecDispatcher';
-import { SwarmSpecEncryptionConfig } from '../models/SwarmSpecEncryptionConfig';
-import { SwarmSpecOrchestration } from '../models/SwarmSpecOrchestration';
-import { SwarmSpecRaft } from '../models/SwarmSpecRaft';
-import { SwarmSpecTaskDefaults } from '../models/SwarmSpecTaskDefaults';
+import { SwarmSpecCAConfig } from '../models/SwarmSpecCAConfig.js';
+import { SwarmSpecDispatcher } from '../models/SwarmSpecDispatcher.js';
+import { SwarmSpecEncryptionConfig } from '../models/SwarmSpecEncryptionConfig.js';
+import { SwarmSpecOrchestration } from '../models/SwarmSpecOrchestration.js';
+import { SwarmSpecRaft } from '../models/SwarmSpecRaft.js';
+import { SwarmSpecTaskDefaults } from '../models/SwarmSpecTaskDefaults.js';
 
 /**
 * User modifiable swarm configuration.

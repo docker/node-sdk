@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-import { ClusterInfo } from '../models/ClusterInfo';
-import { LocalNodeState } from '../models/LocalNodeState';
-import { PeerNode } from '../models/PeerNode';
+import { ClusterInfo } from '../models/ClusterInfo.js';
+import { LocalNodeState } from '../models/LocalNodeState.js';
+import { PeerNode } from '../models/PeerNode.js';
 
 /**
 * Represents generic information about swarm. 

@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-import { ContainerStatus } from '../models/ContainerStatus';
-import { PortStatus } from '../models/PortStatus';
-import { TaskState } from '../models/TaskState';
+import { ContainerStatus } from '../models/ContainerStatus.js';
+import { PortStatus } from '../models/PortStatus.js';
+import { TaskState } from '../models/TaskState.js';
 
 /**
 * represents the status of a task.

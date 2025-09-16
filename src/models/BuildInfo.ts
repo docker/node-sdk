@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-import { ErrorDetail } from '../models/ErrorDetail';
-import { ImageID } from '../models/ImageID';
-import { ProgressDetail } from '../models/ProgressDetail';
+import { ErrorDetail } from '../models/ErrorDetail.js';
+import { ImageID } from '../models/ImageID.js';
+import { ProgressDetail } from '../models/ProgressDetail.js';
 
 export class BuildInfo {
     'Id'?: string;

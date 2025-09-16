@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { HealthcheckResult } from '../models/HealthcheckResult';
+import { HealthcheckResult } from '../models/HealthcheckResult.js';
 
 /**
 * Health stores information about the container\'s healthcheck results. 

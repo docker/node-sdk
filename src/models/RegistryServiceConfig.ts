@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { IndexInfo } from '../models/IndexInfo';
+import { IndexInfo } from '../models/IndexInfo.js';
 
 /**
 * RegistryServiceConfig stores daemon registry services configuration. 

@@ -10,12 +10,12 @@
  * Do not edit the class manually.
  */
 
-import { ContainerSummaryHealth } from '../models/ContainerSummaryHealth';
-import { ContainerSummaryHostConfig } from '../models/ContainerSummaryHostConfig';
-import { ContainerSummaryNetworkSettings } from '../models/ContainerSummaryNetworkSettings';
-import { MountPoint } from '../models/MountPoint';
-import { OCIDescriptor } from '../models/OCIDescriptor';
-import { PortSummary } from '../models/PortSummary';
+import { ContainerSummaryHealth } from '../models/ContainerSummaryHealth.js';
+import { ContainerSummaryHostConfig } from '../models/ContainerSummaryHostConfig.js';
+import { ContainerSummaryNetworkSettings } from '../models/ContainerSummaryNetworkSettings.js';
+import { MountPoint } from '../models/MountPoint.js';
+import { OCIDescriptor } from '../models/OCIDescriptor.js';
+import { PortSummary } from '../models/PortSummary.js';
 
 export class ContainerSummary {
     /**

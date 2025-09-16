@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-import { ConfigReference } from '../models/ConfigReference';
-import { IPAM } from '../models/IPAM';
-import { PeerInfo } from '../models/PeerInfo';
+import { ConfigReference } from '../models/ConfigReference.js';
+import { IPAM } from '../models/IPAM.js';
+import { PeerInfo } from '../models/PeerInfo.js';
 
 export class Network {
     /**

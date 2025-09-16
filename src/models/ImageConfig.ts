@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { HealthConfig } from '../models/HealthConfig';
+import { HealthConfig } from '../models/HealthConfig.js';
 
 /**
 * Configuration of the image. These fields are used as defaults when starting a container from the image. 

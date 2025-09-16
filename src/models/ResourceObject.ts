@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { GenericResourcesInner } from '../models/GenericResourcesInner';
+import { GenericResourcesInner } from '../models/GenericResourcesInner.js';
 
 /**
 * An object describing the resources which can be advertised by a node and requested by a task. 

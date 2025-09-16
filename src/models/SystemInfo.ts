@@ -10,16 +10,16 @@
  * Do not edit the class manually.
  */
 
-import { Commit } from '../models/Commit';
-import { ContainerdInfo } from '../models/ContainerdInfo';
-import { DeviceInfo } from '../models/DeviceInfo';
-import { FirewallInfo } from '../models/FirewallInfo';
-import { GenericResourcesInner } from '../models/GenericResourcesInner';
-import { PluginsInfo } from '../models/PluginsInfo';
-import { RegistryServiceConfig } from '../models/RegistryServiceConfig';
-import { Runtime } from '../models/Runtime';
-import { SwarmInfo } from '../models/SwarmInfo';
-import { SystemInfoDefaultAddressPoolsInner } from '../models/SystemInfoDefaultAddressPoolsInner';
+import { Commit } from '../models/Commit.js';
+import { ContainerdInfo } from '../models/ContainerdInfo.js';
+import { DeviceInfo } from '../models/DeviceInfo.js';
+import { FirewallInfo } from '../models/FirewallInfo.js';
+import { GenericResourcesInner } from '../models/GenericResourcesInner.js';
+import { PluginsInfo } from '../models/PluginsInfo.js';
+import { RegistryServiceConfig } from '../models/RegistryServiceConfig.js';
+import { Runtime } from '../models/Runtime.js';
+import { SwarmInfo } from '../models/SwarmInfo.js';
+import { SystemInfoDefaultAddressPoolsInner } from '../models/SystemInfoDefaultAddressPoolsInner.js';
 
 export class SystemInfo {
     /**

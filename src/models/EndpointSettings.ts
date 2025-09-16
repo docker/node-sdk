@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { EndpointIPAMConfig } from '../models/EndpointIPAMConfig';
+import { EndpointIPAMConfig } from '../models/EndpointIPAMConfig.js';
 
 /**
 * Configuration for a network endpoint.

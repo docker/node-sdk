@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { EndpointSettings } from '../models/EndpointSettings';
+import { EndpointSettings } from '../models/EndpointSettings.js';
 
 export class NetworkConnectRequest {
     /**

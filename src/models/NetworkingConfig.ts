@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { EndpointSettings } from '../models/EndpointSettings';
+import { EndpointSettings } from '../models/EndpointSettings.js';
 
 /**
 * NetworkingConfig represents the container\'s networking configuration for each of its interfaces. It is used for the networking configs specified in the `docker create` and `docker network connect` commands. 

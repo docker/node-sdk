@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { PluginDevice } from '../models/PluginDevice';
-import { PluginMount } from '../models/PluginMount';
+import { PluginDevice } from '../models/PluginDevice.js';
+import { PluginMount } from '../models/PluginMount.js';
 
 /**
 * user-configurable settings for the plugin.

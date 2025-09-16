@@ -10,10 +10,10 @@
  * Do not edit the class manually.
  */
 
-import { EngineDescription } from '../models/EngineDescription';
-import { Platform } from '../models/Platform';
-import { ResourceObject } from '../models/ResourceObject';
-import { TLSInfo } from '../models/TLSInfo';
+import { EngineDescription } from '../models/EngineDescription.js';
+import { Platform } from '../models/Platform.js';
+import { ResourceObject } from '../models/ResourceObject.js';
+import { TLSInfo } from '../models/TLSInfo.js';
 
 /**
 * NodeDescription encapsulates the properties of the Node as reported by the agent. 

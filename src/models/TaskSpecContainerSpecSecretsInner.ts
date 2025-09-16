@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { TaskSpecContainerSpecSecretsInnerFile } from '../models/TaskSpecContainerSpecSecretsInnerFile';
+import { TaskSpecContainerSpecSecretsInnerFile } from '../models/TaskSpecContainerSpecSecretsInnerFile.js';
 
 export class TaskSpecContainerSpecSecretsInner {
     'File'?: TaskSpecContainerSpecSecretsInnerFile;

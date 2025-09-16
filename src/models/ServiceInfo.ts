@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { NetworkTaskInfo } from '../models/NetworkTaskInfo';
+import { NetworkTaskInfo } from '../models/NetworkTaskInfo.js';
 
 /**
 * represents service parameters with the list of service\'s tasks 

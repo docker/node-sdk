@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { ContainerdInfoNamespaces } from '../models/ContainerdInfoNamespaces';
+import { ContainerdInfoNamespaces } from '../models/ContainerdInfoNamespaces.js';
 
 /**
 * Information for connecting to the containerd instance that is used by the daemon. This is included for debugging purposes only. 

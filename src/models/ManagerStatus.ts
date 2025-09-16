@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { Reachability } from '../models/Reachability';
+import { Reachability } from '../models/Reachability.js';
 
 /**
 * ManagerStatus represents the status of a manager.  It provides the current status of a node\'s manager component, if the node is a manager. 

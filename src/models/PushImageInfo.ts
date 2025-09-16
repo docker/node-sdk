@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { ErrorDetail } from '../models/ErrorDetail';
-import { ProgressDetail } from '../models/ProgressDetail';
+import { ErrorDetail } from '../models/ErrorDetail.js';
+import { ProgressDetail } from '../models/ProgressDetail.js';
 
 export class PushImageInfo {
     'ErrorDetail'?: ErrorDetail;

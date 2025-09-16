@@ -10,10 +10,10 @@
  * Do not edit the class manually.
  */
 
-import { BuildCache } from '../models/BuildCache';
-import { ContainerSummary } from '../models/ContainerSummary';
-import { ImageSummary } from '../models/ImageSummary';
-import { Volume } from '../models/Volume';
+import { BuildCache } from '../models/BuildCache.js';
+import { ContainerSummary } from '../models/ContainerSummary.js';
+import { ImageSummary } from '../models/ImageSummary.js';
+import { Volume } from '../models/Volume.js';
 
 export class SystemDataUsageResponse {
     'LayersSize'?: number;

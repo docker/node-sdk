@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { IPAMConfig } from '../models/IPAMConfig';
+import { IPAMConfig } from '../models/IPAMConfig.js';
 
 export class IPAM {
     /**

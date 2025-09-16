@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { ProcessConfig } from '../models/ProcessConfig';
+import { ProcessConfig } from '../models/ProcessConfig.js';
 
 export class ExecInspectResponse {
     'CanRemove'?: boolean;

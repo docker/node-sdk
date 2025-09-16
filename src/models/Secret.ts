@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { ObjectVersion } from '../models/ObjectVersion';
-import { SecretSpec } from '../models/SecretSpec';
+import { ObjectVersion } from '../models/ObjectVersion.js';
+import { SecretSpec } from '../models/SecretSpec.js';
 
 export class Secret {
     'ID'?: string;

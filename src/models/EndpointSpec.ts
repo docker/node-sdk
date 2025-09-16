@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { EndpointPortConfig } from '../models/EndpointPortConfig';
+import { EndpointPortConfig } from '../models/EndpointPortConfig.js';
 
 /**
 * Properties that can be configured to access and load balance a service.

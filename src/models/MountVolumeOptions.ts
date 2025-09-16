@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { MountVolumeOptionsDriverConfig } from '../models/MountVolumeOptionsDriverConfig';
+import { MountVolumeOptionsDriverConfig } from '../models/MountVolumeOptionsDriverConfig.js';
 
 /**
 * Optional configuration for the `volume` type.

@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { ClusterVolumeSpecAccessMode } from '../models/ClusterVolumeSpecAccessMode';
+import { ClusterVolumeSpecAccessMode } from '../models/ClusterVolumeSpecAccessMode.js';
 
 /**
 * Cluster-specific options used to create the volume. 

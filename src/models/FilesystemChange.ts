@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { ChangeType } from '../models/ChangeType';
+import { ChangeType } from '../models/ChangeType.js';
 
 /**
 * Change in the container\'s filesystem. 

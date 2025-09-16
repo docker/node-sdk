@@ -10,11 +10,11 @@
  * Do not edit the class manually.
  */
 
-import { ManagerStatus } from '../models/ManagerStatus';
-import { NodeDescription } from '../models/NodeDescription';
-import { NodeSpec } from '../models/NodeSpec';
-import { NodeStatus } from '../models/NodeStatus';
-import { ObjectVersion } from '../models/ObjectVersion';
+import { ManagerStatus } from '../models/ManagerStatus.js';
+import { NodeDescription } from '../models/NodeDescription.js';
+import { NodeSpec } from '../models/NodeSpec.js';
+import { NodeStatus } from '../models/NodeStatus.js';
+import { ObjectVersion } from '../models/ObjectVersion.js';
 
 export class Node {
     'ID'?: string;

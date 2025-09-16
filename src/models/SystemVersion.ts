@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { SystemVersionComponentsInner } from '../models/SystemVersionComponentsInner';
-import { SystemVersionPlatform } from '../models/SystemVersionPlatform';
+import { SystemVersionComponentsInner } from '../models/SystemVersionComponentsInner.js';
+import { SystemVersionPlatform } from '../models/SystemVersionPlatform.js';
 
 /**
 * Response of Engine API: GET \"/version\" 

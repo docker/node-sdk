@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-import { HealthConfig } from '../models/HealthConfig';
-import { HostConfig } from '../models/HostConfig';
-import { NetworkingConfig } from '../models/NetworkingConfig';
+import { HealthConfig } from '../models/HealthConfig.js';
+import { HostConfig } from '../models/HostConfig.js';
+import { NetworkingConfig } from '../models/NetworkingConfig.js';
 
 export class ContainerCreateRequest {
     /**

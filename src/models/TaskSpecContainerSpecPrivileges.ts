@@ -10,10 +10,10 @@
  * Do not edit the class manually.
  */
 
-import { TaskSpecContainerSpecPrivilegesAppArmor } from '../models/TaskSpecContainerSpecPrivilegesAppArmor';
-import { TaskSpecContainerSpecPrivilegesCredentialSpec } from '../models/TaskSpecContainerSpecPrivilegesCredentialSpec';
-import { TaskSpecContainerSpecPrivilegesSELinuxContext } from '../models/TaskSpecContainerSpecPrivilegesSELinuxContext';
-import { TaskSpecContainerSpecPrivilegesSeccomp } from '../models/TaskSpecContainerSpecPrivilegesSeccomp';
+import { TaskSpecContainerSpecPrivilegesAppArmor } from '../models/TaskSpecContainerSpecPrivilegesAppArmor.js';
+import { TaskSpecContainerSpecPrivilegesCredentialSpec } from '../models/TaskSpecContainerSpecPrivilegesCredentialSpec.js';
+import { TaskSpecContainerSpecPrivilegesSELinuxContext } from '../models/TaskSpecContainerSpecPrivilegesSELinuxContext.js';
+import { TaskSpecContainerSpecPrivilegesSeccomp } from '../models/TaskSpecContainerSpecPrivilegesSeccomp.js';
 
 /**
 * Security options for the container

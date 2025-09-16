@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { ClusterVolume } from '../models/ClusterVolume';
-import { VolumeUsageData } from '../models/VolumeUsageData';
+import { ClusterVolume } from '../models/ClusterVolume.js';
+import { VolumeUsageData } from '../models/VolumeUsageData.js';
 
 export class Volume {
     /**

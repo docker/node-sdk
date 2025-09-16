@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-import { ClusterVolumeSpecAccessModeAccessibilityRequirements } from '../models/ClusterVolumeSpecAccessModeAccessibilityRequirements';
-import { ClusterVolumeSpecAccessModeCapacityRange } from '../models/ClusterVolumeSpecAccessModeCapacityRange';
-import { ClusterVolumeSpecAccessModeSecretsInner } from '../models/ClusterVolumeSpecAccessModeSecretsInner';
+import { ClusterVolumeSpecAccessModeAccessibilityRequirements } from '../models/ClusterVolumeSpecAccessModeAccessibilityRequirements.js';
+import { ClusterVolumeSpecAccessModeCapacityRange } from '../models/ClusterVolumeSpecAccessModeCapacityRange.js';
+import { ClusterVolumeSpecAccessModeSecretsInner } from '../models/ClusterVolumeSpecAccessModeSecretsInner.js';
 
 /**
 * Defines how the volume is used by tasks. 

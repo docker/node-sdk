@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { Volume } from '../models/Volume';
+import { Volume } from '../models/Volume.js';
 
 /**
 * Volume list response

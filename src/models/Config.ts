@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { ConfigSpec } from '../models/ConfigSpec';
-import { ObjectVersion } from '../models/ObjectVersion';
+import { ConfigSpec } from '../models/ConfigSpec.js';
+import { ObjectVersion } from '../models/ObjectVersion.js';
 
 export class Config {
     'ID'?: string;

@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { ImageManifestSummaryImageDataSize } from '../models/ImageManifestSummaryImageDataSize';
-import { OCIPlatform } from '../models/OCIPlatform';
+import { ImageManifestSummaryImageDataSize } from '../models/ImageManifestSummaryImageDataSize.js';
+import { OCIPlatform } from '../models/OCIPlatform.js';
 
 /**
 * The image data for the image manifest. This field is only populated when Kind is \"image\". 

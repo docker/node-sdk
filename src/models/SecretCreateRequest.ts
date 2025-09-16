@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { Driver } from '../models/Driver';
+import { Driver } from '../models/Driver.js';
 
 export class SecretCreateRequest {
     /**

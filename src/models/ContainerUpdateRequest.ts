@@ -10,12 +10,12 @@
  * Do not edit the class manually.
  */
 
-import { DeviceMapping } from '../models/DeviceMapping';
-import { DeviceRequest } from '../models/DeviceRequest';
-import { ResourcesBlkioWeightDeviceInner } from '../models/ResourcesBlkioWeightDeviceInner';
-import { ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner';
-import { RestartPolicy } from '../models/RestartPolicy';
-import { ThrottleDevice } from '../models/ThrottleDevice';
+import { DeviceMapping } from '../models/DeviceMapping.js';
+import { DeviceRequest } from '../models/DeviceRequest.js';
+import { ResourcesBlkioWeightDeviceInner } from '../models/ResourcesBlkioWeightDeviceInner.js';
+import { ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner.js';
+import { RestartPolicy } from '../models/RestartPolicy.js';
+import { ThrottleDevice } from '../models/ThrottleDevice.js';
 
 export class ContainerUpdateRequest {
     /**

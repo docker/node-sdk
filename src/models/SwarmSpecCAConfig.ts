@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 
-import { SwarmSpecCAConfigExternalCAsInner } from '../models/SwarmSpecCAConfigExternalCAsInner';
+import { SwarmSpecCAConfigExternalCAsInner } from '../models/SwarmSpecCAConfigExternalCAsInner.js';
 
 /**
 * CA configuration.

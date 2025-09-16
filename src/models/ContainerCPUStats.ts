@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { ContainerCPUUsage } from '../models/ContainerCPUUsage';
-import { ContainerThrottlingData } from '../models/ContainerThrottlingData';
+import { ContainerCPUUsage } from '../models/ContainerCPUUsage.js';
+import { ContainerThrottlingData } from '../models/ContainerThrottlingData.js';
 
 /**
 * CPU related info of the container 

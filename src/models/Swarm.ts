@@ -10,10 +10,10 @@
  * Do not edit the class manually.
  */
 
-import { JoinTokens } from '../models/JoinTokens';
-import { ObjectVersion } from '../models/ObjectVersion';
-import { SwarmSpec } from '../models/SwarmSpec';
-import { TLSInfo } from '../models/TLSInfo';
+import { JoinTokens } from '../models/JoinTokens.js';
+import { ObjectVersion } from '../models/ObjectVersion.js';
+import { SwarmSpec } from '../models/SwarmSpec.js';
+import { TLSInfo } from '../models/TLSInfo.js';
 
 export class Swarm {
     /**

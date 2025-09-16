@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { PluginConfig } from '../models/PluginConfig';
-import { PluginSettings } from '../models/PluginSettings';
+import { PluginConfig } from '../models/PluginConfig.js';
+import { PluginSettings } from '../models/PluginSettings.js';
 
 /**
 * A plugin for the Engine API

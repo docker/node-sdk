@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-import { Address } from '../models/Address';
-import { EndpointSettings } from '../models/EndpointSettings';
-import { PortBinding } from '../models/PortBinding';
+import { Address } from '../models/Address.js';
+import { EndpointSettings } from '../models/EndpointSettings.js';
+import { PortBinding } from '../models/PortBinding.js';
 
 /**
 * NetworkSettings exposes the network settings in the API

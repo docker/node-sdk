@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { GenericResourcesInnerDiscreteResourceSpec } from '../models/GenericResourcesInnerDiscreteResourceSpec';
-import { GenericResourcesInnerNamedResourceSpec } from '../models/GenericResourcesInnerNamedResourceSpec';
+import { GenericResourcesInnerDiscreteResourceSpec } from '../models/GenericResourcesInnerDiscreteResourceSpec.js';
+import { GenericResourcesInnerNamedResourceSpec } from '../models/GenericResourcesInnerNamedResourceSpec.js';
 
 export class GenericResourcesInner {
     'NamedResourceSpec'?: GenericResourcesInnerNamedResourceSpec;

@@ -10,13 +10,13 @@
  * Do not edit the class manually.
  */
 
-import { ContainerConfig } from '../models/ContainerConfig';
-import { ContainerState } from '../models/ContainerState';
-import { DriverData } from '../models/DriverData';
-import { HostConfig } from '../models/HostConfig';
-import { MountPoint } from '../models/MountPoint';
-import { NetworkSettings } from '../models/NetworkSettings';
-import { OCIDescriptor } from '../models/OCIDescriptor';
+import { ContainerConfig } from '../models/ContainerConfig.js';
+import { ContainerState } from '../models/ContainerState.js';
+import { DriverData } from '../models/DriverData.js';
+import { HostConfig } from '../models/HostConfig.js';
+import { MountPoint } from '../models/MountPoint.js';
+import { NetworkSettings } from '../models/NetworkSettings.js';
+import { OCIDescriptor } from '../models/OCIDescriptor.js';
 
 export class ContainerInspectResponse {
     /**

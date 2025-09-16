@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { ImageManifestSummary } from '../models/ImageManifestSummary';
-import { OCIDescriptor } from '../models/OCIDescriptor';
+import { ImageManifestSummary } from '../models/ImageManifestSummary.js';
+import { OCIDescriptor } from '../models/OCIDescriptor.js';
 
 export class ImageSummary {
     /**

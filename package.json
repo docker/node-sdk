@@ -31,13 +31,21 @@
     "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o src",
     "build": "npm run generate && tsup",
     "test": "vitest run",
+    "lint": "oxlint --type-aware",
     "format": "prettier --write ."
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.23.4",
+    "oxlint": "^1.16.0",
+    "oxlint-tsgolint": "^0.2.0",
     "prettier": "^3.6.2",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "packageManager": "npm@10.9.3"
 }
+

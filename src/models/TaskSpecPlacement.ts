@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { Platform } from '../models/Platform';
-import { TaskSpecPlacementPreferencesInner } from '../models/TaskSpecPlacementPreferencesInner';
+import { Platform } from '../models/Platform.js';
+import { TaskSpecPlacementPreferencesInner } from '../models/TaskSpecPlacementPreferencesInner.js';
 
 export class TaskSpecPlacement {
     /**

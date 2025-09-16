@@ -10,8 +10,8 @@
  * Do not edit the class manually.
  */
 
-import { Limit } from '../models/Limit';
-import { ResourceObject } from '../models/ResourceObject';
+import { Limit } from '../models/Limit.js';
+import { ResourceObject } from '../models/ResourceObject.js';
 
 /**
 * Resource requirements which apply to each individual container created as part of the service. 
