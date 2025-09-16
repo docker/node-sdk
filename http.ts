@@ -53,46 +53,10 @@ export interface HTTPResponse {
 }
 
 // Class for parsing HTTP responses
-class HTTPParser {  
+export class HTTPParser {  
     public static parseChunkedBody(chunkedData: string): string {
-        const lines = chunkedData.split('\r\n');
-        let result = '';
-        let i = 0;
-        
-        while (i < lines.length) {
-            // Read chunk size (in hexadecimal)
-            const chunkSizeLine = lines[i].trim();
-            if (!chunkSizeLine) {
-                i++;
-                continue;
-            }
-            
-            const chunkSize = parseInt(chunkSizeLine, 16);
-            
-            // Si la taille est 0, c'est la fin
-            if (chunkSize === 0) {
-                break;
-            }
-            
-            i++; // Move to next line (chunk data)
-            
-            // Collect chunk data
-            let chunkData = '';
-            let remainingSize = chunkSize;
-            
-            while (remainingSize > 0 && i < lines.length) {
-                const line = lines[i];
-                if (chunkData) chunkData += '\r\n';
-                chunkData += line;
-                remainingSize -= Buffer.from(line + '\r\n', 'utf8').length;
-                i++;
-            }
-            
-            result += chunkData;
-            i++; // Skip empty line after chunk
-        }
-        
-        return result;
+        const { chunks } = HTTPParser.extractChunks(chunkedData);
+        return chunks.join('');
     }
     
     public static extractChunks(buffer: string): { chunks: string[], remainingBuffer: string } {
