@@ -1,2 +1,10 @@
 generate:
-	openapi-generator generate -i swagger.yaml -c openapi-config.yaml -o .
+	npm run generate
+
+build:
+	npm run build
+
+test:
+	npm run test
+
+.PHONY: generate build test
