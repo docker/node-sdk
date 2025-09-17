@@ -1,5 +1,5 @@
 {
-  "name": "docker-ts",
+  "name": "docker-sdk",
   "description": "TypeScript SDK for Docker API",
   "keywords": [
     "docker",
