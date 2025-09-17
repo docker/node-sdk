@@ -2,7 +2,7 @@ import * as net from 'net';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import * as models from './models/index.ts';
+import * as models from './models/index.js';
 import { HTTPClient } from './http.js';
 import { Filter } from './filter.js';
 
@@ -299,7 +299,7 @@ export class DockerClient {
     id: string,
   ): Promise<Array<models.FilesystemChange>> {
     return this.api.get<Array<models.FilesystemChange>>(
-      `/containers/${id}/cha,ges`,
+      `/containers/${id}/changes`,
     );
   }
 
