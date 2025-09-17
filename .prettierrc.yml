@@ -1,0 +1,7 @@
+singleQuote: true
+trailingComma: "all"
+
+overrides:
+  - files: "*.{yaml,yml,json}"
+    options:
+      singleQuote: false

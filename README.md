@@ -9,8 +9,8 @@ Docker-TS is a TypeScript library to access [Docker engine API](https://docs.doc
 ```typescript
 const docker = await DockerClient.fromDockerConfig();
 
-const containers = await docker.containerList({ all: true })
-console.dir(containers)
+const containers = await docker.containerList({ all: true });
+console.dir(containers);
 ```
 
 ## License
@@ -18,11 +18,12 @@ console.dir(containers)
 Licensed under [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 Copyright 2025, Docker Inc
 
-*tl;dr:* You're free to use this code, make any changes you need, have fun with it. Contributions are welcome if you miss something.
+_tl;dr:_ You're free to use this code, make any changes you need, have fun with it. Contributions are welcome if you miss something.
 
 ## Supported APIs:
 
 ### Container
+
 - [x] ContainerList
 - [x] ContainerCreate
 - [x] ContainerInspect
@@ -48,7 +49,9 @@ Copyright 2025, Docker Inc
 - [ ] ContainerArchive
 - [ ] PutContainerArchive
 - [x] ContainerPrune
+
 ### Image
+
 - [x] ImageList
 - [ ] ImageBuild
 - [x] BuildPrune
@@ -64,7 +67,9 @@ Copyright 2025, Docker Inc
 - [ ] ImageGet
 - [ ] ImageGetAll
 - [ ] ImageLoad
+
 ### Network
+
 - [x] NetworkList
 - [x] NetworkInspect
 - [x] NetworkDelete
@@ -72,19 +77,25 @@ Copyright 2025, Docker Inc
 - [x] NetworkConnect
 - [x] NetworkDisconnect
 - [x] NetworkPrune
+
 ### Volume
+
 - [x] VolumeList
 - [x] VolumeCreate
 - [x] VolumeInspect
 - [x] VolumeUpdate
 - [x] VolumeDelete
 - [x] VolumePrune
+
 ### Exec
+
 - [x] ContainerExec
 - [x] ExecStart
 - [x] ExecResize
 - [x] ExecInspect
+
 ### Plugin
+
 - [ ] PluginList
 - [ ] GetPluginPrivileges
 - [ ] PluginPull
@@ -96,7 +107,9 @@ Copyright 2025, Docker Inc
 - [ ] PluginCreate
 - [ ] PluginPush
 - [ ] PluginSet
+
 ### System
+
 - [x] SystemAuth
 - [x] SystemInfo
 - [x] SystemVersion
@@ -104,11 +117,17 @@ Copyright 2025, Docker Inc
 - [ ] SystemPingHead
 - [x] SystemEvents
 - [x] SystemDataUsage
+
 ### Distribution
+
 - [ ] DistributionInspect
+
 ### Session
+
 - [ ] Session
+
 ### Swarm
+
 - [ ] SwarmInspect
 - [ ] SwarmInit
 - [ ] SwarmJoin
