@@ -1,6 +1,25 @@
 {
   "type": "module",
+  "name": "docker-sdk",
+  "version": "0.0.1",
+  "description": "TypeScript SDK for Docker API",
+  "keywords": [
+    "docker",
+    "moby"
+  ],
+  "homepage": "https://github.com/docker/docker-ts",
+  "bugs": {
+    "url": "https://github.com/docker/docker-ts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/docker/docker-ts"
+  },
+  "license": "Apache-2.0",
   "devDependencies": {
     "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "@types/node": "^24.5.1"
   }
 }
