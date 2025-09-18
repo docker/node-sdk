@@ -1,41 +1,39 @@
 {{>licenseInfo}}
+
 {{#models}}
 {{#model}}
 {{#tsImports}}
 import { {{classname}} } from '{{filename}}{{importFileExtension}}';
-{{/tsImports}}
+{{#-last}}
 
+{{/-last}}
+{{/tsImports}}
 {{#description}}
 /**
-* {{{.}}}
-*/
+ * {{{.}}}
+ */
 {{/description}}
 {{^isEnum}}
 {{#oneOf}}
 {{#-first}}{{>model/modelOneOf}}{{/-first}}
 {{/oneOf}}
 {{^oneOf}}
-export class {{classname}} {{#parent}}extends {{{.}}} {{/parent}}{
+export interface {{classname}} {
 {{#vars}}
+
 {{#description}}
     /**
-    * {{{.}}}
-    */
+     * {{.}}
+     */
 {{/description}}
-    '{{#lambda.titlecase}}{{name}}{{/lambda.titlecase}}'{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{#isNullable}} | null{{/isNullable}};
+    {{#lambda.titlecase}}{{name}}{{/lambda.titlecase}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{#isNullable}} | null{{/isNullable}};
 {{/vars}}
 }
 {{#hasEnums}}
 
 {{#vars}}
 {{#isEnum}}
-export enum {{classname}}{{enumName}} {
-    {{#allowableValues}}
-    {{#enumVars}}
-    {{name}} = {{{value}}}{{^-last}},{{/-last}}
-    {{/enumVars}}
-    {{/allowableValues}}
-}
+export type {{classname}}{{enumName}} = {{#allowableValues}}{{#enumVars}}{{{value}}}{{^-last}} | {{/-last}}{{/enumVars}}{{/allowableValues}};
 {{/isEnum}}
 {{/vars}}
 
@@ -43,13 +41,7 @@ export enum {{classname}}{{enumName}} {
 {{/oneOf}}
 {{/isEnum}}
 {{#isEnum}}
-export enum {{classname}} {
-    {{#allowableValues}}
-    {{#enumVars}}
-    {{name}} = {{{value}}}{{^-last}},{{/-last}}
-    {{/enumVars}}
-    {{/allowableValues}}
-}
+export type {{classname}} = {{#allowableValues}}{{#enumVars}}{{{value}}}{{^-last}} | {{/-last}}{{/enumVars}}{{/allowableValues}};
 {{/isEnum}}
 {{/model}}
 {{/models}}
