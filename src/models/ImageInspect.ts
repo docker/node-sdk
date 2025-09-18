@@ -1,9 +1,9 @@
 /**
  * Docker Engine API
- * The Engine API is an HTTP API served by Docker Engine. It is the API the Docker client uses to communicate with the Engine, so everything the Docker client can do can be done with the API.  Most of the client\'s commands map directly to API endpoints (e.g. `docker ps` is `GET /containers/json`). The notable exception is running containers, which consists of several API calls.  # Errors  The API uses standard HTTP status codes to indicate the success or failure of the API call. The body of the response will be JSON in the following format:  ``` {   \"message\": \"page not found\" } ```  # Versioning  The API is usually changed in each release, so API calls are versioned to ensure that clients don\'t break. To lock to a specific version of the API, you prefix the URL with its version, for example, call `/v1.30/info` to use the v1.30 version of the `/info` endpoint. If the API version specified in the URL is not supported by the daemon, a HTTP `400 Bad Request` error message is returned.  If you omit the version-prefix, the current version of the API (v1.50) is used. For example, calling `/info` is the same as calling `/v1.52/info`. Using the API without a version-prefix is deprecated and will be removed in a future release.  Engine releases in the near future should support this version of the API, so your client will continue to work even if it is talking to a newer Engine.  The API uses an open schema model, which means the server may add extra properties to responses. Likewise, the server will ignore any extra query parameters and request body properties. When you write clients, you need to ignore additional properties in responses to ensure they do not break when talking to newer daemons.   # Authentication  Authentication for registries is handled client side. The client has to send authentication details to various endpoints that need to communicate with registries, such as `POST /images/(name)/push`. These are sent as `X-Registry-Auth` header as a [base64url encoded](https://tools.ietf.org/html/rfc4648#section-5) (JSON) string with the following structure:  ``` {   \"username\": \"string\",   \"password\": \"string\",   \"email\": \"string\",   \"serveraddress\": \"string\" } ```  The `serveraddress` is a domain/IP without a protocol. Throughout this structure, double quotes are required.  If you have already got an identity token from the [`/auth` endpoint](#operation/SystemAuth), you can just pass this instead of credentials:  ``` {   \"identitytoken\": \"9cbaf023786cd7...\" } ``` 
+ * The Engine API is an HTTP API served by Docker Engine. It is the API the Docker client uses to communicate with the Engine, so everything the Docker client can do can be done with the API.  Most of the client\'s commands map directly to API endpoints (e.g. `docker ps` is `GET /containers/json`). The notable exception is running containers, which consists of several API calls.  # Errors  The API uses standard HTTP status codes to indicate the success or failure of the API call. The body of the response will be JSON in the following format:  ``` {   \"message\": \"page not found\" } ```  # Versioning  The API is usually changed in each release, so API calls are versioned to ensure that clients don\'t break. To lock to a specific version of the API, you prefix the URL with its version, for example, call `/v1.30/info` to use the v1.30 version of the `/info` endpoint. If the API version specified in the URL is not supported by the daemon, a HTTP `400 Bad Request` error message is returned.  If you omit the version-prefix, the current version of the API (v1.50) is used. For example, calling `/info` is the same as calling `/v1.52/info`. Using the API without a version-prefix is deprecated and will be removed in a future release.  Engine releases in the near future should support this version of the API, so your client will continue to work even if it is talking to a newer Engine.  The API uses an open schema model, which means the server may add extra properties to responses. Likewise, the server will ignore any extra query parameters and request body properties. When you write clients, you need to ignore additional properties in responses to ensure they do not break when talking to newer daemons.   # Authentication  Authentication for registries is handled client side. The client has to send authentication details to various endpoints that need to communicate with registries, such as `POST /images/(name)/push`. These are sent as `X-Registry-Auth` header as a [base64url encoded](https://tools.ietf.org/html/rfc4648#section-5) (JSON) string with the following structure:  ``` {   \"username\": \"string\",   \"password\": \"string\",   \"email\": \"string\",   \"serveraddress\": \"string\" } ```  The `serveraddress` is a domain/IP without a protocol. Throughout this structure, double quotes are required.  If you have already got an identity token from the [`/auth` endpoint](#operation/SystemAuth), you can just pass this instead of credentials:  ``` {   \"identitytoken\": \"9cbaf023786cd7...\" } ```
  *
  * OpenAPI spec version: 1.52
- * 
+ *
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
  * https://openapi-generator.tech
@@ -18,70 +18,70 @@ import { ImageManifestSummary } from '../models/ImageManifestSummary.js';
 import { OCIDescriptor } from '../models/OCIDescriptor.js';
 
 /**
-* Information about an image in the local image cache. 
-*/
+ * Information about an image in the local image cache.
+ */
 export class ImageInspect {
     /**
-    * ID is the content-addressable ID of an image.  This identifier is a content-addressable digest calculated from the image\'s configuration (which includes the digests of layers used by the image).  Note that this digest differs from the `RepoDigests` below, which holds digests of image manifests that reference the image. 
-    */
+     * ID is the content-addressable ID of an image.  This identifier is a content-addressable digest calculated from the image\'s configuration (which includes the digests of layers used by the image).  Note that this digest differs from the `RepoDigests` below, which holds digests of image manifests that reference the image.
+     */
     'Id'?: string;
     'Descriptor'?: OCIDescriptor;
     /**
-    * Manifests is a list of image manifests available in this image. It provides a more detailed view of the platform-specific image manifests or other image-attached data like build attestations.  Only available if the daemon provides a multi-platform image store and the `manifests` option is set in the inspect request.  WARNING: This is experimental and may change at any time without any backward compatibility. 
-    */
+     * Manifests is a list of image manifests available in this image. It provides a more detailed view of the platform-specific image manifests or other image-attached data like build attestations.  Only available if the daemon provides a multi-platform image store and the `manifests` option is set in the inspect request.  WARNING: This is experimental and may change at any time without any backward compatibility.
+     */
     'Manifests'?: Array<ImageManifestSummary> | null;
     /**
-    * List of image names/tags in the local image cache that reference this image.  Multiple image tags can refer to the same image, and this list may be empty if no tags reference the image, in which case the image is \"untagged\", in which case it can still be referenced by its ID. 
-    */
+     * List of image names/tags in the local image cache that reference this image.  Multiple image tags can refer to the same image, and this list may be empty if no tags reference the image, in which case the image is \"untagged\", in which case it can still be referenced by its ID.
+     */
     'RepoTags'?: Array<string>;
     /**
-    * List of content-addressable digests of locally available image manifests that the image is referenced from. Multiple manifests can refer to the same image.  These digests are usually only available if the image was either pulled from a registry, or if the image was pushed to a registry, which is when the manifest is generated and its digest calculated. 
-    */
+     * List of content-addressable digests of locally available image manifests that the image is referenced from. Multiple manifests can refer to the same image.  These digests are usually only available if the image was either pulled from a registry, or if the image was pushed to a registry, which is when the manifest is generated and its digest calculated.
+     */
     'RepoDigests'?: Array<string>;
     /**
-    * ID of the parent image.  Depending on how the image was created, this field may be empty and is only set for images that were built/created locally. This field is empty if the image was pulled from an image registry. 
-    */
+     * ID of the parent image.  Depending on how the image was created, this field may be empty and is only set for images that were built/created locally. This field is empty if the image was pulled from an image registry.
+     */
     'Parent'?: string;
     /**
-    * Optional message that was set when committing or importing the image. 
-    */
+     * Optional message that was set when committing or importing the image.
+     */
     'Comment'?: string;
     /**
-    * Date and time at which the image was created, formatted in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds.  This information is only available if present in the image, and omitted otherwise. 
-    */
+     * Date and time at which the image was created, formatted in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds.  This information is only available if present in the image, and omitted otherwise.
+     */
     'Created'?: string | null;
     /**
-    * The version of Docker that was used to build the image.  Depending on how the image was created, this field may be empty. 
-    */
+     * The version of Docker that was used to build the image.  Depending on how the image was created, this field may be empty.
+     */
     'DockerVersion'?: string;
     /**
-    * Name of the author that was specified when committing the image, or as specified through MAINTAINER (deprecated) in the Dockerfile. 
-    */
+     * Name of the author that was specified when committing the image, or as specified through MAINTAINER (deprecated) in the Dockerfile.
+     */
     'Author'?: string;
     'Config'?: ImageConfig;
     /**
-    * Hardware CPU architecture that the image runs on. 
-    */
+     * Hardware CPU architecture that the image runs on.
+     */
     'Architecture'?: string;
     /**
-    * CPU architecture variant (presently ARM-only). 
-    */
+     * CPU architecture variant (presently ARM-only).
+     */
     'Variant'?: string | null;
     /**
-    * Operating System the image is built to run on. 
-    */
+     * Operating System the image is built to run on.
+     */
     'Os'?: string;
     /**
-    * Operating System version the image is built to run on (especially for Windows). 
-    */
+     * Operating System version the image is built to run on (especially for Windows).
+     */
     'OsVersion'?: string | null;
     /**
-    * Total size of the image including all layers it is composed of. 
-    */
+     * Total size of the image including all layers it is composed of.
+     */
     'Size'?: number;
     /**
-    * Total size of the image including all layers it is composed of.  Deprecated: this field is omitted in API v1.44, but kept for backward compatibility. Use Size instead. 
-    */
+     * Total size of the image including all layers it is composed of.  Deprecated: this field is omitted in API v1.44, but kept for backward compatibility. Use Size instead.
+     */
     'VirtualSize'?: number;
     'GraphDriver'?: DriverData;
     'RootFS'?: ImageInspectRootFS;
