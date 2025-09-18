@@ -59,11 +59,21 @@ test('container lifecycle should work end-to-end', async () => {
     let containerId: string | undefined;
 
     try {
+        await client.imageCreate(
+            (event) => {
+                console.log(event);
+            },
+            {
+                fromImage: 'docker.io/library/nginx',
+                tag: 'latest',
+            },
+        );
+
         console.log('  Creating nginx container...');
         // Create container with label
         const createResponse = await client.containerCreate(
             {
-                Image: 'nginx:latest',
+                Image: 'docker.io/library/nginx',
                 Labels: {
                     'test.type': 'e2e',
                 },
@@ -173,7 +183,7 @@ test('container lifecycle should work end-to-end', async () => {
             }
         }
     }
-});
+}, 30000);
 
 test('network lifecycle should work end-to-end', async () => {
     const client = await DockerClient.fromDockerConfig();

@@ -45,7 +45,8 @@
     "build": "npm run generate && tsup",
     "test": "vitest run",
     "lint": "oxlint --type-aware",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "check": "prettier --check ."
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.23.4",

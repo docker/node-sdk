@@ -5,8 +5,6 @@ import * as os from 'os';
 import * as models from './models/index.js';
 import { HTTPClient } from './http.js';
 import { Filter } from './filter.js';
-import { Writable } from 'stream';
-import { FileInfo } from './models/FileInfo.js';
 
 export class Credentials {
     username: string;
@@ -242,9 +240,11 @@ export class DockerClient {
     ) {
         await this.api.sendHTTPRequest('GET', '/events', {
             params: options,
-            timeout: -1,
-            callback: (chunk: string) =>
-                callback(JSON.parse(chunk) as models.EventMessage),
+            callback: (data: string) => {
+                data.split('\n').forEach((line) => {
+                    callback(JSON.parse(line) as models.EventMessage);
+                });
+            },
         });
     }
 
@@ -345,16 +345,10 @@ export class DockerClient {
             stderr?: boolean;
         },
     ): Promise<void> {
-        return this.api.post(
-            `/containers/${id}/attach`,
-            options,
-            undefined,
-            undefined,
-            {
-                Connection: 'Upgrade',
-                Upgrade: 'tcp',
-            },
-        );
+        return this.api.post(`/containers/${id}/attach`, options, undefined, {
+            Connection: 'Upgrade',
+            Upgrade: 'tcp',
+        });
     }
 
     /**
@@ -684,7 +678,6 @@ export class DockerClient {
             `/containers/${id}/wait`,
             undefined,
             options,
-            -1,
         );
     }
 
@@ -885,17 +878,20 @@ export class DockerClient {
      * @param platform Platform in the format os[/arch[/variant]].  When used in combination with the 'fromImage' option, the daemon checks if the given image is present in the local image cache with the given OS and Architecture, and otherwise attempts to pull the image. If the option is not set, the host\&#39;s native OS and Architecture are used. If the given image does not exist in the local image cache, the daemon attempts to pull the image with the host\&#39;s native OS and Architecture. If the given image does exists in the local image cache, but its OS or architecture does not match, a warning is produced.  When used with the 'fromSrc' option to import an image from an archive, this option sets the platform information for the imported image. If the option is not set, the host\&#39;s native OS and Architecture are used for the imported image.
      * @param inputImage Image content if the value '-' has been specified in fromSrc query parameter
      */
-    public async imageCreate(options?: {
-        fromImage?: string;
-        fromSrc?: string;
-        repo?: string;
-        tag?: string;
-        message?: string;
-        credentials?: Credentials | IdentityToken;
-        changes?: Array<string>;
-        platform?: string;
-        inputImage?: string;
-    }): Promise<void> {
+    public async imageCreate(
+        callback: (event: any) => void,
+        options?: {
+            fromImage?: string;
+            fromSrc?: string;
+            repo?: string;
+            tag?: string;
+            message?: string;
+            credentials?: Credentials | IdentityToken;
+            changes?: Array<string>;
+            platform?: string;
+            inputImage?: string;
+        },
+    ): Promise<void> {
         const headers: Record<string, string> = {};
 
         if (options?.credentials) {
@@ -917,8 +913,14 @@ export class DockerClient {
                 inputImage: options?.inputImage,
             },
             undefined,
-            undefined,
             headers,
+            (data: string) => {
+                data.split('\n').forEach((line) => {
+                    if (line) {
+                        callback(JSON.parse(line));
+                    }
+                });
+            },
         );
     }
 

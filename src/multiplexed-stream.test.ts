@@ -85,7 +85,7 @@ test('should handle multiple messages in single chunk', () => {
 
 test('should handle incomplete messages across multiple chunks', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
-    const { stream: stderr, data: stderrData } = createMockStream();
+    const { stream: stderr, data: _ } = createMockStream();
 
     const callback = createMultiplexedStreamCallback(stdout, stderr);
     const message = createMultiplexedMessage(1, 'Split message');
@@ -104,7 +104,7 @@ test('should handle incomplete messages across multiple chunks', () => {
 
 test('should handle empty content', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
-    const { stream: stderr, data: stderrData } = createMockStream();
+    const { stream: stderr, data: _ } = createMockStream();
 
     const callback = createMultiplexedStreamCallback(stdout, stderr);
     const message = createMultiplexedMessage(1, '');
@@ -129,7 +129,7 @@ test('should handle very short incomplete chunks', () => {
 
 test('should handle large content', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
-    const { stream: stderr, data: stderrData } = createMockStream();
+    const { stream: stderr, data: _ } = createMockStream();
 
     const callback = createMultiplexedStreamCallback(stdout, stderr);
     const largeContent = 'x'.repeat(10000);
