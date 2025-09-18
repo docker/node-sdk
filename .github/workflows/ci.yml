@@ -1,0 +1,32 @@
+name: ci
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+on:
+    push:
+        branches:
+            - "main"
+    pull_request:
+
+permissions:
+    contents: read # to fetch code (actions/checkout)
+
+jobs:
+    ci:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Install
+              run: |
+                  npm install
+            - name: Test
+              run: |
+                  npm test
+            - name: Format
+              run: |
+                  prettier --check
