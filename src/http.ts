@@ -36,16 +36,37 @@ function getErrorMessage(
 ): string {
     const contentType = headers['content-type']?.toLowerCase();
     if (contentType?.includes('application/json') && body) {
-        try {
-            const jsonBody = JSON.parse(body);
-            if (jsonBody.message) {
-                return jsonBody.message;
-            }
-        } catch (parseError) {
-            // If JSON parsing fails, return the default message
+        const jsonBody = JSON.parse(body);
+        if (jsonBody.message) {
+            return jsonBody.message;
         }
     }
     return status;
+}
+
+// Class to represent an HTTP request
+export class HTTPRequest {
+    public method: string;
+    public uri: string;
+    public headers: { [key: string]: string };
+
+    constructor(
+        method: string,
+        uri: string,
+        headers: { [key: string]: string } = {},
+    ) {
+        this.method = method;
+        this.uri = uri;
+        this.headers = headers;
+    }
+
+    public addHeader(key: string, value: string): void {
+        this.headers[key] = value;
+    }
+
+    public setHeaders(headers: { [key: string]: string }): void {
+        this.headers = { ...this.headers, ...headers };
+    }
 }
 
 // Interface to represent an HTTP response
@@ -152,20 +173,18 @@ export class HTTPClient {
     }
 
     // Callback called when data is received
-    private onDataReceived(data: string): void {
+    private onDataReceived(_: string): void {
         // This method can be overridden or modified as needed
         // By default, it does nothing more than logging
     }
 
     // Method to read a complete HTTP response
     public readHTTPResponse(
-        timeout: number = 10000,
         callback?: (chunk: string) => void,
     ): Promise<HTTPResponse> {
         return new Promise((resolve, reject) => {
             let buffer = '';
             let body = '';
-            let timeoutId: NodeJS.Timeout;
             let resolved = false;
             let headersComplete = false;
             let expectedBodyLength = -1;
@@ -253,7 +272,6 @@ export class HTTPClient {
 
                             // Resolve immediately with upgrade response
                             resolved = true;
-                            clearTimeout(timeoutId);
 
                             const response: HTTPResponse = {
                                 statusLine,
@@ -306,7 +324,6 @@ export class HTTPClient {
 
                     if (isComplete) {
                         resolved = true;
-                        clearTimeout(timeoutId);
                         this.socket.off('data', dataHandler);
 
                         let responseBody: string | undefined;
@@ -352,16 +369,6 @@ export class HTTPClient {
                 }
             };
 
-            if (timeout > 0) {
-                timeoutId = setTimeout(() => {
-                    if (!resolved) {
-                        resolved = true;
-                        this.socket.off('data', dataHandler);
-                        reject(new Error('Timeout: incomplete HTTP response'));
-                    }
-                }, timeout);
-            }
-
             this.socket.on('data', dataHandler);
         });
     }
@@ -372,8 +379,7 @@ export class HTTPClient {
         uri: string,
         options?: {
             params?: Record<string, any>;
-            body?: object;
-            timeout?: number;
+            data?: object;
             callback?: (data: string) => void;
             accept?: string;
             headers?: Record<string, string>;
@@ -381,48 +387,41 @@ export class HTTPClient {
     ): Promise<HTTPResponse> {
         const {
             params,
-            body,
-            timeout = 10000,
+            data,
             callback,
             accept = 'application/json',
-            headers,
+            headers = {},
         } = options || {};
 
+        // Prepare HTTPRequest
         const queryString = this.buildQueryString(params);
-        const fullUri = `${uri}${queryString}`;
+        const httpRequest = new HTTPRequest(method, `${uri}${queryString}`, {
+            Host: 'host',
+            'User-Agent': 'docker-ts/0.0.1',
+        });
 
-        let request = `${method} ${fullUri} HTTP/1.1
-Host: host
-User-Agent: docker-ts/0.0.1
-Accept: ${accept}
-`;
+        // Add any custom headers
+        httpRequest.setHeaders(headers);
+        httpRequest.addHeader('Accept', accept);
 
-        // Add custom headers if provided
-        if (headers) {
-            Object.entries(headers).forEach(([key, value]) => {
-                request += `${key}: ${value}\r\n`;
-            });
-        }
-
-        let stream: NodeJS.ReadableStream = undefined;
-        if (body) {
+        // Prepare body data and headers
+        let body: string | NodeJS.ReadableStream | undefined;
+        if (data) {
+            // Check if body is a stream
             if (
-                typeof body === 'object' &&
-                'read' in body &&
-                typeof (body as any).read === 'function'
+                typeof data === 'object' &&
+                'read' in data &&
+                typeof (data as any).read === 'function'
             ) {
-                stream = body as NodeJS.ReadableStream;
                 // Use chunked transfer encoding for streams
-                request += `Transfer-Encoding: chunked\r\n\r\n`;
+                body = data as NodeJS.ReadableStream;
+                httpRequest.addHeader('Transfer-Encoding', 'chunked');
             } else {
-                const json = JSON.stringify(body);
-                request += `Content-type: application/json
-Content-length: ${json.length}
-
-${json}`;
+                // Convert to JSON string for objects
+                body = JSON.stringify(data);
+                httpRequest.addHeader('Content-Type', 'application/json');
+                httpRequest.addHeader('Content-Length', body.length.toString());
             }
-        } else {
-            request += '\r\n';
         }
 
         return new Promise(async (resolve, reject) => {
@@ -431,50 +430,69 @@ ${json}`;
                 return;
             }
 
+            // Write HTTPRequest to socket
             try {
-                // Send the request headers
-                this.socket.write(request, 'utf8');
+                let requestData = `${httpRequest.method} ${httpRequest.uri} HTTP/1.1\r\n`;
+                Object.entries(httpRequest.headers).forEach(([key, value]) => {
+                    requestData += `${key}: ${value}\r\n`;
+                });
+                requestData += '\r\n';
+                this.socket.write(requestData, 'utf8');
 
-                if (stream) {
-                    // Handle streaming with chunked transfer encoding
-                    await this.writeStreamChunked(stream);
+                if (body) {
+                    if (typeof body === 'string') {
+                        this.socket.write(body);
+                    } else {
+                        await this.writeStreamChunked(body).catch((error) => {
+                            reject(error);
+                        });
+                    }
                 }
 
-                // Read the response
-                const response = await this.readHTTPResponse(timeout, callback);
-                resolve(response);
+                this.readHTTPResponse(callback)
+                    .then((response) => {
+                        resolve(response);
+                    })
+                    .catch((error) => {
+                        reject(error + ' ' + httpRequest.uri);
+                    });
             } catch (error) {
                 reject(error);
             }
         });
     }
 
-    private writeStreamChunked(stream: NodeJS.ReadableStream): void {
-        stream.on('data', (chunk: Buffer) => {
-            const chunkSize = chunk.length;
-            if (chunkSize > 0) {
-                // Write chunk size in hexadecimal followed by CRLF
-                this.socket.write(`${chunkSize.toString(16)}\r\n`);
-                // Write the chunk data followed by CRLF
-                this.socket.write(chunk);
-                this.socket.write('\r\n');
-            }
-        });
+    private async writeStreamChunked(
+        stream: NodeJS.ReadableStream,
+    ): Promise<void> {
+        return new Promise((resolve, reject) => {
+            stream.on('data', (chunk: Buffer) => {
+                const chunkSize = chunk.length;
+                if (chunkSize > 0) {
+                    // Write chunk size in hexadecimal followed by CRLF
+                    this.socket.write(`${chunkSize.toString(16)}\r\n`);
+                    // Write the chunk data followed by CRLF
+                    this.socket.write(chunk);
+                    this.socket.write('\r\n');
+                }
+            });
 
-        stream.on('end', () => {
-            // Write the final zero-length chunk to indicate end of stream
-            this.socket.write('0\r\n\r\n');
-        });
+            stream.on('end', () => {
+                // Write the final zero-length chunk to indicate end of stream
+                this.socket.write('0\r\n\r\n');
+                resolve();
+            });
 
-        stream.on('error', (error) => {
-            throw error;
+            stream.on('error', (error) => {
+                reject(error);
+            });
         });
     }
 
     private handleResponse<T>(response: HTTPResponse): T {
         const contentType = response.headers['content-type']?.toLowerCase();
-        if (contentType?.includes('application/json')) {
-            const parsedBody = JSON.parse(response.body ?? '');
+        if (contentType?.includes('application/json') && response.body) {
+            const parsedBody = JSON.parse(response.body);
             return parsedBody as T;
         } else {
             return response.body as T;
@@ -522,14 +540,14 @@ ${json}`;
         uri: string,
         params?: Record<string, any>,
         data?: object,
-        timeout?: number,
         headers?: Record<string, string>,
+        callback?: (data: any) => void,
     ): Promise<T> {
         return this.sendHTTPRequest('POST', uri, {
             params: params,
-            body: data,
-            timeout: timeout,
+            data: data,
             headers: headers,
+            callback: callback,
         }).then((response) => this.handleResponse<T>(response));
     }
 
@@ -541,7 +559,7 @@ ${json}`;
     ): Promise<T> {
         return this.sendHTTPRequest('PUT', uri, {
             params: params,
-            body: data,
+            data: data,
             headers: {
                 'Content-Type': type,
             },

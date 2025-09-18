@@ -49,5 +49,5 @@ export class ContainerStatsResponse {
     /**
      * Network statistics for the container per interface.  This field is omitted if the container has no networking enabled.
      */
-    'Networks'?: any | null;
+    'Networks'?: any;
 }
