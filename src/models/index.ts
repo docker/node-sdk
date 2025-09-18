@@ -243,3 +243,5 @@ export * from './VolumeListResponse.js'
 export * from './VolumePruneResponse.js'
 export * from './VolumeUpdateRequest.js'
 export * from './VolumeUsageData.js'
+
+export * from './FileInfo.js'

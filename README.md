@@ -45,9 +45,9 @@ _tl;dr:_ You're free to use this code, make any changes you need, have fun with 
 - [ ] ContainerAttachWebsocket
 - [x] ContainerWait
 - [x] ContainerDelete
-- [ ] ContainerArchiveInfo
-- [ ] ContainerArchive
-- [ ] PutContainerArchive
+- [x] ContainerArchiveInfo
+- [x] ContainerArchive
+- [x] PutContainerArchive
 - [x] ContainerPrune
 
 ### Image
