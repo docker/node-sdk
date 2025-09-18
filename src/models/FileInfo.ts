@@ -10,7 +10,7 @@ export class FileInfo {
         size: number,
         mode: number,
         mtime: Date,
-        linkTarget: string
+        linkTarget: string,
     ) {
         this.name = name;
         this.size = size;
@@ -26,7 +26,7 @@ export class FileInfo {
             json.size,
             json.mode,
             new Date(json.mtime),
-            json.linkTarget
+            json.linkTarget,
         );
     }
 }

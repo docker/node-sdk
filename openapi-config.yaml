@@ -4,9 +4,9 @@ importFileExtension: .js
 supportsES6: true
 platform: node
 globalProperties:
-  supportingFiles: models/index.ts
-  models: ""
+    supportingFiles: models/index.ts
+    models: ""
 files:
-  model/index.mustache:
-    templateType: SupportingFiles
-    destinationFilename: models/index.ts
+    model/index.mustache:
+        templateType: SupportingFiles
+        destinationFilename: models/index.ts

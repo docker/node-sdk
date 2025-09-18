@@ -20,6 +20,7 @@ Provide the following information:
 **- How to verify it**
 
 **- Human readable description for the release notes**
+
 <!--
 Write a short (one line) summary that describes the changes in this
 pull request for inclusion in the changelog.
@@ -28,8 +29,8 @@ It must be placed inside the below triple backticks section.
 NOTE: Only fill this section if changes introduced in this PR are user-facing.
 The PR must have a relevant impact/ label.
 -->
-```markdown changelog
 
+```markdown changelog
 
 ```
 

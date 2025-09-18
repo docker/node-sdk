@@ -1,7 +1,8 @@
 singleQuote: true
 trailingComma: "all"
+tabWidth: 4
 
 overrides:
-  - files: "*.{yaml,yml,json}"
-    options:
-      singleQuote: false
+    - files: "*.{yaml,yml,json}"
+      options:
+          singleQuote: false

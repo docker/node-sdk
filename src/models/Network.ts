@@ -1,9 +1,9 @@
 /**
  * Docker Engine API
- * The Engine API is an HTTP API served by Docker Engine. It is the API the Docker client uses to communicate with the Engine, so everything the Docker client can do can be done with the API.  Most of the client\'s commands map directly to API endpoints (e.g. `docker ps` is `GET /containers/json`). The notable exception is running containers, which consists of several API calls.  # Errors  The API uses standard HTTP status codes to indicate the success or failure of the API call. The body of the response will be JSON in the following format:  ``` {   \"message\": \"page not found\" } ```  # Versioning  The API is usually changed in each release, so API calls are versioned to ensure that clients don\'t break. To lock to a specific version of the API, you prefix the URL with its version, for example, call `/v1.30/info` to use the v1.30 version of the `/info` endpoint. If the API version specified in the URL is not supported by the daemon, a HTTP `400 Bad Request` error message is returned.  If you omit the version-prefix, the current version of the API (v1.50) is used. For example, calling `/info` is the same as calling `/v1.52/info`. Using the API without a version-prefix is deprecated and will be removed in a future release.  Engine releases in the near future should support this version of the API, so your client will continue to work even if it is talking to a newer Engine.  The API uses an open schema model, which means the server may add extra properties to responses. Likewise, the server will ignore any extra query parameters and request body properties. When you write clients, you need to ignore additional properties in responses to ensure they do not break when talking to newer daemons.   # Authentication  Authentication for registries is handled client side. The client has to send authentication details to various endpoints that need to communicate with registries, such as `POST /images/(name)/push`. These are sent as `X-Registry-Auth` header as a [base64url encoded](https://tools.ietf.org/html/rfc4648#section-5) (JSON) string with the following structure:  ``` {   \"username\": \"string\",   \"password\": \"string\",   \"email\": \"string\",   \"serveraddress\": \"string\" } ```  The `serveraddress` is a domain/IP without a protocol. Throughout this structure, double quotes are required.  If you have already got an identity token from the [`/auth` endpoint](#operation/SystemAuth), you can just pass this instead of credentials:  ``` {   \"identitytoken\": \"9cbaf023786cd7...\" } ``` 
+ * The Engine API is an HTTP API served by Docker Engine. It is the API the Docker client uses to communicate with the Engine, so everything the Docker client can do can be done with the API.  Most of the client\'s commands map directly to API endpoints (e.g. `docker ps` is `GET /containers/json`). The notable exception is running containers, which consists of several API calls.  # Errors  The API uses standard HTTP status codes to indicate the success or failure of the API call. The body of the response will be JSON in the following format:  ``` {   \"message\": \"page not found\" } ```  # Versioning  The API is usually changed in each release, so API calls are versioned to ensure that clients don\'t break. To lock to a specific version of the API, you prefix the URL with its version, for example, call `/v1.30/info` to use the v1.30 version of the `/info` endpoint. If the API version specified in the URL is not supported by the daemon, a HTTP `400 Bad Request` error message is returned.  If you omit the version-prefix, the current version of the API (v1.50) is used. For example, calling `/info` is the same as calling `/v1.52/info`. Using the API without a version-prefix is deprecated and will be removed in a future release.  Engine releases in the near future should support this version of the API, so your client will continue to work even if it is talking to a newer Engine.  The API uses an open schema model, which means the server may add extra properties to responses. Likewise, the server will ignore any extra query parameters and request body properties. When you write clients, you need to ignore additional properties in responses to ensure they do not break when talking to newer daemons.   # Authentication  Authentication for registries is handled client side. The client has to send authentication details to various endpoints that need to communicate with registries, such as `POST /images/(name)/push`. These are sent as `X-Registry-Auth` header as a [base64url encoded](https://tools.ietf.org/html/rfc4648#section-5) (JSON) string with the following structure:  ``` {   \"username\": \"string\",   \"password\": \"string\",   \"email\": \"string\",   \"serveraddress\": \"string\" } ```  The `serveraddress` is a domain/IP without a protocol. Throughout this structure, double quotes are required.  If you have already got an identity token from the [`/auth` endpoint](#operation/SystemAuth), you can just pass this instead of credentials:  ``` {   \"identitytoken\": \"9cbaf023786cd7...\" } ```
  *
  * OpenAPI spec version: 1.52
- * 
+ *
  *
  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
  * https://openapi-generator.tech
@@ -16,61 +16,61 @@ import { PeerInfo } from '../models/PeerInfo.js';
 
 export class Network {
     /**
-    * Name of the network. 
-    */
+     * Name of the network.
+     */
     'Name'?: string;
     /**
-    * ID that uniquely identifies a network on a single machine. 
-    */
+     * ID that uniquely identifies a network on a single machine.
+     */
     'Id'?: string;
     /**
-    * Date and time at which the network was created in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds. 
-    */
+     * Date and time at which the network was created in [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds.
+     */
     'Created'?: string;
     /**
-    * The level at which the network exists (e.g. `swarm` for cluster-wide or `local` for machine level) 
-    */
+     * The level at which the network exists (e.g. `swarm` for cluster-wide or `local` for machine level)
+     */
     'Scope'?: string;
     /**
-    * The name of the driver used to create the network (e.g. `bridge`, `overlay`). 
-    */
+     * The name of the driver used to create the network (e.g. `bridge`, `overlay`).
+     */
     'Driver'?: string;
     /**
-    * Whether the network was created with IPv4 enabled. 
-    */
+     * Whether the network was created with IPv4 enabled.
+     */
     'EnableIPv4'?: boolean;
     /**
-    * Whether the network was created with IPv6 enabled. 
-    */
+     * Whether the network was created with IPv6 enabled.
+     */
     'EnableIPv6'?: boolean;
     'IPAM'?: IPAM;
     /**
-    * Whether the network is created to only allow internal networking connectivity. 
-    */
+     * Whether the network is created to only allow internal networking connectivity.
+     */
     'Internal'?: boolean;
     /**
-    * Whether a global / swarm scope network is manually attachable by regular containers from workers in swarm mode. 
-    */
+     * Whether a global / swarm scope network is manually attachable by regular containers from workers in swarm mode.
+     */
     'Attachable'?: boolean;
     /**
-    * Whether the network is providing the routing-mesh for the swarm cluster. 
-    */
+     * Whether the network is providing the routing-mesh for the swarm cluster.
+     */
     'Ingress'?: boolean;
     'ConfigFrom'?: ConfigReference;
     /**
-    * Whether the network is a config-only network. Config-only networks are placeholder networks for network configurations to be used by other networks. Config-only networks cannot be used directly to run containers or services. 
-    */
+     * Whether the network is a config-only network. Config-only networks are placeholder networks for network configurations to be used by other networks. Config-only networks cannot be used directly to run containers or services.
+     */
     'ConfigOnly'?: boolean;
     /**
-    * Network-specific options uses when creating the network. 
-    */
-    'Options'?: { [key: string]: string; };
+     * Network-specific options uses when creating the network.
+     */
+    'Options'?: { [key: string]: string };
     /**
-    * Metadata specific to the network being created. 
-    */
-    'Labels'?: { [key: string]: string; };
+     * Metadata specific to the network being created.
+     */
+    'Labels'?: { [key: string]: string };
     /**
-    * List of peer nodes for an overlay network. This field is only present for overlay networks, and omitted for other network types. 
-    */
+     * List of peer nodes for an overlay network. This field is only present for overlay networks, and omitted for other network types.
+     */
     'Peers'?: Array<PeerInfo>;
 }
