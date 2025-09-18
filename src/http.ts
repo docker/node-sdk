@@ -129,7 +129,7 @@ export class HTTPClient {
     this.setupEventHandlers();
   }
 
-  private close() {
+  close() {
     this.socket.destroy();
   }
 
@@ -354,39 +354,6 @@ export class HTTPClient {
     });
   }
 
-  // Method to send a raw HTTP request and read the response
-  public sendHTTPRequestRaw(
-    request: string,
-    timeout: number = 10000,
-    chunkCallback?: (chunk: string) => void,
-  ): Promise<HTTPResponse> {
-    return new Promise(async (resolve, reject) => {
-      if (this.socket.destroyed) {
-        reject(new Error('Socket closed'));
-        return;
-      }
-
-      try {
-        // Send the request
-        await new Promise<void>((resolveWrite, rejectWrite) => {
-          this.socket.write(request, 'utf8', (error) => {
-            if (error) {
-              rejectWrite(error);
-            } else {
-              resolveWrite();
-            }
-          });
-        });
-
-        // Read the response
-        const response = await this.readHTTPResponse(timeout, chunkCallback);
-        resolve(response);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
   // Method to send an HTTP request with method, URI and parameters
   public sendHTTPRequest(
     method: string,
@@ -425,17 +392,69 @@ Accept: ${accept}
       });
     }
 
+    let stream: NodeJS.ReadableStream = undefined;
     if (body) {
-      const json = JSON.stringify(body);
-      request += `Content-type: application/json
+        if (typeof body === 'object' && 'read' in body && typeof (body as any).read === 'function') {
+            stream = body as NodeJS.ReadableStream;
+            // Use chunked transfer encoding for streams
+            request += `Transfer-Encoding: chunked\r\n\r\n`;
+        } else {
+            const json = JSON.stringify(body);
+            request += `Content-type: application/json
 Content-length: ${json.length}
 
 ${json}`;
+        }
     } else {
       request += '\r\n';
     }
 
-    return this.sendHTTPRequestRaw(request, timeout, callback);
+      return new Promise(async (resolve, reject) => {
+          if (this.socket.destroyed) {
+              reject(new Error('Socket closed'));
+              return;
+          }
+
+          try {
+              console.log(request);
+              // Send the request headers
+              this.socket.write(request, 'utf8');
+
+              if (stream) {
+                  // Handle streaming with chunked transfer encoding
+                  await this.writeStreamChunked(stream);
+              }
+
+              // Read the response
+              const response = await this.readHTTPResponse(timeout, callback);
+              resolve(response);
+
+          } catch (error) {
+              reject(error);
+          }
+      });
+  }
+
+    private writeStreamChunked(stream: NodeJS.ReadableStream): void {
+        stream.on('data', (chunk: Buffer) => {
+            const chunkSize = chunk.length;
+            if (chunkSize > 0) {
+                // Write chunk size in hexadecimal followed by CRLF
+                this.socket.write(`${chunkSize.toString(16)}\r\n`);
+                // Write the chunk data followed by CRLF
+                this.socket.write(chunk);
+                this.socket.write('\r\n');
+            }
+        });
+
+        stream.on('end', () => {
+            // Write the final zero-length chunk to indicate end of stream
+            this.socket.write('0\r\n\r\n');
+        });
+
+        stream.on('error', (error) => {
+            throw error;
+        });
   }
 
   private handleResponse<T>(response: HTTPResponse): T {
@@ -472,8 +491,8 @@ ${json}`;
     return queryString ? `?${queryString}` : '';
   }
 
-  public async get<T>(uri: string, params?: Record<string, any>): Promise<T> {
-    return this.sendHTTPRequest('GET', uri, { params: params }).then(
+  public async get<T>(uri: string, params?: Record<string, any>, accept?: string, callback?: (data: any) => boolean): Promise<T> {
+    return this.sendHTTPRequest('GET', uri, { params: params, accept: accept, callback: callback }).then(
       (response) => this.handleResponse<T>(response),
     );
   }
@@ -492,6 +511,17 @@ ${json}`;
       headers: headers,
     }).then((response) => this.handleResponse<T>(response));
   }
+
+
+    public async put<T>(uri: string, params: Record<string, any>, data: object, type: string): Promise<T> {
+        return this.sendHTTPRequest('PUT', uri, {
+            params: params,
+            body: data,
+            headers: {
+                'Content-Type': type
+            },
+        }).then(response => this.handleResponse<T>(response));
+    }
 
   public async delete<T>(
     uri: string,

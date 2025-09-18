@@ -5,6 +5,8 @@ import * as os from 'os';
 import * as models from './models/index.js';
 import { HTTPClient } from './http.js';
 import { Filter } from './filter.js';
+import {Writable} from 'stream';
+import {FileInfo} from "./models/FileInfo.js";
 
 export class Credentials {
   username: string;
@@ -254,6 +256,37 @@ export class DockerClient {
   }
 
   // --- Containers API
+
+    /**
+     * Get a tar archive of a resource in the filesystem of container id.
+     * Get an archive of a filesystem resource in a container
+     * @param id ID or name of the container
+     * @param path Resource in the container’s filesystem to archive.
+     * @param out stream to write container's filesystem content as a TAR archive
+     */
+    public async containerArchive(id: string, path: string, out: NodeJS.WritableStream): Promise<void> {
+        return this.api.get<void>(`/containers/${id}/archive`, {
+            path: path,
+        }, 'application/x-tar', data => out.write(data));
+    }
+
+    /**
+     * A response header `X-Docker-Container-Path-Stat` is returned, containing a base64 - encoded JSON object with some filesystem header information about the path.
+     * Get information about files in a container
+     * @param id ID or name of the container
+     * @param path Resource in the container’s filesystem to archive.
+     */
+    public async containerArchiveInfo(id: string, path: string): Promise<models.FileInfo> {
+        return this.api.sendHTTPRequest('HEAD', `/containers/${id}/archive`, {
+            params: {
+                path: path
+            }
+        }).then(response => {
+                const header = response.headers['x-docker-container-path-stat'] as string;
+                const json = Buffer.from(header, 'base64').toString('utf-8');
+                return models.FileInfo.fromJSON(json);
+            });
+    }
 
   /**
    * Attach to a container to read its output or send it input. You can attach to the same container multiple times and you can reattach to containers that have been detached.  Either the `stream` or `logs` parameter must be `true` for this endpoint to do anything.  See the [documentation for the `docker attach` command](https://docs.docker.com/engine/reference/commandline/attach/) for more details.  ### Hijacking  This endpoint hijacks the HTTP connection to transport `stdin`, `stdout`, and `stderr` on the same socket.  This is the response from the daemon for an attach request:  ``` HTTP/1.1 200 OK Content-Type: application/vnd.docker.raw-stream  [STREAM] ```  After the headers and two new lines, the TCP connection can now be used for raw, bidirectional communication between the client and server.  To hint potential proxies about connection hijacking, the Docker client can also optionally send connection upgrade headers.  For example, the client sends this request to upgrade the connection:  ``` POST /containers/16253994b7c4/attach?stream=1&stdout=1 HTTP/1.1 Upgrade: tcp Connection: Upgrade ```  The Docker daemon will respond with a `101 UPGRADED` response, and will similarly follow with the raw stream:  ``` HTTP/1.1 101 UPGRADED Content-Type: application/vnd.docker.raw-stream Connection: Upgrade Upgrade: tcp  [STREAM] ```  ### Stream format  When the TTY setting is disabled in [`POST /containers/create`](#operation/ContainerCreate), the HTTP Content-Type header is set to application/vnd.docker.multiplexed-stream and the stream over the hijacked connected is multiplexed to separate out `stdout` and `stderr`. The stream consists of a series of frames, each containing a header and a payload.  The header contains the information which the stream writes (`stdout` or `stderr`). It also contains the size of the associated frame encoded in the last four bytes (`uint32`).  It is encoded on the first eight bytes like this:  ```go header := [8]byte{STREAM_TYPE, 0, 0, 0, SIZE1, SIZE2, SIZE3, SIZE4} ```  `STREAM_TYPE` can be:  - 0: `stdin` (is written on `stdout`) - 1: `stdout` - 2: `stderr`  `SIZE1, SIZE2, SIZE3, SIZE4` are the four bytes of the `uint32` size encoded as big endian.  Following the header is the payload, which is the specified number of bytes of `STREAM_TYPE`.  The simplest way to implement this protocol is the following:  1. Read 8 bytes. 2. Choose `stdout` or `stderr` depending on the first byte. 3. Extract the frame size from the last four bytes. 4. Read the extracted size and output it on the correct output. 5. Goto 1.  ### Stream format when using a TTY  When the TTY setting is enabled in [`POST /containers/create`](#operation/ContainerCreate), the stream is not multiplexed. The data exchanged over the hijacked connection is simply the raw data from the process PTY and client\'s `stdin`.
@@ -623,18 +656,19 @@ export class DockerClient {
    * Extract an archive of files or folders to a directory in a container
    * @param id ID or name of the container
    * @param path Path to a directory in the container to extract the archive’s contents into.
-   * @param inputStream The input stream must be a tar archive compressed with one of the following algorithms: 'identity' (no compression), 'gzip', 'bzip2', or 'xz'.
+   * @param tar The input stream must be a tar archive compressed with one of the following algorithms: 'identity' (no compression), 'gzip', 'bzip2', or 'xz'.
    * @param noOverwriteDirNonDir If '1', 'true', or 'True' then it will be an error if unpacking the given content would cause an existing directory to be replaced with a non-directory and vice versa.
    * @param copyUIDGID If '1', 'true', then it will copy UID/GID maps to the dest file or dir
    */
-  public async putContainerArchive(options?: {
-    id: string;
-    path: string;
-    inputStream: Blob;
-    noOverwriteDirNonDir?: string;
-    copyUIDGID?: string;
+  public async putContainerArchive(id: string, path: string, tar: NodeJS.ReadableStream, options?: {
+      noOverwriteDirNonDir?: string,
+      copyUIDGID?: string
   }): Promise<void> {
-    // TODO
+      return this.api.put(`/containers/${id}/archive`, {
+          path: path,
+          noOverwriteDirNonDir: options?.noOverwriteDirNonDir,
+          copyUIDGID: options?.copyUIDGID
+      }, tar, 'application/x-tar');
   }
 
   // --- Network API
