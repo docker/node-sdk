@@ -1,6 +1,6 @@
 import { assert, test } from 'vitest';
-import { DockerClient } from './docker-client.js';
-import { Filter } from './filter.js';
+import { DockerClient } from '../lib/docker-client.js';
+import { Filter } from '../lib/filter.js';
 
 // Test Docker API connectivity
 test('systemPing should return API version', async () => {

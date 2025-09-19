@@ -1,5 +1,5 @@
 import { assert, test } from 'vitest';
-import { createMultiplexedStreamCallback } from './multiplexed-stream.js';
+import { createMultiplexedStreamCallback } from '../lib/multiplexed-stream.js';
 import { Writable } from 'stream';
 
 function createMockStream(): { stream: Writable; data: Buffer[] } {

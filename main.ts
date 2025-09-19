@@ -1,4 +1,4 @@
-import { DockerClient } from './src/docker-client.js';
+import { DockerClient } from './lib/docker-client.js';
 import * as fs from 'node:fs';
 
 try {

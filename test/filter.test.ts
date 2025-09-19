@@ -1,5 +1,5 @@
 import { assert, test } from 'vitest';
-import { Filter } from './filter.js';
+import { Filter } from '../lib/filter.js';
 
 test('Filter should serialize single key with single value to JSON', () => {
     const filter = new Filter();

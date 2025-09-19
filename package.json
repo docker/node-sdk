@@ -38,10 +38,10 @@
   },
   "files": [
     "dist",
-    "src"
+    "lib"
   ],
   "scripts": {
-    "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o src && npm run format",
+    "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o lib && npm run format",
     "build": "npm run generate && tsup",
     "test": "vitest run",
     "lint": "oxlint --type-aware",

@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-    entry: ['src/index.ts'],
+    entry: ['lib/index.ts'],
 
     format: ['cjs', 'esm'],
     dts: false, // disable dts generation for now to work through type issues
