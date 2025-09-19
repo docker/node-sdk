@@ -46,102 +46,12 @@ function getErrorMessage(
     return status;
 }
 
-// Class to represent an HTTP request
-export class HTTPRequest {
-    public method: string;
-    public uri: string;
-    public headers: { [key: string]: string };
-
-    constructor(
-        method: string,
-        uri: string,
-        headers: { [key: string]: string } = {},
-    ) {
-        this.method = method;
-        this.uri = uri;
-        this.headers = headers;
-    }
-
-    public addHeader(key: string, value: string): void {
-        this.headers[key] = value;
-    }
-
-    public setHeaders(headers: { [key: string]: string }): void {
-        this.headers = { ...this.headers, ...headers };
-    }
-}
-
 // Interface to represent an HTTP response
 export interface HTTPResponse {
     statusMessage: string;
     statusCode: number;
     headers: { [key: string]: string };
     body?: string;
-}
-
-// Class for parsing HTTP responses
-export class HTTPParser {
-    public static parseChunkedBody(chunkedData: string): string {
-        const { chunks } = HTTPParser.extractChunks(chunkedData);
-        return chunks.join('');
-    }
-
-    public static extractChunks(buffer: string): {
-        chunks: string[];
-        remainingBuffer: string;
-    } {
-        const chunks: string[] = [];
-        let remainingBuffer = buffer;
-        let pos = 0;
-
-        while (pos < remainingBuffer.length) {
-            // Find the chunk size line
-            const crlfPos = remainingBuffer.indexOf('\r\n', pos);
-            if (crlfPos === -1) break;
-
-            const chunkSizeLine = remainingBuffer
-                .substring(pos, crlfPos)
-                .trim();
-            if (!chunkSizeLine) {
-                pos = crlfPos + 2;
-                continue;
-            }
-
-            const chunkSize = parseInt(chunkSizeLine, 16);
-
-            // If chunk size is 0, this is the end marker (empty chunk)
-            if (chunkSize === 0) {
-                // Add empty chunk to indicate end of transfer
-                chunks.push('');
-                // Include the end marker in remaining buffer for proper completion detection
-                remainingBuffer = remainingBuffer.substring(pos);
-                break;
-            }
-
-            // Calculate where the chunk data starts and ends
-            const chunkDataStart = crlfPos + 2;
-            const chunkDataEnd = chunkDataStart + chunkSize;
-            const chunkEnd = chunkDataEnd + 2; // +2 for trailing \r\n
-
-            // Check if we have the complete chunk
-            if (chunkEnd > remainingBuffer.length) break;
-
-            // Extract the chunk data
-            const chunkData = remainingBuffer.substring(
-                chunkDataStart,
-                chunkDataEnd,
-            );
-            chunks.push(chunkData);
-
-            // Move past this chunk
-            pos = chunkEnd;
-        }
-
-        // Update remaining buffer to remove processed chunks
-        remainingBuffer = remainingBuffer.substring(pos);
-
-        return { chunks, remainingBuffer };
-    }
 }
 
 /**
