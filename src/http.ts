@@ -2,38 +2,6 @@ import * as net from 'net';
 import * as http from 'http';
 import * as stream from 'stream';
 
-/**
- * Custom HTTP Agent that reuses an existing socket connection.
- * This agent is designed to work with persistent socket connections
- * like Unix domain sockets or long-lived TCP connections.
- */
-export class SocketReuseAgent extends http.Agent {
-    private socket: net.Socket;
-
-    constructor(socket: net.Socket) {
-        super({
-            keepAlive: true,
-            keepAliveMsecs: 0,
-            maxSockets: Infinity,
-            maxFreeSockets: 1,
-        });
-
-        this.socket = socket;
-    }
-
-    createConnection(options: any, callback?: any): stream.Duplex {
-        // Ensure our socket is properly configured for HTTP
-        this.socket.setNoDelay(true);
-        this.socket.setKeepAlive(true);
-
-        if (callback) {
-            process.nextTick(callback, null, this.socket);
-        }
-
-        return this.socket;
-    }
-}
-
 // Docker stream content type constants
 const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
 const DOCKER_MULTIPLEXED_STREAM = 'application/vnd.docker.multiplexed-stream';
@@ -182,39 +150,14 @@ export class HTTPParser {
  * Handles chunked transfer encoding and provides streaming response callbacks.
  */
 export class HTTPClient {
-    private socket: net.Socket;
-    private agent: SocketReuseAgent;
+    private agent: http.Agent;
 
-    constructor(socket: net.Socket) {
-        this.socket = socket;
-        // Increase max listeners since we'll be reusing this socket for multiple requests
-        this.socket.setMaxListeners(50);
-        this.agent = new SocketReuseAgent(this.socket);
-        this.setupEventHandlers();
+    constructor(agent: http.Agent) {
+        this.agent = agent;
     }
 
     close() {
         this.agent.destroy();
-        this.socket.destroy();
-    }
-
-    private setupEventHandlers(): void {
-        // Data received from server
-        this.socket.on('data', (data: Buffer) => {
-            const response = data.toString('utf8');
-            this.onDataReceived(response);
-        });
-
-        // Error handling
-        this.socket.on('error', (error: Error) => {
-            console.error('Error:', error.message);
-        });
-    }
-
-    // Callback called when data is received
-    private onDataReceived(_: string): void {
-        // This method can be overridden or modified as needed
-        // By default, it does nothing more than logging
     }
 
     // Method to send an HTTP request with method, URI and parameters
@@ -268,11 +211,6 @@ export class HTTPClient {
                     requestHeaders['Content-Type'] = 'application/json';
                     requestHeaders['Content-Length'] = body.length.toString();
                 }
-            }
-
-            if (this.socket.destroyed) {
-                reject(new Error('Socket closed'));
-                return;
             }
 
             // Create HTTP request options using our instance agent

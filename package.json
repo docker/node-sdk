@@ -41,12 +41,15 @@
     "src"
   ],
   "scripts": {
-    "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o src",
+    "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o src && npm run format",
     "build": "npm run generate && tsup",
     "test": "vitest run",
     "lint": "oxlint --type-aware",
     "format": "prettier --write .",
     "check": "prettier --check ."
+  },
+  "dependencies": {
+    "ssh2": "^1.16.0"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.23.4",
