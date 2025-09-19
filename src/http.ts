@@ -1,4 +1,38 @@
 import * as net from 'net';
+import * as http from 'http';
+import * as stream from 'stream';
+
+/**
+ * Custom HTTP Agent that reuses an existing socket connection.
+ * This agent is designed to work with persistent socket connections
+ * like Unix domain sockets or long-lived TCP connections.
+ */
+export class SocketReuseAgent extends http.Agent {
+    private socket: net.Socket;
+
+    constructor(socket: net.Socket) {
+        super({
+            keepAlive: true,
+            keepAliveMsecs: 0,
+            maxSockets: Infinity,
+            maxFreeSockets: 1,
+        });
+
+        this.socket = socket;
+    }
+
+    createConnection(options: any, callback?: any): stream.Duplex {
+        // Ensure our socket is properly configured for HTTP
+        this.socket.setNoDelay(true);
+        this.socket.setKeepAlive(true);
+
+        if (callback) {
+            process.nextTick(callback, null, this.socket);
+        }
+
+        return this.socket;
+    }
+}
 
 // Docker stream content type constants
 const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
@@ -71,7 +105,7 @@ export class HTTPRequest {
 
 // Interface to represent an HTTP response
 export interface HTTPResponse {
-    statusLine: string;
+    statusMessage: string;
     statusCode: number;
     headers: { [key: string]: string };
     body?: string;
@@ -149,13 +183,18 @@ export class HTTPParser {
  */
 export class HTTPClient {
     private socket: net.Socket;
+    private agent: SocketReuseAgent;
 
     constructor(socket: net.Socket) {
         this.socket = socket;
+        // Increase max listeners since we'll be reusing this socket for multiple requests
+        this.socket.setMaxListeners(50);
+        this.agent = new SocketReuseAgent(this.socket);
         this.setupEventHandlers();
     }
 
     close() {
+        this.agent.destroy();
         this.socket.destroy();
     }
 
@@ -178,201 +217,6 @@ export class HTTPClient {
         // By default, it does nothing more than logging
     }
 
-    // Method to read a complete HTTP response
-    public readHTTPResponse(
-        callback?: (chunk: string) => void,
-    ): Promise<HTTPResponse> {
-        return new Promise((resolve, reject) => {
-            let buffer = '';
-            let body = '';
-            let resolved = false;
-            let headersComplete = false;
-            let expectedBodyLength = -1;
-            let isChunked = false;
-            let statusLine: string | undefined = '';
-            let statusCode = 0;
-            let headers: { [key: string]: string } = {};
-
-            const dataHandler = (data: Buffer) => {
-                buffer += data.toString('utf8');
-
-                if (!headersComplete) {
-                    const lines = buffer.split('\r\n');
-                    let headerEndFound = false;
-                    let headerEndIndex = -1;
-
-                    for (let i = 0; i < lines.length; i++) {
-                        if (lines[i] === '' && i > 0) {
-                            headerEndFound = true;
-                            headerEndIndex = i;
-                            break;
-                        }
-                    }
-
-                    if (headerEndFound) {
-                        headersComplete = true;
-
-                        // Parse status line
-                        statusLine = lines[0];
-                        const statusParts = statusLine?.split(' ');
-                        statusCode = parseInt(statusParts?.[1] ?? '0') ?? 0;
-
-                        // Parse headers
-                        headers = {};
-                        for (let i = 1; i < headerEndIndex; i++) {
-                            const colonIndex = lines?.[i]?.indexOf(':') ?? -1;
-                            if (colonIndex > 0) {
-                                const headerName = lines?.[i]
-                                    ?.substring(0, colonIndex)
-                                    .trim()
-                                    .toLowerCase();
-                                const headerValue = lines?.[i]
-                                    ?.substring(colonIndex + 1)
-                                    .trim();
-                                headers[headerName] = headerValue;
-                            }
-                        }
-
-                        // Check Content-Length
-                        if (headers['content-length']) {
-                            expectedBodyLength = parseInt(
-                                headers['content-length'],
-                            );
-                        }
-
-                        // Check Transfer-Encoding: chunked
-                        if (headers['transfer-encoding'] === 'chunked') {
-                            isChunked = true;
-                        }
-
-                        // Check for Docker stream content types
-                        const contentType = headers['content-type'];
-                        const isDockerStream =
-                            contentType === DOCKER_RAW_STREAM ||
-                            contentType === DOCKER_MULTIPLEXED_STREAM;
-
-                        if (isDockerStream && callback) {
-                            // For upgrade protocols, forward all remaining data directly to callback
-                            const bodyStartIndex =
-                                buffer.indexOf('\r\n\r\n') + 4;
-                            const remainingData =
-                                buffer.substring(bodyStartIndex);
-
-                            if (remainingData) {
-                                callback(remainingData);
-                            }
-
-                            // Set up direct forwarding for future data
-                            const upgradeHandler = (data: Buffer) => {
-                                callback(data.toString('utf8'));
-                            };
-
-                            this.socket.off('data', dataHandler);
-                            this.socket.on('data', upgradeHandler);
-
-                            // Resolve immediately with upgrade response
-                            resolved = true;
-
-                            const response: HTTPResponse = {
-                                statusLine,
-                                statusCode,
-                                headers,
-                                body: undefined,
-                            };
-
-                            resolve(response);
-                            return;
-                        }
-
-                        // Reset buffer to contain only body data
-                        const bodyStartIndex = buffer.indexOf('\r\n\r\n') + 4;
-                        buffer = buffer.substring(bodyStartIndex);
-                    }
-                }
-
-                if (headersComplete && !resolved) {
-                    let isComplete = false;
-
-                    if (isChunked) {
-                        // Always extract complete chunks
-                        const { chunks, remainingBuffer } =
-                            HTTPParser.extractChunks(buffer);
-                        buffer = remainingBuffer;
-
-                        // Process chunks and detect end of transfer
-                        chunks.forEach((chunk) => {
-                            if (chunk === '') {
-                                // Empty chunk indicates end of chunked transfer
-                                isComplete = true;
-                            } else {
-                                if (callback) {
-                                    callback(chunk);
-                                } else {
-                                    body += chunk;
-                                }
-                            }
-                        });
-                    } else if (expectedBodyLength >= 0) {
-                        // For Content-Length, check if we have enough data
-                        if (buffer.length >= expectedBodyLength) {
-                            isComplete = true;
-                        }
-                    } else {
-                        // If no Content-Length or chunked, consider complete
-                        isComplete = true;
-                    }
-
-                    if (isComplete) {
-                        resolved = true;
-                        this.socket.off('data', dataHandler);
-
-                        let responseBody: string | undefined;
-
-                        // Only set body if no callback was provided
-                        if (!callback) {
-                            if (isChunked) {
-                                // Use the concatenated body from chunks
-                                responseBody = body;
-                            } else {
-                                // Use the buffer for non-chunked responses
-                                responseBody = buffer;
-                            }
-                        }
-
-                        const response: HTTPResponse = {
-                            statusLine,
-                            statusCode,
-                            headers,
-                            body: responseBody,
-                        };
-
-                        // Reject promise for HTTP status codes >= 400
-                        if (statusCode >= 400) {
-                            const errorMessage = getErrorMessage(
-                                statusLine,
-                                headers,
-                                responseBody,
-                            );
-                            if (statusCode === 404) {
-                                reject(new NotFoundError(errorMessage));
-                            } else if (statusCode === 401) {
-                                reject(new UnauthorizedError(errorMessage));
-                            } else if (statusCode === 409) {
-                                reject(new ConflictError(errorMessage));
-                            } else {
-                                reject(new Error(errorMessage));
-                            }
-                        } else {
-                            resolve(response);
-                        }
-                    }
-                }
-            };
-
-            this.socket.on('data', dataHandler);
-        });
-    }
-
     // Method to send an HTTP request with method, URI and parameters
     public sendHTTPRequest(
         method: string,
@@ -385,107 +229,178 @@ export class HTTPClient {
             headers?: Record<string, string>;
         },
     ): Promise<HTTPResponse> {
-        const {
-            params,
-            data,
-            callback,
-            accept = 'application/json',
-            headers = {},
-        } = options || {};
+        return new Promise((resolve, reject) => {
+            const {
+                params,
+                data,
+                callback,
+                accept = 'application/json',
+                headers = {},
+            } = options || {};
 
-        // Prepare HTTPRequest
-        const queryString = this.buildQueryString(params);
-        const httpRequest = new HTTPRequest(method, `${uri}${queryString}`, {
-            Host: 'host',
-            'User-Agent': 'docker-ts/0.0.1',
-        });
+            // Build query string and construct full path
+            const queryString = this.buildQueryString(params);
+            const path = `${uri}${queryString}`;
 
-        // Add any custom headers
-        httpRequest.setHeaders(headers);
-        httpRequest.addHeader('Accept', accept);
+            // Prepare headers
+            const requestHeaders: Record<string, string> = {
+                Host: 'host',
+                'User-Agent': 'docker-ts/0.0.1',
+                Accept: accept,
+                ...headers,
+            };
 
-        // Prepare body data and headers
-        let body: string | NodeJS.ReadableStream | undefined;
-        if (data) {
-            // Check if body is a stream
-            if (
-                typeof data === 'object' &&
-                'read' in data &&
-                typeof (data as any).read === 'function'
-            ) {
-                // Use chunked transfer encoding for streams
-                body = data as NodeJS.ReadableStream;
-                httpRequest.addHeader('Transfer-Encoding', 'chunked');
-            } else {
-                // Convert to JSON string for objects
-                body = JSON.stringify(data);
-                httpRequest.addHeader('Content-Type', 'application/json');
-                httpRequest.addHeader('Content-Length', body.length.toString());
+            // Prepare body data and headers
+            let body: string | NodeJS.ReadableStream | undefined;
+            if (data) {
+                // Check if body is a stream
+                if (
+                    typeof data === 'object' &&
+                    'read' in data &&
+                    typeof (data as any).read === 'function'
+                ) {
+                    // Use chunked transfer encoding for streams
+                    body = data as NodeJS.ReadableStream;
+                    requestHeaders['Transfer-Encoding'] = 'chunked';
+                } else {
+                    // Convert to JSON string for objects
+                    body = JSON.stringify(data);
+                    requestHeaders['Content-Type'] = 'application/json';
+                    requestHeaders['Content-Length'] = body.length.toString();
+                }
             }
-        }
 
-        return new Promise(async (resolve, reject) => {
             if (this.socket.destroyed) {
                 reject(new Error('Socket closed'));
                 return;
             }
 
-            // Write HTTPRequest to socket
-            try {
-                let requestData = `${httpRequest.method} ${httpRequest.uri} HTTP/1.1\r\n`;
-                Object.entries(httpRequest.headers).forEach(([key, value]) => {
-                    requestData += `${key}: ${value}\r\n`;
+            // Create HTTP request options using our instance agent
+            const requestOptions: http.RequestOptions = {
+                method,
+                host: 'dockerhost',
+                path,
+                headers: requestHeaders,
+                agent: this.agent,
+            };
+
+            const req = http.request(requestOptions, (res) => {
+                let responseBody = '';
+                const responseHeaders: { [key: string]: string } = {};
+
+                // Convert headers to lowercase keys
+                Object.entries(res.headers).forEach(([key, value]) => {
+                    responseHeaders[key.toLowerCase()] = Array.isArray(value)
+                        ? value.join(', ')
+                        : value || '';
                 });
-                requestData += '\r\n';
-                this.socket.write(requestData, 'utf8');
 
-                if (body) {
-                    if (typeof body === 'string') {
-                        this.socket.write(body);
+                // Helper function to create response object
+                const createResponse = (body?: string): HTTPResponse => ({
+                    statusCode: res.statusCode,
+                    statusMessage: res.statusMessage,
+                    headers: responseHeaders,
+                    body,
+                });
+
+                // Helper function to handle response completion
+                const handleResponseEnd = (body?: string) => {
+                    const response = createResponse(body);
+
+                    if (res.statusCode >= 400) {
+                        const errorMessage = getErrorMessage(
+                            res.statusMessage,
+                            responseHeaders,
+                            body,
+                        );
+                        if (res.statusCode === 404) {
+                            reject(new NotFoundError(errorMessage));
+                        } else if (res.statusCode === 401) {
+                            reject(new UnauthorizedError(errorMessage));
+                        } else if (res.statusCode === 409) {
+                            reject(new ConflictError(errorMessage));
+                        } else {
+                            reject(new Error(errorMessage));
+                        }
                     } else {
-                        await this.writeStreamChunked(body).catch((error) => {
-                            reject(error);
-                        });
-                    }
-                }
-
-                this.readHTTPResponse(callback)
-                    .then((response) => {
                         resolve(response);
-                    })
-                    .catch((error) => {
-                        reject(error + ' ' + httpRequest.uri);
-                    });
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
+                    }
+                };
 
-    private async writeStreamChunked(
-        stream: NodeJS.ReadableStream,
-    ): Promise<void> {
-        return new Promise((resolve, reject) => {
-            stream.on('data', (chunk: Buffer) => {
-                const chunkSize = chunk.length;
-                if (chunkSize > 0) {
-                    // Write chunk size in hexadecimal followed by CRLF
-                    this.socket.write(`${chunkSize.toString(16)}\r\n`);
-                    // Write the chunk data followed by CRLF
-                    this.socket.write(chunk);
-                    this.socket.write('\r\n');
+                // Helper function to handle response errors
+                const handleResponseError = (error: Error) => {
+                    reject(
+                        new Error(`Response stream error: ${error.message}`),
+                    );
+                };
+
+                // Check for Docker stream content types
+                const contentType = responseHeaders['content-type'];
+                const isDockerStream =
+                    contentType === DOCKER_RAW_STREAM ||
+                    contentType === DOCKER_MULTIPLEXED_STREAM;
+
+                // Set up common error handler
+                res.on('error', handleResponseError);
+
+                if (isDockerStream && callback) {
+                    // For upgrade protocols, forward all data directly to callback
+                    res.on('data', (chunk: Buffer) => {
+                        callback(chunk.toString('utf8'));
+                    });
+
+                    // Resolve immediately with upgrade response
+                    resolve(createResponse());
+                    return;
+                }
+
+                // Handle chunked responses with callback
+                if (
+                    responseHeaders['transfer-encoding'] === 'chunked' &&
+                    callback
+                ) {
+                    res.on('data', (chunk: Buffer) => {
+                        callback(chunk.toString('utf8'));
+                    });
+
+                    res.on('end', () => handleResponseEnd());
+                } else {
+                    // Collect response body for non-streaming responses
+                    res.on('data', (chunk: Buffer) => {
+                        responseBody += chunk.toString('utf8');
+                    });
+
+                    res.on('end', () => handleResponseEnd(responseBody));
                 }
             });
 
-            stream.on('end', () => {
-                // Write the final zero-length chunk to indicate end of stream
-                this.socket.write('0\r\n\r\n');
-                resolve();
+            req.on('error', (error) => {
+                reject(new Error(`Request error: ${error.message}`));
             });
 
-            stream.on('error', (error) => {
-                reject(error);
-            });
+            // Write request body
+            if (body) {
+                if (typeof body === 'string') {
+                    req.write(body);
+                    req.end();
+                } else {
+                    // Handle stream body
+                    body.on('data', (chunk: Buffer) => {
+                        req.write(chunk);
+                    });
+
+                    body.on('end', () => {
+                        req.end();
+                    });
+
+                    body.on('error', (error) => {
+                        req.destroy(error);
+                        reject(error);
+                    });
+                }
+            } else {
+                req.end();
+            }
         });
     }
 
