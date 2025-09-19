@@ -1,5 +1,5 @@
 import { assert, test } from 'vitest';
-import { HTTPParser } from './http.js';
+import { HTTPParser } from '../lib/http.js';
 
 test('parseChunkedBody should parse simple chunked data', () => {
     const chunkedData = '5\r\nhello\r\n5\r\nworld\r\n0\r\n\r\n';
