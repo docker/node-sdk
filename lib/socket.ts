@@ -3,33 +3,51 @@ import * as http from 'http';
 import * as stream from 'stream';
 
 /**
- * Custom HTTP Agent that reuses an existing socket connection.
- * This agent is designed to work with persistent socket connections
- * like Unix domain sockets or long-lived TCP connections.
+ * HTTP Agent that creates socket connections using a provided factory function.
+ * This allows flexible socket creation strategies while supporting connection pooling.
  */
-export class SocketReuseAgent extends http.Agent {
-    private socket: net.Socket;
+export class SocketAgent extends http.Agent {
+    private socketFactory: () => net.Socket;
 
-    constructor(socket: net.Socket) {
+    constructor(createSocketFn: () => net.Socket) {
         super({
             keepAlive: true,
-            keepAliveMsecs: 0,
+            keepAliveMsecs: 30000,
             maxSockets: Infinity,
-            maxFreeSockets: 1,
+            maxFreeSockets: 10,
+            maxTotalSockets: Infinity,
+            timeout: 120000,
+            scheduling: 'lifo',
         });
 
-        this.socket = socket;
-    }
+        this.socketFactory = createSocketFn;
 
-    createConnection(options: any, callback?: any): stream.Duplex {
-        // Ensure our socket is properly configured for HTTP
-        this.socket.setNoDelay(true);
-        this.socket.setKeepAlive(true);
+        // Override createConnection to use our socket factory
+        this.createConnection = (
+            options: any,
+            callback?: (err: Error | null, socket?: stream.Duplex) => void,
+        ): stream.Duplex => {
+            const socket = this.socketFactory();
+            socket.setNoDelay(true);
+            socket.setKeepAlive(true, 30000);
+            socket.setTimeout(0);
 
-        if (callback) {
-            process.nextTick(callback, null, this.socket);
-        }
+            if (callback) {
+                const onConnect = () => {
+                    socket.removeListener('error', onError);
+                    callback(null, socket);
+                };
 
-        return this.socket;
+                const onError = (error: Error) => {
+                    socket.removeListener('connect', onConnect);
+                    callback(error);
+                };
+
+                socket.once('connect', onConnect);
+                socket.once('error', onError);
+            }
+
+            return socket;
+        };
     }
 }
