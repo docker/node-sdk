@@ -4,9 +4,10 @@ import * as path from 'path';
 import * as os from 'os';
 import * as http from 'http';
 import * as https from 'https';
+import * as tls from 'tls';
 import * as models from './models/index.js';
 import { HTTPClient } from './http.js';
-import { SocketReuseAgent } from './socket.js';
+import { SocketAgent } from './socket.js';
 import { Filter } from './filter.js';
 import { SSH } from './ssh.js';
 import { TLS } from './tls.js';
@@ -40,54 +41,42 @@ export class DockerClient {
         certPath?: string,
     ): Promise<DockerClient> {
         return new Promise((resolve, reject) => {
-            let socket: net.Socket;
-
             if (dockerHost.startsWith('unix:')) {
-                // Unix socket connection
+                // Unix socket connection - use SocketAgent with socket creation function
                 const socketPath = dockerHost.substring(5); // Remove "unix:" prefix
-                socket = net.createConnection(socketPath);
 
-                socket.on('connect', () => {
-                    // Increase max listeners since we'll be reusing this socket for multiple requests
-                    socket.setMaxListeners(50);
-                    const agent = new SocketReuseAgent(socket);
+                try {
+                    const agent = new SocketAgent(() =>
+                        net.createConnection(socketPath),
+                    );
                     resolve(new DockerClient(agent));
-                });
-
-                socket.on('error', (error) => {
+                } catch (error) {
                     reject(
                         new Error(
-                            `Failed to connect to Docker host ${dockerHost}: ${error.message}`,
+                            `Failed to create Docker client for ${dockerHost}: ${error.message}`,
                         ),
                     );
-                });
+                }
             } else if (dockerHost.startsWith('tcp:')) {
-                // TCP connection - use HTTP/HTTPS agents
+                // TCP connection - use SocketAgent with TCP socket creation function
                 const tcpAddress = dockerHost.substring(6); // Remove "tcp://" prefix
                 const [host, portStr] = tcpAddress.split(':');
                 const port = parseInt(portStr) || (certPath ? 2376 : 2375); // Default ports: 2376 for TLS, 2375 for plain
 
                 try {
-                    let agent: http.Agent;
+                    let agent: SocketAgent;
 
                     if (certPath) {
-                        // Use HTTPS agent with TLS certificates
+                        // Use SocketAgent with TLS socket creation function
                         const tlsOptions = TLS.loadCertificates(certPath);
-                        agent = new https.Agent({
-                            host,
-                            port,
-                            ...tlsOptions,
-                            keepAlive: true,
-                            keepAliveMsecs: 30000,
-                        });
+                        agent = new SocketAgent(() =>
+                            tls.connect({ host, port, ...tlsOptions }),
+                        );
                     } else {
-                        // Use plain HTTP agent
-                        agent = new http.Agent({
-                            host,
-                            port,
-                            keepAlive: true,
-                            keepAliveMsecs: 30000,
-                        });
+                        // Use SocketAgent with plain TCP socket creation function
+                        agent = new SocketAgent(() =>
+                            net.createConnection({ host, port }),
+                        );
                     }
 
                     resolve(new DockerClient(agent));
@@ -99,15 +88,19 @@ export class DockerClient {
                     );
                 }
             } else if (dockerHost.startsWith('ssh:')) {
-                // SSH connection
-                SSH.createConnection(dockerHost)
-                    .then((sshSocket) => {
-                        // Increase max listeners since we'll be reusing this socket for multiple requests
-                        sshSocket.setMaxListeners(50);
-                        const agent = new SocketReuseAgent(sshSocket);
-                        resolve(new DockerClient(agent));
-                    })
-                    .catch(reject);
+                // SSH connection - use SocketAgent with SSH socket creation function
+                try {
+                    const agent = new SocketAgent(
+                        SSH.createSocketFactory(dockerHost),
+                    );
+                    resolve(new DockerClient(agent));
+                } catch (error) {
+                    reject(
+                        new Error(
+                            `Failed to create SSH Docker client for ${dockerHost}: ${error.message}`,
+                        ),
+                    );
+                }
             } else {
                 reject(
                     new Error(
@@ -203,6 +196,11 @@ export class DockerClient {
      * @returns Promise that resolves to a connected DockerClient instance
      */
     static async fromDockerConfig(): Promise<DockerClient> {
+        // Check for DOCKER_HOST environment variable first - takes precedence over config
+        if (process.env.DOCKER_HOST) {
+            return DockerClient.fromDockerHost(process.env.DOCKER_HOST);
+        }
+
         // Check for DOCKER_CONFIG environment variable, otherwise use default path
         const configPath =
             process.env.DOCKER_CONFIG ||
