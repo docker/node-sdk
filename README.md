@@ -4,9 +4,17 @@
 
 Node-SDK is a TypeScript library to access [Docker engine API](https://docs.docker.com/reference/api/engine/#view-the-api-reference) (a.k.a "Moby").
 
+## Installation
+
+```bash
+npm install @docker/node-sdk
+```
+
 ## Usage
 
 ```typescript
+import { DockerClient } from '@docker/node-sdk';
+
 const docker = await DockerClient.fromDockerConfig();
 
 const containers = await docker.containerList({ all: true });
