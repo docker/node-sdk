@@ -5,14 +5,18 @@ import * as os from 'os';
 import * as http from 'http';
 import * as tls from 'tls';
 import * as models from './models/index.js';
-import {HTTPClient} from './http.js';
-import {SocketAgent} from './socket.js';
-import {Filter} from './filter.js';
-import {SSH} from './ssh.js';
-import {TLS} from './tls.js';
+import { HTTPClient } from './http.js';
+import { SocketAgent } from './socket.js';
+import { Filter } from './filter.js';
+import { SSH } from './ssh.js';
+import { TLS } from './tls.js';
 import * as stream from 'node:stream';
-import {demultiplexStream} from './multiplexed-stream.js';
-import {getErrorMessage, isFileNotFoundError, parseDockerHost} from './util.js';
+import { demultiplexStream } from './multiplexed-stream.js';
+import {
+    getErrorMessage,
+    isFileNotFoundError,
+    parseDockerHost,
+} from './util.js';
 
 export interface Credentials {
     username: string;

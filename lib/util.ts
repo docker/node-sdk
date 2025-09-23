@@ -22,7 +22,10 @@ export function getErrorMessage(error: unknown): string | undefined {
     return;
 }
 
-export function parseIntWithDefault(value: string | undefined, defaultValue: number) {
+export function parseIntWithDefault(
+    value: string | undefined,
+    defaultValue: number,
+) {
     if (value === undefined) {
         return defaultValue;
     }
@@ -40,5 +43,5 @@ export function parseDockerHost(
         throw new Error(`Invalid Docker host: ${dockerHost}`);
     }
     const port = parseIntWithDefault(portStr, defaultPort);
-    return {host, port};
+    return { host, port };
 }
