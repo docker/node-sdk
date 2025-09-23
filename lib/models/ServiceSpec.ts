@@ -18,12 +18,12 @@
    Do not edit the class manually.
  */
 
-import { EndpointSpec } from '../models/EndpointSpec.js';
-import { NetworkAttachmentConfig } from '../models/NetworkAttachmentConfig.js';
-import { ServiceSpecMode } from '../models/ServiceSpecMode.js';
-import { ServiceSpecRollbackConfig } from '../models/ServiceSpecRollbackConfig.js';
-import { ServiceSpecUpdateConfig } from '../models/ServiceSpecUpdateConfig.js';
-import { TaskSpec } from '../models/TaskSpec.js';
+import { type EndpointSpec } from '../models/EndpointSpec.js';
+import { type NetworkAttachmentConfig } from '../models/NetworkAttachmentConfig.js';
+import { type ServiceSpecMode } from '../models/ServiceSpecMode.js';
+import { type ServiceSpecRollbackConfig } from '../models/ServiceSpecRollbackConfig.js';
+import { type ServiceSpecUpdateConfig } from '../models/ServiceSpecUpdateConfig.js';
+import { type TaskSpec } from '../models/TaskSpec.js';
 
 /**
  * User modifiable configuration for a service.

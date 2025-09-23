@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { NodeState } from '../models/NodeState.js';
+import { type NodeState } from '../models/NodeState.js';
 
 /**
  * NodeStatus represents the status of a node.  It provides the current status of the node, as seen by the manager.

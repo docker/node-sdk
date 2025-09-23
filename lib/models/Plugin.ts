@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { PluginConfig } from '../models/PluginConfig.js';
-import { PluginSettings } from '../models/PluginSettings.js';
+import { type PluginConfig } from '../models/PluginConfig.js';
+import { type PluginSettings } from '../models/PluginSettings.js';
 
 /**
  * A plugin for the Engine API

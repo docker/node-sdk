@@ -18,11 +18,11 @@
    Do not edit the class manually.
  */
 
-import { DeviceMapping } from '../models/DeviceMapping.js';
-import { DeviceRequest } from '../models/DeviceRequest.js';
-import { ResourcesBlkioWeightDeviceInner } from '../models/ResourcesBlkioWeightDeviceInner.js';
-import { ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner.js';
-import { ThrottleDevice } from '../models/ThrottleDevice.js';
+import { type DeviceMapping } from '../models/DeviceMapping.js';
+import { type DeviceRequest } from '../models/DeviceRequest.js';
+import { type ResourcesBlkioWeightDeviceInner } from '../models/ResourcesBlkioWeightDeviceInner.js';
+import { type ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner.js';
+import { type ThrottleDevice } from '../models/ThrottleDevice.js';
 
 /**
  * A container\'s resources (cgroups config, ulimits, etc)

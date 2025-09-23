@@ -18,13 +18,13 @@
    Do not edit the class manually.
  */
 
-import { HealthConfig } from '../models/HealthConfig.js';
-import { Mount } from '../models/Mount.js';
-import { ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner.js';
-import { TaskSpecContainerSpecConfigsInner } from '../models/TaskSpecContainerSpecConfigsInner.js';
-import { TaskSpecContainerSpecDNSConfig } from '../models/TaskSpecContainerSpecDNSConfig.js';
-import { TaskSpecContainerSpecPrivileges } from '../models/TaskSpecContainerSpecPrivileges.js';
-import { TaskSpecContainerSpecSecretsInner } from '../models/TaskSpecContainerSpecSecretsInner.js';
+import { type HealthConfig } from '../models/HealthConfig.js';
+import { type Mount } from '../models/Mount.js';
+import { type ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner.js';
+import { type TaskSpecContainerSpecConfigsInner } from '../models/TaskSpecContainerSpecConfigsInner.js';
+import { type TaskSpecContainerSpecDNSConfig } from '../models/TaskSpecContainerSpecDNSConfig.js';
+import { type TaskSpecContainerSpecPrivileges } from '../models/TaskSpecContainerSpecPrivileges.js';
+import { type TaskSpecContainerSpecSecretsInner } from '../models/TaskSpecContainerSpecSecretsInner.js';
 
 /**
  * Container spec for the service.  <p><br /></p>  > **Note**: ContainerSpec, NetworkAttachmentSpec, and PluginSpec are > mutually exclusive. PluginSpec is only used when the Runtime field > is set to `plugin`. NetworkAttachmentSpec is used when the Runtime > field is set to `attachment`.

@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { Platform } from '../models/Platform.js';
-import { TaskSpecPlacementPreferencesInner } from '../models/TaskSpecPlacementPreferencesInner.js';
+import { type Platform } from '../models/Platform.js';
+import { type TaskSpecPlacementPreferencesInner } from '../models/TaskSpecPlacementPreferencesInner.js';
 
 export interface TaskSpecPlacement {
     /**

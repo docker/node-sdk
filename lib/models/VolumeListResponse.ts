@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { Volume } from '../models/Volume.js';
+import { type Volume } from '../models/Volume.js';
 
 /**
  * Volume list response

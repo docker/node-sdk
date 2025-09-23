@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { ConfigReference } from '../models/ConfigReference.js';
-import { IPAM } from '../models/IPAM.js';
+import { type ConfigReference } from '../models/ConfigReference.js';
+import { type IPAM } from '../models/IPAM.js';
 
 export interface NetworkCreateRequest {
     /**

@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { SystemVersionComponentsInner } from '../models/SystemVersionComponentsInner.js';
-import { SystemVersionPlatform } from '../models/SystemVersionPlatform.js';
+import { type SystemVersionComponentsInner } from '../models/SystemVersionComponentsInner.js';
+import { type SystemVersionPlatform } from '../models/SystemVersionPlatform.js';
 
 /**
  * Response of Engine API: GET \"/version\"

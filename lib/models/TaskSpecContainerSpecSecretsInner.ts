@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { TaskSpecContainerSpecSecretsInnerFile } from '../models/TaskSpecContainerSpecSecretsInnerFile.js';
+import { type TaskSpecContainerSpecSecretsInnerFile } from '../models/TaskSpecContainerSpecSecretsInnerFile.js';
 
 export interface TaskSpecContainerSpecSecretsInner {
     File?: TaskSpecContainerSpecSecretsInnerFile;

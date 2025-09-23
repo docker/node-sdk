@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { EventActor } from '../models/EventActor.js';
+import { type EventActor } from '../models/EventActor.js';
 
 /**
  * EventMessage represents the information an event contains.

@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { ImageManifestSummary } from '../models/ImageManifestSummary.js';
-import { OCIDescriptor } from '../models/OCIDescriptor.js';
+import { type ImageManifestSummary } from '../models/ImageManifestSummary.js';
+import { type OCIDescriptor } from '../models/OCIDescriptor.js';
 
 export interface ImageSummary {
     /**

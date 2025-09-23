@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { OCIDescriptor } from '../models/OCIDescriptor.js';
-import { OCIPlatform } from '../models/OCIPlatform.js';
+import { type OCIDescriptor } from '../models/OCIDescriptor.js';
+import { type OCIPlatform } from '../models/OCIPlatform.js';
 
 /**
  * Describes the result obtained from contacting the registry to retrieve image metadata.

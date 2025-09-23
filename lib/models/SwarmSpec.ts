@@ -18,12 +18,12 @@
    Do not edit the class manually.
  */
 
-import { SwarmSpecCAConfig } from '../models/SwarmSpecCAConfig.js';
-import { SwarmSpecDispatcher } from '../models/SwarmSpecDispatcher.js';
-import { SwarmSpecEncryptionConfig } from '../models/SwarmSpecEncryptionConfig.js';
-import { SwarmSpecOrchestration } from '../models/SwarmSpecOrchestration.js';
-import { SwarmSpecRaft } from '../models/SwarmSpecRaft.js';
-import { SwarmSpecTaskDefaults } from '../models/SwarmSpecTaskDefaults.js';
+import { type SwarmSpecCAConfig } from '../models/SwarmSpecCAConfig.js';
+import { type SwarmSpecDispatcher } from '../models/SwarmSpecDispatcher.js';
+import { type SwarmSpecEncryptionConfig } from '../models/SwarmSpecEncryptionConfig.js';
+import { type SwarmSpecOrchestration } from '../models/SwarmSpecOrchestration.js';
+import { type SwarmSpecRaft } from '../models/SwarmSpecRaft.js';
+import { type SwarmSpecTaskDefaults } from '../models/SwarmSpecTaskDefaults.js';
 
 /**
  * User modifiable swarm configuration.

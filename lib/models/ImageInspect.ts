@@ -18,12 +18,12 @@
    Do not edit the class manually.
  */
 
-import { DriverData } from '../models/DriverData.js';
-import { ImageConfig } from '../models/ImageConfig.js';
-import { ImageInspectMetadata } from '../models/ImageInspectMetadata.js';
-import { ImageInspectRootFS } from '../models/ImageInspectRootFS.js';
-import { ImageManifestSummary } from '../models/ImageManifestSummary.js';
-import { OCIDescriptor } from '../models/OCIDescriptor.js';
+import { type DriverData } from '../models/DriverData.js';
+import { type ImageConfig } from '../models/ImageConfig.js';
+import { type ImageInspectMetadata } from '../models/ImageInspectMetadata.js';
+import { type ImageInspectRootFS } from '../models/ImageInspectRootFS.js';
+import { type ImageManifestSummary } from '../models/ImageManifestSummary.js';
+import { type OCIDescriptor } from '../models/OCIDescriptor.js';
 
 /**
  * Information about an image in the local image cache.

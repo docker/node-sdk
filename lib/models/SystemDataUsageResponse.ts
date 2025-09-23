@@ -18,10 +18,10 @@
    Do not edit the class manually.
  */
 
-import { BuildCache } from '../models/BuildCache.js';
-import { ContainerSummary } from '../models/ContainerSummary.js';
-import { ImageSummary } from '../models/ImageSummary.js';
-import { Volume } from '../models/Volume.js';
+import { type BuildCache } from '../models/BuildCache.js';
+import { type ContainerSummary } from '../models/ContainerSummary.js';
+import { type ImageSummary } from '../models/ImageSummary.js';
+import { type Volume } from '../models/Volume.js';
 
 export interface SystemDataUsageResponse {
     LayersSize?: number;

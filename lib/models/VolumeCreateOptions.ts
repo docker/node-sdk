@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { ClusterVolumeSpec } from '../models/ClusterVolumeSpec.js';
+import { type ClusterVolumeSpec } from '../models/ClusterVolumeSpec.js';
 
 /**
  * Volume configuration

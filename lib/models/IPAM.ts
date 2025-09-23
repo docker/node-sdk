@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { IPAMConfig } from '../models/IPAMConfig.js';
+import { type IPAMConfig } from '../models/IPAMConfig.js';
 
 export interface IPAM {
     /**

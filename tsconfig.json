@@ -1,6 +1,30 @@
 {
     "compilerOptions": {
-        "target": "ES2015",
-        "moduleResolution": "nodenext"
-    }
+        "lib": ["ES2022"],
+        "strict": true,
+        "allowJs": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "moduleResolution": "NodeNext",
+        "module": "NodeNext",
+        "target": "ES2022",
+        "baseUrl": ".",
+        "noEmit": true,
+        "rootDir": "./lib",
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "allowImportingTsExtensions": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "removeComments": true,
+        "moduleDetection": "force",
+        "verbatimModuleSyntax": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitOverride": true
+    },
+    "include": ["lib/**/*"],
+    "exclude": ["dist", "node_modules"]
 }

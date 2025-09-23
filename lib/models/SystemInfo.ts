@@ -18,16 +18,16 @@
    Do not edit the class manually.
  */
 
-import { Commit } from '../models/Commit.js';
-import { ContainerdInfo } from '../models/ContainerdInfo.js';
-import { DeviceInfo } from '../models/DeviceInfo.js';
-import { FirewallInfo } from '../models/FirewallInfo.js';
-import { GenericResourcesInner } from '../models/GenericResourcesInner.js';
-import { PluginsInfo } from '../models/PluginsInfo.js';
-import { RegistryServiceConfig } from '../models/RegistryServiceConfig.js';
-import { Runtime } from '../models/Runtime.js';
-import { SwarmInfo } from '../models/SwarmInfo.js';
-import { SystemInfoDefaultAddressPoolsInner } from '../models/SystemInfoDefaultAddressPoolsInner.js';
+import { type Commit } from '../models/Commit.js';
+import { type ContainerdInfo } from '../models/ContainerdInfo.js';
+import { type DeviceInfo } from '../models/DeviceInfo.js';
+import { type FirewallInfo } from '../models/FirewallInfo.js';
+import { type GenericResourcesInner } from '../models/GenericResourcesInner.js';
+import { type PluginsInfo } from '../models/PluginsInfo.js';
+import { type RegistryServiceConfig } from '../models/RegistryServiceConfig.js';
+import { type Runtime } from '../models/Runtime.js';
+import { type SwarmInfo } from '../models/SwarmInfo.js';
+import { type SystemInfoDefaultAddressPoolsInner } from '../models/SystemInfoDefaultAddressPoolsInner.js';
 
 export interface SystemInfo {
     /**

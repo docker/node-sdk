@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { ConfigSpec } from '../models/ConfigSpec.js';
-import { ObjectVersion } from '../models/ObjectVersion.js';
+import { type ConfigSpec } from '../models/ConfigSpec.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
 
 export interface Config {
     ID?: string;

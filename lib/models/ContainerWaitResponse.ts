@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { ContainerWaitExitError } from '../models/ContainerWaitExitError.js';
+import { type ContainerWaitExitError } from '../models/ContainerWaitExitError.js';
 
 /**
  * OK response to ContainerWait operation

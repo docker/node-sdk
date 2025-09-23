@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { EngineDescriptionPluginsInner } from '../models/EngineDescriptionPluginsInner.js';
+import { type EngineDescriptionPluginsInner } from '../models/EngineDescriptionPluginsInner.js';
 
 /**
  * EngineDescription provides information about an engine.

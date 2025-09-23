@@ -1,6 +1,6 @@
-import * as net from 'net';
 import * as http from 'http';
 import * as stream from 'stream';
+import { getErrorMessage } from './util.js';
 
 // Docker stream content type constants
 const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
@@ -31,10 +31,10 @@ export class ConflictError extends Error {
 }
 
 // Function to extract error message from response body
-function getErrorMessage(
+function getErrorMessageFromResp(
     res: http.IncomingMessage,
     body: string | undefined,
-): string {
+): string | undefined {
     const contentType = res.headers['content-type']?.toLowerCase();
     if (contentType?.includes('application/json') && body) {
         const jsonBody = JSON.parse(body);
@@ -47,8 +47,8 @@ function getErrorMessage(
 
 // Interface to represent an HTTP response
 export interface HTTPResponse {
-    statusMessage: string;
-    statusCode: number;
+    statusMessage?: string;
+    statusCode?: number;
     headers: { [key: string]: string };
     body?: string;
     sock?: stream.Duplex;
@@ -160,8 +160,9 @@ export class HTTPClient {
                 const handleResponseEnd = (body?: string) => {
                     const response = createResponse(res, body);
 
-                    if (res.statusCode >= 400) {
-                        const errorMessage = getErrorMessage(res, body);
+                    if (res.statusCode && res.statusCode >= 400) {
+                        const errorMessage =
+                            getErrorMessageFromResp(res, body) ?? '';
                         if (res.statusCode === 404) {
                             reject(new NotFoundError(errorMessage));
                         } else if (res.statusCode === 401) {
@@ -179,7 +180,9 @@ export class HTTPClient {
                 // Helper function to handle response errors
                 const handleResponseError = (error: Error) => {
                     reject(
-                        new Error(`Response stream error: ${error.message}`),
+                        new Error(
+                            `Response stream error: ${getErrorMessage(error)}`,
+                        ),
                     );
                 };
 

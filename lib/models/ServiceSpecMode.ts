@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { ServiceSpecModeReplicated } from '../models/ServiceSpecModeReplicated.js';
-import { ServiceSpecModeReplicatedJob } from '../models/ServiceSpecModeReplicatedJob.js';
+import { type ServiceSpecModeReplicated } from '../models/ServiceSpecModeReplicated.js';
+import { type ServiceSpecModeReplicatedJob } from '../models/ServiceSpecModeReplicatedJob.js';
 
 /**
  * Scheduling mode for the service.

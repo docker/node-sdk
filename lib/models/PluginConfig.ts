@@ -18,14 +18,14 @@
    Do not edit the class manually.
  */
 
-import { PluginConfigArgs } from '../models/PluginConfigArgs.js';
-import { PluginConfigInterface } from '../models/PluginConfigInterface.js';
-import { PluginConfigLinux } from '../models/PluginConfigLinux.js';
-import { PluginConfigNetwork } from '../models/PluginConfigNetwork.js';
-import { PluginConfigRootfs } from '../models/PluginConfigRootfs.js';
-import { PluginConfigUser } from '../models/PluginConfigUser.js';
-import { PluginEnv } from '../models/PluginEnv.js';
-import { PluginMount } from '../models/PluginMount.js';
+import { type PluginConfigArgs } from '../models/PluginConfigArgs.js';
+import { type PluginConfigInterface } from '../models/PluginConfigInterface.js';
+import { type PluginConfigLinux } from '../models/PluginConfigLinux.js';
+import { type PluginConfigNetwork } from '../models/PluginConfigNetwork.js';
+import { type PluginConfigRootfs } from '../models/PluginConfigRootfs.js';
+import { type PluginConfigUser } from '../models/PluginConfigUser.js';
+import { type PluginEnv } from '../models/PluginEnv.js';
+import { type PluginMount } from '../models/PluginMount.js';
 
 /**
  * The config of a plugin.

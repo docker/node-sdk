@@ -18,15 +18,15 @@
    Do not edit the class manually.
  */
 
-import { DeviceMapping } from '../models/DeviceMapping.js';
-import { DeviceRequest } from '../models/DeviceRequest.js';
-import { HostConfigAllOfLogConfig } from '../models/HostConfigAllOfLogConfig.js';
-import { Mount } from '../models/Mount.js';
-import { PortBinding } from '../models/PortBinding.js';
-import { ResourcesBlkioWeightDeviceInner } from '../models/ResourcesBlkioWeightDeviceInner.js';
-import { ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner.js';
-import { RestartPolicy } from '../models/RestartPolicy.js';
-import { ThrottleDevice } from '../models/ThrottleDevice.js';
+import { type DeviceMapping } from '../models/DeviceMapping.js';
+import { type DeviceRequest } from '../models/DeviceRequest.js';
+import { type HostConfigAllOfLogConfig } from '../models/HostConfigAllOfLogConfig.js';
+import { type Mount } from '../models/Mount.js';
+import { type PortBinding } from '../models/PortBinding.js';
+import { type ResourcesBlkioWeightDeviceInner } from '../models/ResourcesBlkioWeightDeviceInner.js';
+import { type ResourcesUlimitsInner } from '../models/ResourcesUlimitsInner.js';
+import { type RestartPolicy } from '../models/RestartPolicy.js';
+import { type ThrottleDevice } from '../models/ThrottleDevice.js';
 
 /**
  * Container configuration that depends on the host we are running on

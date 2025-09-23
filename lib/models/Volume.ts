@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { ClusterVolume } from '../models/ClusterVolume.js';
-import { VolumeUsageData } from '../models/VolumeUsageData.js';
+import { type ClusterVolume } from '../models/ClusterVolume.js';
+import { type VolumeUsageData } from '../models/VolumeUsageData.js';
 
 export interface Volume {
     /**

@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { EndpointSettings } from '../models/EndpointSettings.js';
+import { type EndpointSettings } from '../models/EndpointSettings.js';
 
 /**
  * Summary of the container\'s network settings

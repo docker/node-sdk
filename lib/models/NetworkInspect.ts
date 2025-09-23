@@ -18,10 +18,10 @@
    Do not edit the class manually.
  */
 
-import { ConfigReference } from '../models/ConfigReference.js';
-import { EndpointResource } from '../models/EndpointResource.js';
-import { IPAM } from '../models/IPAM.js';
-import { PeerInfo } from '../models/PeerInfo.js';
+import { type ConfigReference } from '../models/ConfigReference.js';
+import { type EndpointResource } from '../models/EndpointResource.js';
+import { type IPAM } from '../models/IPAM.js';
+import { type PeerInfo } from '../models/PeerInfo.js';
 
 /**
  * The body of the \"get network\" http response message.
