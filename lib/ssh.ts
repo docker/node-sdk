@@ -84,29 +84,32 @@ export class SSH {
 
             conn.on('ready', () => {
                 // Create a Unix socket connection through SSH
-                conn.openssh_forwardInStreamLocal(socketPath, (err, stream) => {
-                    if (err) {
-                        conn.end();
-                        sshStream.emit(
-                            'error',
-                            new Error(
-                                `Failed to create SSH tunnel to ${socketPath}: ${err.message}`,
-                            ),
-                        );
-                        return;
-                    }
+                conn.openssh_forwardOutStreamLocal(
+                    socketPath,
+                    (err, stream) => {
+                        if (err) {
+                            conn.end();
+                            sshStream.emit(
+                                'error',
+                                new Error(
+                                    `Failed to create SSH tunnel to ${socketPath}: ${err.message}`,
+                                ),
+                            );
+                            return;
+                        }
 
-                    // Pipe the SSH stream to our socket wrapper
-                    stream.pipe(sshStream);
-                    sshStream.pipe(stream);
+                        // Pipe the SSH stream to our socket wrapper
+                        stream.pipe(sshStream);
+                        sshStream.pipe(stream);
 
-                    // Handle SSH connection cleanup
-                    sshStream.on('close', () => {
-                        conn.end();
-                    });
+                        // Handle SSH connection cleanup
+                        sshStream.on('close', () => {
+                            conn.end();
+                        });
 
-                    sshStream.emit('connect');
-                });
+                        sshStream.emit('connect');
+                    },
+                );
             });
 
             conn.on('error', (err) => {

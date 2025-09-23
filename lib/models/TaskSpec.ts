@@ -18,14 +18,14 @@
    Do not edit the class manually.
  */
 
-import { NetworkAttachmentConfig } from '../models/NetworkAttachmentConfig.js';
-import { TaskSpecContainerSpec } from '../models/TaskSpecContainerSpec.js';
-import { TaskSpecLogDriver } from '../models/TaskSpecLogDriver.js';
-import { TaskSpecNetworkAttachmentSpec } from '../models/TaskSpecNetworkAttachmentSpec.js';
-import { TaskSpecPlacement } from '../models/TaskSpecPlacement.js';
-import { TaskSpecPluginSpec } from '../models/TaskSpecPluginSpec.js';
-import { TaskSpecResources } from '../models/TaskSpecResources.js';
-import { TaskSpecRestartPolicy } from '../models/TaskSpecRestartPolicy.js';
+import { type NetworkAttachmentConfig } from '../models/NetworkAttachmentConfig.js';
+import { type TaskSpecContainerSpec } from '../models/TaskSpecContainerSpec.js';
+import { type TaskSpecLogDriver } from '../models/TaskSpecLogDriver.js';
+import { type TaskSpecNetworkAttachmentSpec } from '../models/TaskSpecNetworkAttachmentSpec.js';
+import { type TaskSpecPlacement } from '../models/TaskSpecPlacement.js';
+import { type TaskSpecPluginSpec } from '../models/TaskSpecPluginSpec.js';
+import { type TaskSpecResources } from '../models/TaskSpecResources.js';
+import { type TaskSpecRestartPolicy } from '../models/TaskSpecRestartPolicy.js';
 
 /**
  * User modifiable task configuration.

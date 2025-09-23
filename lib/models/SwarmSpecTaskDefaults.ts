@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { SwarmSpecTaskDefaultsLogDriver } from '../models/SwarmSpecTaskDefaultsLogDriver.js';
+import { type SwarmSpecTaskDefaultsLogDriver } from '../models/SwarmSpecTaskDefaultsLogDriver.js';
 
 /**
  * Defaults for creating tasks in this cluster.

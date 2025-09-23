@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { PluginDevice } from '../models/PluginDevice.js';
-import { PluginMount } from '../models/PluginMount.js';
+import { type PluginDevice } from '../models/PluginDevice.js';
+import { type PluginMount } from '../models/PluginMount.js';
 
 /**
  * user-configurable settings for the plugin.

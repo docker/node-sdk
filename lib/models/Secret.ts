@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { ObjectVersion } from '../models/ObjectVersion.js';
-import { SecretSpec } from '../models/SecretSpec.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
+import { type SecretSpec } from '../models/SecretSpec.js';
 
 export interface Secret {
     ID?: string;

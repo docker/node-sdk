@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { ProcessConfig } from '../models/ProcessConfig.js';
+import { type ProcessConfig } from '../models/ProcessConfig.js';
 
 export interface ExecInspectResponse {
     CanRemove?: boolean;

@@ -18,12 +18,12 @@
    Do not edit the class manually.
  */
 
-import { ContainerSummaryHealth } from '../models/ContainerSummaryHealth.js';
-import { ContainerSummaryHostConfig } from '../models/ContainerSummaryHostConfig.js';
-import { ContainerSummaryNetworkSettings } from '../models/ContainerSummaryNetworkSettings.js';
-import { MountPoint } from '../models/MountPoint.js';
-import { OCIDescriptor } from '../models/OCIDescriptor.js';
-import { PortSummary } from '../models/PortSummary.js';
+import { type ContainerSummaryHealth } from '../models/ContainerSummaryHealth.js';
+import { type ContainerSummaryHostConfig } from '../models/ContainerSummaryHostConfig.js';
+import { type ContainerSummaryNetworkSettings } from '../models/ContainerSummaryNetworkSettings.js';
+import { type MountPoint } from '../models/MountPoint.js';
+import { type OCIDescriptor } from '../models/OCIDescriptor.js';
+import { type PortSummary } from '../models/PortSummary.js';
 
 export interface ContainerSummary {
     /**

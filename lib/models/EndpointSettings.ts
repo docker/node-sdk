@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { EndpointIPAMConfig } from '../models/EndpointIPAMConfig.js';
+import { type EndpointIPAMConfig } from '../models/EndpointIPAMConfig.js';
 
 /**
  * Configuration for a network endpoint.

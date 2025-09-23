@@ -4,7 +4,7 @@ export default defineConfig({
     entry: ['lib/index.ts'],
 
     format: ['cjs', 'esm'],
-    dts: false, // disable dts generation for now to work through type issues
+    dts: true,
     minify: false,
     outDir: 'dist/',
     clean: true,

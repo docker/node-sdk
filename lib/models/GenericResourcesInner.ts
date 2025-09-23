@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { GenericResourcesInnerDiscreteResourceSpec } from '../models/GenericResourcesInnerDiscreteResourceSpec.js';
-import { GenericResourcesInnerNamedResourceSpec } from '../models/GenericResourcesInnerNamedResourceSpec.js';
+import { type GenericResourcesInnerDiscreteResourceSpec } from '../models/GenericResourcesInnerDiscreteResourceSpec.js';
+import { type GenericResourcesInnerNamedResourceSpec } from '../models/GenericResourcesInnerNamedResourceSpec.js';
 
 export interface GenericResourcesInner {
     NamedResourceSpec?: GenericResourcesInnerNamedResourceSpec;

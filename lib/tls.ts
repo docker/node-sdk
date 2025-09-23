@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { getErrorMessage } from './util.js';
 
 /**
  * TLS certificate utilities for secure Docker connections
@@ -39,7 +40,7 @@ export class TLS {
             return tlsOptions;
         } catch (error) {
             throw new Error(
-                `Failed to load TLS certificates from ${certPath}: ${error.message}`,
+                `Failed to load TLS certificates from ${certPath}: ${getErrorMessage(error)}`,
             );
         }
     }

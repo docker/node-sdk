@@ -18,8 +18,8 @@
    Do not edit the class manually.
  */
 
-import { ErrorDetail } from '../models/ErrorDetail.js';
-import { ProgressDetail } from '../models/ProgressDetail.js';
+import { type ErrorDetail } from '../models/ErrorDetail.js';
+import { type ProgressDetail } from '../models/ProgressDetail.js';
 
 export interface PushImageInfo {
     ErrorDetail?: ErrorDetail;

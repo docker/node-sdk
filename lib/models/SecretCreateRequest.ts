@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { Driver } from '../models/Driver.js';
+import { type Driver } from '../models/Driver.js';
 
 export interface SecretCreateRequest {
     /**

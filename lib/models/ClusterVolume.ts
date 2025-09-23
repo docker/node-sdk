@@ -18,10 +18,10 @@
    Do not edit the class manually.
  */
 
-import { ClusterVolumeInfo } from '../models/ClusterVolumeInfo.js';
-import { ClusterVolumePublishStatusInner } from '../models/ClusterVolumePublishStatusInner.js';
-import { ClusterVolumeSpec } from '../models/ClusterVolumeSpec.js';
-import { ObjectVersion } from '../models/ObjectVersion.js';
+import { type ClusterVolumeInfo } from '../models/ClusterVolumeInfo.js';
+import { type ClusterVolumePublishStatusInner } from '../models/ClusterVolumePublishStatusInner.js';
+import { type ClusterVolumeSpec } from '../models/ClusterVolumeSpec.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
 
 /**
  * Options and information specific to, and only present on, Swarm CSI cluster volumes.

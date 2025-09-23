@@ -18,11 +18,11 @@
    Do not edit the class manually.
  */
 
-import { ContainerBlkioStats } from '../models/ContainerBlkioStats.js';
-import { ContainerCPUStats } from '../models/ContainerCPUStats.js';
-import { ContainerMemoryStats } from '../models/ContainerMemoryStats.js';
-import { ContainerPidsStats } from '../models/ContainerPidsStats.js';
-import { ContainerStorageStats } from '../models/ContainerStorageStats.js';
+import { type ContainerBlkioStats } from '../models/ContainerBlkioStats.js';
+import { type ContainerCPUStats } from '../models/ContainerCPUStats.js';
+import { type ContainerMemoryStats } from '../models/ContainerMemoryStats.js';
+import { type ContainerPidsStats } from '../models/ContainerPidsStats.js';
+import { type ContainerStorageStats } from '../models/ContainerStorageStats.js';
 
 /**
  * Statistics sample for a container.

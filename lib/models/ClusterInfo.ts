@@ -18,9 +18,9 @@
    Do not edit the class manually.
  */
 
-import { ObjectVersion } from '../models/ObjectVersion.js';
-import { SwarmSpec } from '../models/SwarmSpec.js';
-import { TLSInfo } from '../models/TLSInfo.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
+import { type SwarmSpec } from '../models/SwarmSpec.js';
+import { type TLSInfo } from '../models/TLSInfo.js';
 
 /**
  * ClusterInfo represents information about the swarm as is returned by the \"/info\" endpoint. Join-tokens are not included.

@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { EndpointSettings } from '../models/EndpointSettings.js';
+import { type EndpointSettings } from '../models/EndpointSettings.js';
 
 export interface NetworkConnectRequest {
     /**

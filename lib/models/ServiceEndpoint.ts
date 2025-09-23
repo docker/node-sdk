@@ -18,9 +18,9 @@
    Do not edit the class manually.
  */
 
-import { EndpointPortConfig } from '../models/EndpointPortConfig.js';
-import { EndpointSpec } from '../models/EndpointSpec.js';
-import { ServiceEndpointVirtualIPsInner } from '../models/ServiceEndpointVirtualIPsInner.js';
+import { type EndpointPortConfig } from '../models/EndpointPortConfig.js';
+import { type EndpointSpec } from '../models/EndpointSpec.js';
+import { type ServiceEndpointVirtualIPsInner } from '../models/ServiceEndpointVirtualIPsInner.js';
 
 export interface ServiceEndpoint {
     Spec?: EndpointSpec;

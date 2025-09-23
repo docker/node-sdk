@@ -18,10 +18,10 @@
    Do not edit the class manually.
  */
 
-import { JoinTokens } from '../models/JoinTokens.js';
-import { ObjectVersion } from '../models/ObjectVersion.js';
-import { SwarmSpec } from '../models/SwarmSpec.js';
-import { TLSInfo } from '../models/TLSInfo.js';
+import { type JoinTokens } from '../models/JoinTokens.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
+import { type SwarmSpec } from '../models/SwarmSpec.js';
+import { type TLSInfo } from '../models/TLSInfo.js';
 
 export interface Swarm {
     /**

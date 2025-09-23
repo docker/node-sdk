@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { PluginDevice } from '../models/PluginDevice.js';
+import { type PluginDevice } from '../models/PluginDevice.js';
 
 export interface PluginConfigLinux {
     Capabilities: Array<string>;

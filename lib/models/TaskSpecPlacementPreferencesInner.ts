@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { TaskSpecPlacementPreferencesInnerSpread } from '../models/TaskSpecPlacementPreferencesInnerSpread.js';
+import { type TaskSpecPlacementPreferencesInnerSpread } from '../models/TaskSpecPlacementPreferencesInnerSpread.js';
 
 export interface TaskSpecPlacementPreferencesInner {
     Spread?: TaskSpecPlacementPreferencesInnerSpread;

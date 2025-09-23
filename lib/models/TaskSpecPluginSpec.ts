@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { PluginPrivilege } from '../models/PluginPrivilege.js';
+import { type PluginPrivilege } from '../models/PluginPrivilege.js';
 
 /**
  * Plugin spec for the service.  *(Experimental release only.)*  <p><br /></p>  > **Note**: ContainerSpec, NetworkAttachmentSpec, and PluginSpec are > mutually exclusive. PluginSpec is only used when the Runtime field > is set to `plugin`. NetworkAttachmentSpec is used when the Runtime > field is set to `attachment`.

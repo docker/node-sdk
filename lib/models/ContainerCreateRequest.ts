@@ -18,9 +18,9 @@
    Do not edit the class manually.
  */
 
-import { HealthConfig } from '../models/HealthConfig.js';
-import { HostConfig } from '../models/HostConfig.js';
-import { NetworkingConfig } from '../models/NetworkingConfig.js';
+import { type HealthConfig } from '../models/HealthConfig.js';
+import { type HostConfig } from '../models/HostConfig.js';
+import { type NetworkingConfig } from '../models/NetworkingConfig.js';
 
 export interface ContainerCreateRequest {
     /**

@@ -18,11 +18,11 @@
    Do not edit the class manually.
  */
 
-import { ManagerStatus } from '../models/ManagerStatus.js';
-import { NodeDescription } from '../models/NodeDescription.js';
-import { NodeSpec } from '../models/NodeSpec.js';
-import { NodeStatus } from '../models/NodeStatus.js';
-import { ObjectVersion } from '../models/ObjectVersion.js';
+import { type ManagerStatus } from '../models/ManagerStatus.js';
+import { type NodeDescription } from '../models/NodeDescription.js';
+import { type NodeSpec } from '../models/NodeSpec.js';
+import { type NodeStatus } from '../models/NodeStatus.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
 
 export interface Node {
     ID?: string;

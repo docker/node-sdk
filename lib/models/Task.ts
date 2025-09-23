@@ -18,11 +18,11 @@
    Do not edit the class manually.
  */
 
-import { GenericResourcesInner } from '../models/GenericResourcesInner.js';
-import { ObjectVersion } from '../models/ObjectVersion.js';
-import { TaskSpec } from '../models/TaskSpec.js';
-import { TaskState } from '../models/TaskState.js';
-import { TaskStatus } from '../models/TaskStatus.js';
+import { type GenericResourcesInner } from '../models/GenericResourcesInner.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
+import { type TaskSpec } from '../models/TaskSpec.js';
+import { type TaskState } from '../models/TaskState.js';
+import { type TaskStatus } from '../models/TaskStatus.js';
 
 export interface Task {
     /**

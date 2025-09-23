@@ -18,9 +18,9 @@
    Do not edit the class manually.
  */
 
-import { ClusterInfo } from '../models/ClusterInfo.js';
-import { LocalNodeState } from '../models/LocalNodeState.js';
-import { PeerNode } from '../models/PeerNode.js';
+import { type ClusterInfo } from '../models/ClusterInfo.js';
+import { type LocalNodeState } from '../models/LocalNodeState.js';
+import { type PeerNode } from '../models/PeerNode.js';
 
 /**
  * Represents generic information about swarm.

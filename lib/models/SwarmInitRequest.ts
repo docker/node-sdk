@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { SwarmSpec } from '../models/SwarmSpec.js';
+import { type SwarmSpec } from '../models/SwarmSpec.js';
 
 export interface SwarmInitRequest {
     /**

@@ -18,10 +18,10 @@
    Do not edit the class manually.
  */
 
-import { MountBindOptions } from '../models/MountBindOptions.js';
-import { MountImageOptions } from '../models/MountImageOptions.js';
-import { MountTmpfsOptions } from '../models/MountTmpfsOptions.js';
-import { MountVolumeOptions } from '../models/MountVolumeOptions.js';
+import { type MountBindOptions } from '../models/MountBindOptions.js';
+import { type MountImageOptions } from '../models/MountImageOptions.js';
+import { type MountTmpfsOptions } from '../models/MountTmpfsOptions.js';
+import { type MountVolumeOptions } from '../models/MountVolumeOptions.js';
 
 export interface Mount {
     /**

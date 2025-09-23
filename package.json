@@ -17,7 +17,7 @@
   },
   "type": "module",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
@@ -54,6 +54,8 @@
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.23.4",
+    "@types/node": "^24.5.2",
+    "@types/ssh2": "^1.15.5",
     "oxlint": "^1.16.0",
     "oxlint-tsgolint": "^0.2.0",
     "prettier": "^3.6.2",
@@ -66,4 +68,3 @@
   },
   "packageManager": "npm@10.9.3"
 }
-

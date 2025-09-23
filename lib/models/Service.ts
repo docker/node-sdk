@@ -18,12 +18,12 @@
    Do not edit the class manually.
  */
 
-import { ObjectVersion } from '../models/ObjectVersion.js';
-import { ServiceEndpoint } from '../models/ServiceEndpoint.js';
-import { ServiceJobStatus } from '../models/ServiceJobStatus.js';
-import { ServiceServiceStatus } from '../models/ServiceServiceStatus.js';
-import { ServiceSpec } from '../models/ServiceSpec.js';
-import { ServiceUpdateStatus } from '../models/ServiceUpdateStatus.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
+import { type ServiceEndpoint } from '../models/ServiceEndpoint.js';
+import { type ServiceJobStatus } from '../models/ServiceJobStatus.js';
+import { type ServiceServiceStatus } from '../models/ServiceServiceStatus.js';
+import { type ServiceSpec } from '../models/ServiceSpec.js';
+import { type ServiceUpdateStatus } from '../models/ServiceUpdateStatus.js';
 
 export interface Service {
     ID?: string;

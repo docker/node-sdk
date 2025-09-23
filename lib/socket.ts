@@ -1,4 +1,5 @@
 import * as net from 'net';
+import type { ClientRequestArgs } from 'http';
 import * as http from 'http';
 import * as stream from 'stream';
 
@@ -24,8 +25,8 @@ export class SocketAgent extends http.Agent {
 
         // Override createConnection to use our socket factory
         this.createConnection = (
-            options: any,
-            callback?: (err: Error | null, socket?: stream.Duplex) => void,
+            options: ClientRequestArgs,
+            callback?: (err: Error | null, socket: stream.Duplex) => void,
         ): stream.Duplex => {
             const socket = this.socketFactory();
             socket.setNoDelay(true);
@@ -40,7 +41,7 @@ export class SocketAgent extends http.Agent {
 
                 const onError = (error: Error) => {
                     socket.removeListener('connect', onConnect);
-                    callback(error);
+                    callback(error, socket);
                 };
 
                 socket.once('connect', onConnect);

@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { ObjectVersion } from '../models/ObjectVersion.js';
+import { type ObjectVersion } from '../models/ObjectVersion.js';
 
 /**
  * The status of the service when it is in one of ReplicatedJob or GlobalJob modes. Absent on Replicated and Global mode services. The JobIteration is an ObjectVersion, but unlike the Service\'s version, does not need to be sent with an update request.

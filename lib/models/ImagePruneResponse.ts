@@ -18,7 +18,7 @@
    Do not edit the class manually.
  */
 
-import { ImageDeleteResponseItem } from '../models/ImageDeleteResponseItem.js';
+import { type ImageDeleteResponseItem } from '../models/ImageDeleteResponseItem.js';
 
 export interface ImagePruneResponse {
     /**

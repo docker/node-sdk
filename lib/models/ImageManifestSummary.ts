@@ -18,10 +18,10 @@
    Do not edit the class manually.
  */
 
-import { ImageManifestSummaryAttestationData } from '../models/ImageManifestSummaryAttestationData.js';
-import { ImageManifestSummaryImageData } from '../models/ImageManifestSummaryImageData.js';
-import { ImageManifestSummarySize } from '../models/ImageManifestSummarySize.js';
-import { OCIDescriptor } from '../models/OCIDescriptor.js';
+import { type ImageManifestSummaryAttestationData } from '../models/ImageManifestSummaryAttestationData.js';
+import { type ImageManifestSummaryImageData } from '../models/ImageManifestSummaryImageData.js';
+import { type ImageManifestSummarySize } from '../models/ImageManifestSummarySize.js';
+import { type OCIDescriptor } from '../models/OCIDescriptor.js';
 
 /**
  * ImageManifestSummary represents a summary of an image manifest.
