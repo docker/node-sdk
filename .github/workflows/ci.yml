@@ -40,13 +40,11 @@ jobs:
               run: |
                   npm test
             - name: Integration Test - ESM Import - Install
-              working-directory: ./test-integration/esm-project
               run: |
-                  npm install --install-links
+                  npm install --install-links --prefix ./test-integration/esm-project
             - name: Integration Test - ESM Import - Test
-              working-directory: ./test-integration/esm-project
               run: |
-                  npm run test
+                  npm run test --prefix ./test-integration/esm-project
 
 #            - name: Integration Test - CJS Import
 #              working-directory: ./test-integration/esm-project
