@@ -1,0 +1,16 @@
+{
+  "name": "cjs-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "@docker/node-sdk": "file:../.."
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

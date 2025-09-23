@@ -33,3 +33,13 @@ jobs:
             - name: Test
               run: |
                   npm test
+            - name: Integration Test - ESM Import
+              working-directory: ./integration-test/esm-import
+              run: |
+                  npm install
+                  npm run test
+            - name: Integration Test - CJS Import
+              working-directory: ./integration-test/cjs-import
+              run: |
+                  npm install
+                  npm run test

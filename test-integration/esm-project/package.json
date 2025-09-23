@@ -1,0 +1,16 @@
+{
+  "name": "esm-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "type": "module",
+  "dependencies": {
+    "@docker/node-sdk": "file:../.."
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "typescript": "^5.9.2"
+  }
+}
