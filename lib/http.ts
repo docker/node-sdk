@@ -32,18 +32,17 @@ export class ConflictError extends Error {
 
 // Function to extract error message from response body
 function getErrorMessage(
-    status: string,
-    headers: { [key: string]: string },
+    res: http.IncomingMessage,
     body: string | undefined,
 ): string {
-    const contentType = headers['content-type']?.toLowerCase();
+    const contentType = res.headers['content-type']?.toLowerCase();
     if (contentType?.includes('application/json') && body) {
         const jsonBody = JSON.parse(body);
         if (jsonBody.message) {
             return jsonBody.message;
         }
     }
-    return status;
+    return res.statusMessage;
 }
 
 // Interface to represent an HTTP response
@@ -52,6 +51,7 @@ export interface HTTPResponse {
     statusCode: number;
     headers: { [key: string]: string };
     body?: string;
+    sock?: stream.Duplex;
 }
 
 /**
@@ -132,10 +132,12 @@ export class HTTPClient {
                 agent: this.agent,
             };
 
-            const req = http.request(requestOptions, (res) => {
-                let responseBody = '';
+            // Helper function to create response object
+            const createResponse = (
+                res: http.IncomingMessage,
+                body?: string,
+            ): HTTPResponse => {
                 const responseHeaders: { [key: string]: string } = {};
-
                 // Convert headers to lowercase keys
                 Object.entries(res.headers).forEach(([key, value]) => {
                     responseHeaders[key.toLowerCase()] = Array.isArray(value)
@@ -143,24 +145,23 @@ export class HTTPClient {
                         : value || '';
                 });
 
-                // Helper function to create response object
-                const createResponse = (body?: string): HTTPResponse => ({
+                return {
                     statusCode: res.statusCode,
                     statusMessage: res.statusMessage,
                     headers: responseHeaders,
                     body,
-                });
+                };
+            };
+
+            const req = http.request(requestOptions, (res) => {
+                let responseBody = '';
 
                 // Helper function to handle response completion
                 const handleResponseEnd = (body?: string) => {
-                    const response = createResponse(body);
+                    const response = createResponse(res, body);
 
                     if (res.statusCode >= 400) {
-                        const errorMessage = getErrorMessage(
-                            res.statusMessage,
-                            responseHeaders,
-                            body,
-                        );
+                        const errorMessage = getErrorMessage(res, body);
                         if (res.statusCode === 404) {
                             reject(new NotFoundError(errorMessage));
                         } else if (res.statusCode === 401) {
@@ -182,29 +183,29 @@ export class HTTPClient {
                     );
                 };
 
+                // Set up common error handler
+                res.on('error', handleResponseError);
+
                 // Check for Docker stream content types
-                const contentType = responseHeaders['content-type'];
+                const contentType = res.headers['content-type'];
                 const isDockerStream =
                     contentType === DOCKER_RAW_STREAM ||
                     contentType === DOCKER_MULTIPLEXED_STREAM;
 
-                // Set up common error handler
-                res.on('error', handleResponseError);
-
                 if (isDockerStream && callback) {
                     // For upgrade protocols, forward all data directly to callback
-                    res.on('data', (chunk: Buffer) => {
-                        callback(chunk.toString('utf8'));
+                    res.on('data', (data: Buffer) => {
+                        callback(data.toString('utf8'));
                     });
 
                     // Resolve immediately with upgrade response
-                    resolve(createResponse());
+                    resolve(createResponse(res));
                     return;
                 }
 
                 // Handle chunked responses with callback
                 if (
-                    responseHeaders['transfer-encoding'] === 'chunked' &&
+                    res.headers['transfer-encoding'] === 'chunked' &&
                     callback
                 ) {
                     res.on('data', (chunk: Buffer) => {
@@ -224,6 +225,12 @@ export class HTTPClient {
 
             req.on('error', (error) => {
                 reject(new Error(`Request error: ${error.message}`));
+            });
+
+            req.on('upgrade', (res, socket, head) => {
+                const resp = createResponse(res);
+                resp.sock = socket;
+                resolve(resp);
             });
 
             // Write request body

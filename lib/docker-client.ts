@@ -11,6 +11,8 @@ import { SocketAgent } from './socket.js';
 import { Filter } from './filter.js';
 import { SSH } from './ssh.js';
 import { TLS } from './tls.js';
+import * as stream from 'node:stream';
+import { demultiplexStream } from './multiplexed-stream.js';
 
 export class Credentials {
     username: string;
@@ -385,7 +387,8 @@ export class DockerClient {
      */
     public async containerAttach(
         id: string,
-        callback: (data: Buffer) => void,
+        stdout: stream.Writable,
+        stderr: stream.Writable,
         options?: {
             detachKeys?: string;
             logs?: boolean;
@@ -395,10 +398,22 @@ export class DockerClient {
             stderr?: boolean;
         },
     ): Promise<void> {
-        return this.api.post(`/containers/${id}/attach`, options, undefined, {
-            Connection: 'Upgrade',
-            Upgrade: 'tcp',
-        });
+        return this.api
+            .sendHTTPRequest('POST', `/containers/${id}/attach`, {
+                params: options,
+                headers: {
+                    Connection: 'Upgrade',
+                    Upgrade: 'tcp',
+                },
+            })
+            .then((response) => {
+                const contentType = response.headers['content-type'];
+                if (contentType === 'application/vnd.docker.raw-stream') {
+                    response.sock.pipe(stdout);
+                } else {
+                    response.sock.pipe(demultiplexStream(stdout, stderr));
+                }
+            });
     }
 
     /**
@@ -530,17 +545,27 @@ export class DockerClient {
      * @param timestamps Add timestamps to every log line
      * @param tail Only return this number of log lines from the end of the logs. Specify as an integer or 'all' to output all log lines.
      */
-    public async containerLogs(options?: {
-        id: string;
-        follow?: boolean;
-        stdout?: boolean;
-        stderr?: boolean;
-        since?: number;
-        until?: number;
-        timestamps?: boolean;
-        tail?: string;
-    }): Promise<void> {
-        // TODO
+    public async containerLogs(
+        id: string,
+        stdout: stream.Writable,
+        stderr: stream.Writable,
+        options?: {
+            follow?: boolean;
+            stdout?: boolean;
+            stderr?: boolean;
+            since?: number;
+            until?: number;
+            timestamps?: boolean;
+            tail?: string;
+        },
+    ): Promise<void> {
+        const demux = demultiplexStream(stdout, stderr);
+        return this.api.get(
+            `/containers/${id}/logs`,
+            options,
+            'application/vnd.docker.raw-stream',
+            (data) => demux.write(data),
+        );
     }
 
     /**

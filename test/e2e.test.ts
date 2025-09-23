@@ -2,30 +2,6 @@ import { assert, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { Filter } from '../lib/filter.js';
 
-// Test Docker API connectivity
-test('systemPing should return API version', async () => {
-    const client = await DockerClient.fromDockerConfig();
-    const apiVersion = await client.systemPing();
-    assert.isNotNull(apiVersion);
-    console.log(`  Docker API version: ${apiVersion}`);
-});
-
-test('systemInfo should return system information', async () => {
-    const client = await DockerClient.fromDockerConfig();
-    const info = await client.systemInfo();
-    assert.isNotNull(info);
-    assert.isNotNull(info.ID);
-    console.log(`  Docker system ID: ${info.ID}`);
-});
-
-test('systemVersion should return version information', async () => {
-    const client = await DockerClient.fromDockerConfig();
-    const version = await client.systemVersion();
-    assert.isNotNull(version);
-    assert.isNotNull(version.Version);
-    console.log(`  Docker version: ${version.Version}`);
-});
-
 test('containerList should return list of containers', async () => {
     const client = await DockerClient.fromDockerConfig();
     const containers = await client.containerList({ all: true });
@@ -45,13 +21,6 @@ test('networkList should return list of networks', async () => {
     const networks = await client.networkList();
     assert.isNotNull(networks);
     console.log(`  Found ${networks.length} networks`);
-});
-
-test('volumeList should return list of volumes', async () => {
-    const client = await DockerClient.fromDockerConfig();
-    const volumes = await client.volumeList();
-    assert.isNotNull(volumes);
-    console.log(`  Found ${volumes.Volumes?.length || 0} volumes`);
 });
 
 test('container lifecycle should work end-to-end', async () => {

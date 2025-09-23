@@ -1,5 +1,5 @@
 import { assert, test } from 'vitest';
-import { createMultiplexedStreamCallback } from '../lib/multiplexed-stream.js';
+import { demultiplexStream } from '../lib/multiplexed-stream.js';
 import { Writable } from 'stream';
 
 function createMockStream(): { stream: Writable; data: Buffer[] } {
@@ -29,10 +29,10 @@ test('should write stdout message to stdout stream', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
-    const callback = createMultiplexedStreamCallback(stdout, stderr);
+    const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(1, 'Hello stdout');
 
-    callback(message.toString('utf8'));
+    demuxStream.write(message);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), 'Hello stdout');
@@ -43,10 +43,10 @@ test('should write stderr message to stderr stream', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
-    const callback = createMultiplexedStreamCallback(stdout, stderr);
+    const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(2, 'Hello stderr');
 
-    callback(message.toString('utf8'));
+    demuxStream.write(message);
 
     assert.deepEqual(stderrData.length, 1);
     assert.deepEqual(stderrData[0]?.toString(), 'Hello stderr');
@@ -57,10 +57,10 @@ test('should ignore unknown stream types', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
-    const callback = createMultiplexedStreamCallback(stdout, stderr);
+    const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(3, 'Unknown stream');
 
-    callback(message.toString('utf8'));
+    demuxStream.write(message);
 
     assert.deepEqual(stdoutData.length, 0);
     assert.deepEqual(stderrData.length, 0);
@@ -70,12 +70,12 @@ test('should handle multiple messages in single chunk', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
-    const callback = createMultiplexedStreamCallback(stdout, stderr);
+    const demuxStream = demultiplexStream(stdout, stderr);
     const message1 = createMultiplexedMessage(1, 'First stdout');
     const message2 = createMultiplexedMessage(2, 'First stderr');
     const combined = Buffer.concat([message1, message2]);
 
-    callback(combined.toString('utf8'));
+    demuxStream.write(combined);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), 'First stdout');
@@ -87,17 +87,17 @@ test('should handle incomplete messages across multiple chunks', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: _ } = createMockStream();
 
-    const callback = createMultiplexedStreamCallback(stdout, stderr);
+    const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(1, 'Split message');
 
     // Send first half
     const firstHalf = message.subarray(0, 10);
-    callback(firstHalf.toString('utf8'));
+    demuxStream.write(firstHalf);
     assert.deepEqual(stdoutData.length, 0); // Should not write yet
 
     // Send second half
     const secondHalf = message.subarray(10);
-    callback(secondHalf.toString('utf8'));
+    demuxStream.write(secondHalf);
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), 'Split message');
 });
@@ -106,10 +106,10 @@ test('should handle empty content', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: _ } = createMockStream();
 
-    const callback = createMultiplexedStreamCallback(stdout, stderr);
+    const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(1, '');
 
-    callback(message.toString('utf8'));
+    demuxStream.write(message);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), '');
@@ -119,10 +119,10 @@ test('should handle very short incomplete chunks', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
-    const callback = createMultiplexedStreamCallback(stdout, stderr);
+    const demuxStream = demultiplexStream(stdout, stderr);
 
     // Send only 4 bytes (less than minimum header size of 8)
-    callback('test');
+    demuxStream.write('test');
     assert.deepEqual(stdoutData.length, 0);
     assert.deepEqual(stderrData.length, 0);
 });
@@ -131,11 +131,11 @@ test('should handle large content', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: _ } = createMockStream();
 
-    const callback = createMultiplexedStreamCallback(stdout, stderr);
+    const demuxStream = demultiplexStream(stdout, stderr);
     const largeContent = 'x'.repeat(10000);
     const message = createMultiplexedMessage(1, largeContent);
 
-    callback(message.toString('utf8'));
+    demuxStream.write(message);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), largeContent);
