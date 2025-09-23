@@ -1,18 +1,19 @@
 {
-  "name": "docker-sdk",
+  "name": "@docker/node-sdk",
+  "author": "Docker Inc.",
   "description": "TypeScript SDK for Docker API",
   "keywords": [
     "docker",
     "moby"
   ],
   "version": "0.0.1",
-  "homepage": "https://github.com/docker/docker-ts",
+  "homepage": "https://github.com/docker/node-sdk",
   "bugs": {
-    "url": "https://github.com/docker/docker-ts/issues"
+    "url": "https://github.com/docker/node-sdk/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/docker/docker-ts"
+    "url": "https://github.com/docker/node-sdk"
   },
   "type": "module",
   "license": "Apache-2.0",

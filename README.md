@@ -1,8 +1,8 @@
-# Docker-TS, a TypeScript SDK for Docker API
+# Docker Node SDK, a TypeScript SDK for Docker API
 
 ![logo](logo.png)
 
-Docker-TS is a TypeScript library to access [Docker engine API](https://docs.docker.com/reference/api/engine/#view-the-api-reference) (a.k.a "Moby").
+Node-SDK is a TypeScript library to access [Docker engine API](https://docs.docker.com/reference/api/engine/#view-the-api-reference) (a.k.a "Moby").
 
 ## Usage
 

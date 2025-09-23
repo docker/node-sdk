@@ -98,7 +98,7 @@ export class HTTPClient {
             // Prepare headers
             const requestHeaders: Record<string, string> = {
                 Host: 'host',
-                'User-Agent': 'docker-ts/0.0.1',
+                'User-Agent': 'node-sdk/0.0.1',
                 Accept: accept,
                 ...headers,
             };
