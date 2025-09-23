@@ -45,9 +45,10 @@
     "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o lib && npm run format",
     "build": "npm run generate && tsup",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint --type-aware",
     "format": "prettier --write .",
-    "check": "prettier --check ."
+    "format.check": "prettier --check ."
   },
   "dependencies": {
     "ssh2": "^1.16.0"

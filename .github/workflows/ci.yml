@@ -24,9 +24,12 @@ jobs:
             - name: Install
               run: |
                   npm install
-            - name: Check
+            - name: Format Check
               run: |
-                  npm run check
+                  npm run format.check
+            - name: Type Check
+              run: |
+                  npm run typecheck
             - name: Test
               run: |
                   npm test
