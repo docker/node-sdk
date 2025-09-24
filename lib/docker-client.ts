@@ -17,6 +17,7 @@ import {
     isFileNotFoundError,
     parseDockerHost,
 } from './util.js';
+import type { SecureContextOptions } from 'tls';
 
 export interface Credentials {
     username: string;
@@ -40,12 +41,12 @@ export class DockerClient {
     /**
      * Create a DockerClient instance from a Docker host string
      * @param dockerHost Docker host string (e.g., "unix:/var/run/docker.sock", "tcp://localhost:2376", or "ssh://user@host[:port][/path/to/docker.sock]")
-     * @param certPath Optional path to directory containing TLS certificates (ca.pem, cert.pem, key.pem) for TCP connections
+     * @param certificates Optional path to directory containing TLS certificates (ca.pem, cert.pem, key.pem) for TCP connections
      * @returns Promise that resolves to a connected DockerClient instance
      */
     static fromDockerHost(
         dockerHost: string,
-        certPath?: string,
+        certificates?: string | SecureContextOptions,
     ): Promise<DockerClient> {
         return new Promise((resolve, reject) => {
             if (dockerHost.startsWith('unix:')) {
@@ -66,18 +67,26 @@ export class DockerClient {
                 }
             } else if (dockerHost.startsWith('tcp:')) {
                 // TCP connection - use SocketAgent with TCP socket creation function
-                const defaultPort = certPath ? 2376 : 2375; // Default ports: 2376 for TLS, 2375 for plain
+                const defaultPort = certificates ? 2376 : 2375; // Default ports: 2376 for TLS, 2375 for plain
                 const { host, port } = parseDockerHost(dockerHost, defaultPort);
 
                 try {
                     let agent: SocketAgent;
 
-                    if (certPath) {
-                        // Use SocketAgent with TLS socket creation function
-                        const tlsOptions = TLS.loadCertificates(certPath);
-                        agent = new SocketAgent(() =>
-                            tls.connect({ host, port, ...tlsOptions }),
-                        );
+                    if (certificates) {
+                        if (typeof certificates === 'string') {
+                            // Use SocketAgent with TLS socket creation function
+                            const tlsOptions =
+                                TLS.loadCertificates(certificates);
+                            agent = new SocketAgent(() =>
+                                tls.connect({ host, port, ...tlsOptions }),
+                            );
+                        } else {
+                            // certificates is a SecureContextOptions type
+                            agent = new SocketAgent(() =>
+                                tls.connect({ host, port, ...certificates }),
+                            );
+                        }
                     } else {
                         // Use SocketAgent with plain TCP socket creation function
                         agent = new SocketAgent(() =>
@@ -345,7 +354,7 @@ export class DockerClient {
     public async containerArchive(
         id: string,
         path: string,
-        out: NodeJS.WritableStream,
+        out: stream.Writable,
     ): Promise<void> {
         return this.api.get<void>(
             `/containers/${id}/archive`,
@@ -796,7 +805,7 @@ export class DockerClient {
     public async putContainerArchive(
         id: string,
         path: string,
-        tar: NodeJS.ReadableStream,
+        tar: stream.Readable,
         options?: {
             noOverwriteDirNonDir?: string;
             copyUIDGID?: string;
