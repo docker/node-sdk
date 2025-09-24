@@ -18,6 +18,11 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
+        matrix:
+            engine:
+                - 28
+                - 27
+                - master
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -30,15 +35,26 @@ jobs:
             - name: Install
               run: |
                   npm install
+
             - name: Format Check
               run: |
                   npm run format.check
+
             - name: Type Check
               run: |
                   npm run typecheck
+
+            - name: Set up Docker
+              id: engine
+              uses: docker/setup-docker-action@v4
+              with:
+                  version: type=image,version=${{ matrix.engine }}
+
             - name: Test
               run: |
                   npm test
+              env:
+                  DOCKER_HOST: unix://${{ steps.engine.outputs.sock }}
 
 #            - name: Integration Test - ESM Import - Install
 #              run: |
