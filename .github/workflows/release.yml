@@ -14,7 +14,7 @@ on:
 
 permissions:
     id-token: write # Required for NPM Trusted Publishers
-    contents: read
+    contents: write # Required to create git tags when versioning with npm version in non-dry-run mode
 
 jobs:
     release:
