@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { getErrorMessage } from './util.js';
+import type { SecureContextOptions } from 'tls';
 
 /**
  * TLS certificate utilities for secure Docker connections
@@ -11,12 +12,8 @@ export class TLS {
      * @param certPath Path to directory containing ca.pem, cert.pem, and key.pem files
      * @returns TLS options object for HTTPS agent
      */
-    static loadCertificates(certPath: string): {
-        ca?: Buffer;
-        cert?: Buffer;
-        key?: Buffer;
-    } {
-        const tlsOptions: { ca?: Buffer; cert?: Buffer; key?: Buffer } = {};
+    static loadCertificates(certPath: string): SecureContextOptions {
+        const tlsOptions: SecureContextOptions = {};
 
         try {
             // Load CA certificate
