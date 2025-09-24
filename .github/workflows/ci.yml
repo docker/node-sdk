@@ -20,9 +20,20 @@ jobs:
             fail-fast: false
             matrix:
                 engine:
-                    - 28
                     - 27
-                    - master
+                    - 28
+                dockerhost:
+                    - unix:/var/run/docker.sock
+                    - tcp://127.0.0.1:2376
+        services:
+            docker:
+                image: docker:${{ matrix.engine }}-dind
+                options: --privileged --shm-size=2g
+                volumes:
+                    - /var/run/docker.sock:/var/run/docker.sock
+                    - /certs/client:/certs/client
+                ports:
+                    - 2376:2376
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -44,17 +55,12 @@ jobs:
               run: |
                   npm run typecheck
 
-            - name: Set up Docker
-              id: engine
-              uses: docker/setup-docker-action@v4
-              with:
-                  version: type=image,version=${{ matrix.engine }}
-
             - name: Test
               run: |
                   npm test
               env:
-                  DOCKER_HOST: ${{ steps.engine.outputs.sock }}
+                  DOCKER_HOST: ${{ matrix.dockerhost }}
+                  DOCKER_TLS_CERTDIR: /certs/client
 #            - name: Integration Test - ESM Import - Install
 #              run: |
 #                  npm install --install-links --prefix ./test-integration/esm-project
