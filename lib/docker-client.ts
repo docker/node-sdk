@@ -203,7 +203,10 @@ export class DockerClient {
     static async fromDockerConfig(): Promise<DockerClient> {
         // Check for DOCKER_HOST environment variable first - takes precedence over config
         if (process.env.DOCKER_HOST) {
-            return DockerClient.fromDockerHost(process.env.DOCKER_HOST);
+            return DockerClient.fromDockerHost(
+                process.env.DOCKER_HOST,
+                process.env.DOCKER_TLS_CERTDIR,
+            );
         }
 
         // Check for DOCKER_CONFIG environment variable, otherwise use default path
@@ -904,7 +907,9 @@ export class DockerClient {
     public async volumeCreate(
         spec: models.VolumeCreateOptions,
     ): Promise<models.Volume> {
-        return this.api.post('volumes/create', undefined, spec);
+        return this.api.post('/volumes/create', undefined, spec, {
+            Accept: '*/*',
+        });
     }
 
     /**
