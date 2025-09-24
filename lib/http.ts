@@ -76,8 +76,8 @@ export class HTTPClient {
         uri: string,
         options?: {
             params?: Record<string, any>;
-            data?: object;
-            callback?: (data: string) => void;
+            data?: any;
+            callback?: (data: Buffer) => void;
             accept?: string;
             headers?: Record<string, string>;
         },
@@ -113,7 +113,7 @@ export class HTTPClient {
                     typeof (data as any).read === 'function'
                 ) {
                     // Use chunked transfer encoding for streams
-                    body = data as NodeJS.ReadableStream;
+                    body = data as stream.Readable;
                     requestHeaders['Transfer-Encoding'] = 'chunked';
                 } else {
                     // Convert to JSON string for objects
@@ -198,7 +198,7 @@ export class HTTPClient {
                 if (isDockerStream && callback) {
                     // For upgrade protocols, forward all data directly to callback
                     res.on('data', (data: Buffer) => {
-                        callback(data.toString('utf8'));
+                        callback(data);
                     });
 
                     // Resolve immediately with upgrade response
@@ -212,7 +212,7 @@ export class HTTPClient {
                     callback
                 ) {
                     res.on('data', (chunk: Buffer) => {
-                        callback(chunk.toString('utf8'));
+                        callback(chunk);
                     });
 
                     res.on('end', () => handleResponseEnd());
@@ -242,19 +242,8 @@ export class HTTPClient {
                     req.write(body);
                     req.end();
                 } else {
-                    // Handle stream body
-                    body.on('data', (chunk: Buffer) => {
-                        req.write(chunk);
-                    });
-
-                    body.on('end', () => {
-                        req.end();
-                    });
-
-                    body.on('error', (error) => {
-                        req.destroy(error);
-                        reject(error);
-                    });
+                    const input = body as stream.Readable;
+                    input.pipe(req);
                 }
             } else {
                 req.end();
@@ -300,7 +289,7 @@ export class HTTPClient {
         uri: string,
         params?: Record<string, any>,
         accept?: string,
-        callback?: (data: any) => boolean,
+        callback?: (data: Buffer) => boolean,
     ): Promise<T> {
         return this.sendHTTPRequest('GET', uri, {
             params: params,
@@ -314,7 +303,7 @@ export class HTTPClient {
         params?: Record<string, any>,
         data?: object,
         headers?: Record<string, string>,
-        callback?: (data: any) => void,
+        callback?: (data: Buffer) => void,
     ): Promise<T> {
         return this.sendHTTPRequest('POST', uri, {
             params: params,

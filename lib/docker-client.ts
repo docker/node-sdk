@@ -17,6 +17,7 @@ import {
     isFileNotFoundError,
     parseDockerHost,
 } from './util.js';
+import type { Platform } from './models/index.js';
 import type { SecureContextOptions } from 'tls';
 
 export interface Credentials {
@@ -309,10 +310,12 @@ export class DockerClient {
     ) {
         await this.api.sendHTTPRequest('GET', '/events', {
             params: options,
-            callback: (data: string) => {
-                data.split('\n').forEach((line) => {
-                    callback(JSON.parse(line) as models.EventMessage);
-                });
+            callback: (data: Buffer) => {
+                data.toString('utf-8')
+                    .split('\n')
+                    .forEach((line) => {
+                        callback(JSON.parse(line) as models.EventMessage);
+                    });
             },
         });
     }
@@ -969,7 +972,7 @@ export class DockerClient {
         });
     }
 
-    // --- Images API
+    // --- Image API
 
     /**
      * Return image digest and platform information by contacting the registry.
@@ -980,6 +983,59 @@ export class DockerClient {
         name: string,
     ): Promise<models.DistributionInspect> {
         return this.api.get(`/distribution/${name}/json`);
+    }
+
+    /**
+     * Delete builder cache
+     * @param reservedSpace Amount of disk space in bytes to keep for cache
+     * @param maxUsedSpace Maximum amount of disk space allowed to keep for cache
+     * @param minFreeSpace Target amount of free disk space after pruning
+     * @param all Remove all types of build cache
+     * @param filters A JSON encoded value of the filters (a &#x60;map[string][]string&#x60;) to process on the list of build cache objects.  Available filters:  - &#x60;until&#x3D;&lt;timestamp&gt;&#x60; remove cache older than &#x60;&lt;timestamp&gt;&#x60;. The &#x60;&lt;timestamp&gt;&#x60; can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. &#x60;10m&#x60;, &#x60;1h30m&#x60;) computed relative to the daemon\&#39;s local time. - &#x60;id&#x3D;&lt;id&gt;&#x60; - &#x60;parent&#x3D;&lt;id&gt;&#x60; - &#x60;type&#x3D;&lt;string&gt;&#x60; - &#x60;description&#x3D;&lt;string&gt;&#x60; - &#x60;inuse&#x60; - &#x60;shared&#x60; - &#x60;private&#x60;
+     */
+    public async buildPrune(options?: {
+        reservedSpace?: number;
+        maxUsedSpace?: number;
+        minFreeSpace?: number;
+        all?: boolean;
+        filters?: Filter;
+    }): Promise<models.BuildPruneResponse> {
+        return this.api.post('/build/prune', options);
+    }
+
+    /**
+     * Create a new image from a container
+     * @param container The ID or name of the container to commit
+     * @param repo Repository name for the created image
+     * @param tag Tag name for the create image
+     * @param comment Commit message
+     * @param author Author of the image (e.g., &#x60;John Hannibal Smith &lt;hannibal@a-team.com&gt;&#x60;)
+     * @param pause Whether to pause the container before committing
+     * @param changes &#x60;Dockerfile&#x60; instructions to apply while committing
+     * @param containerConfig The container configuration
+     */
+    public async imageCommit(
+        container: string,
+        options?: {
+            repo?: string;
+            tag?: string;
+            comment?: string;
+            author?: string;
+            pause?: boolean;
+            changes?: string;
+            containerConfig?: models.ContainerConfig;
+        },
+    ): Promise<models.IDResponse> {
+        return this.api.post(`/commit`, {
+            container: container,
+            repo: options?.repo,
+            tag: options?.tag,
+            comment: options?.comment,
+            author: options?.author,
+            pause: options?.pause,
+            changes: options?.changes,
+            containerConfig: options?.containerConfig,
+        });
     }
 
     /**
@@ -1033,12 +1089,14 @@ export class DockerClient {
             },
             undefined,
             headers,
-            (data: string) => {
-                data.split('\n').forEach((line) => {
-                    if (line) {
-                        callback(JSON.parse(line));
-                    }
-                });
+            (data: Buffer) => {
+                data.toString('utf-8')
+                    .split('\n')
+                    .forEach((line) => {
+                        if (line) {
+                            callback(JSON.parse(line));
+                        }
+                    });
             },
         );
     }
@@ -1060,7 +1118,44 @@ export class DockerClient {
             platforms?: Array<string>;
         },
     ): Promise<Array<models.ImageDeleteResponseItem>> {
-        return this.api.delete(`/image/${name}`, options);
+        return this.api.delete(`/images/${name}`, options);
+    }
+
+    /**
+     * Get a tarball containing all images and metadata for a repository.  If `name` is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned. If `name` is an image ID, similarly only that image (and its parents) are returned, but with the exclusion of the `repositories` file in the tarball, as there were no image names referenced.  ### Image tarball format  An image tarball contains [Content as defined in the OCI Image Layout Specification](https://github.com/opencontainers/image-spec/blob/v1.1.1/image-layout.md#content).  Additionally, includes the manifest.json file associated with a backwards compatible docker save format.  If the tarball defines a repository, the tarball should also include a `repositories` file at the root that contains a list of repository and tag names mapped to layer IDs.  ```json {   \"hello-world\": {     \"latest\": \"565a9d68a73f6706862bfe8409a7f659776d4d60a8d096eb4a3cbce6999cc2a1\"   } } ```
+     * Export an image
+     * @param name Image name or ID
+     * @param platform JSON encoded OCI platform describing a platform which will be used to select a platform-specific image to be saved if the image is multi-platform. If not provided, the full multi-platform image will be saved.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
+     */
+    public async imageGet(
+        name: string,
+        w: stream.Writable,
+        platform?: models.Platform,
+    ): Promise<void> {
+        return this.api.get(
+            `/images/${name}/get`,
+            {
+                platform: platform,
+            },
+            'application/x-tar',
+            (data: any) => w.write(data),
+        );
+    }
+
+    /**
+     * Get a tarball containing all images and metadata for several image repositories.  For each value of the `names` parameter: if it is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned; if it is an image ID, similarly only that image (and its parents) are returned and there would be no names referenced in the \'repositories\' file for this image ID.  For details on the format, see the [export image endpoint](#operation/ImageGet).
+     * Export several images
+     * @param names Image names to filter by
+     * @param platform JSON encoded OCI platform(s) which will be used to select the platform-specific image(s) to be saved if the image is multi-platform. If not provided, the full multi-platform image will be saved.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
+     */
+    public async imageGetAll(
+        names: Array<string>,
+        platform?: models.Platform,
+    ): Promise<stream.Readable> {
+        return this.api.get(`/images/get`, {
+            names: names,
+            platform: platform,
+        });
     }
 
     /**
@@ -1113,6 +1208,99 @@ export class DockerClient {
         manifests?: boolean;
     }): Promise<Array<models.ImageSummary>> {
         return this.api.get('/images/json', options);
+    }
+
+    /**
+     * Load a set of images and tags into a repository.  For details on the format, see the [export image endpoint](#operation/ImageGet).
+     * Import images
+     * @param quiet Suppress progress details during load.
+     * @param platform JSON encoded OCI platform(s) which will be used to select the platform-specific image(s) to load if the image is multi-platform. If not provided, the full multi-platform image will be loaded.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
+     * @param imagesTarball Tar archive containing images
+     */
+    public async imageLoad(
+        imagesTarball: stream.Readable,
+        options?: {
+            quiet?: boolean;
+            platform?: Platform;
+            callback?: (event: any) => void;
+        },
+    ): Promise<void> {
+        return this.api.post(
+            `/images/load`,
+            options,
+            imagesTarball,
+            {
+                'Content-Type': 'application/x-tar',
+            },
+            options?.callback,
+        );
+    }
+
+    /**
+     * Delete unused images
+     * @param filters Filters to process on the prune list, encoded as JSON (a &#x60;map[string][]string&#x60;). Available filters:  - &#x60;dangling&#x3D;&lt;boolean&gt;&#x60; When set to &#x60;true&#x60; (or &#x60;1&#x60;), prune only    unused *and* untagged images. When set to &#x60;false&#x60;    (or &#x60;0&#x60;), all unused images are pruned. - &#x60;until&#x3D;&lt;string&gt;&#x60; Prune images created before this timestamp. The &#x60;&lt;timestamp&gt;&#x60; can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. &#x60;10m&#x60;, &#x60;1h30m&#x60;) computed relative to the daemon machine’s time. - &#x60;label&#x60; (&#x60;label&#x3D;&lt;key&gt;&#x60;, &#x60;label&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;, &#x60;label!&#x3D;&lt;key&gt;&#x60;, or &#x60;label!&#x3D;&lt;key&gt;&#x3D;&lt;value&gt;&#x60;) Prune images with (or without, in case &#x60;label!&#x3D;...&#x60; is used) the specified labels.
+     */
+    public async imagePrune(
+        filters?: Filter,
+    ): Promise<models.ImagePruneResponse> {
+        return this.api.post(`/images/prune`, {
+            filters: filters,
+        });
+    }
+
+    /**
+     * Push an image to a registry.  If you wish to push an image on to a private registry, that image must already have a tag which references the registry. For example, `registry.example.com/myimage:latest`.  The push is cancelled if the HTTP connection is closed.
+     * Push an image
+     * @param name Name of the image to push. For example, &#x60;registry.example.com/myimage&#x60;. The image must be present in the local image store with the same name.  The name should be provided without tag; if a tag is provided, it is ignored. For example, &#x60;registry.example.com/myimage:latest&#x60; is considered equivalent to &#x60;registry.example.com/myimage&#x60;.  Use the &#x60;tag&#x60; parameter to specify the tag to push.
+     * @param credentials A base64url-encoded auth configuration.  Refer to the [authentication section](#section/Authentication) for details.
+     * @param tag Tag of the image to push. For example, &#x60;latest&#x60;. If no tag is provided, all tags of the given image that are present in the local image store are pushed.
+     * @param platform JSON-encoded OCI platform to select the platform-variant to push. If not provided, all available variants will attempt to be pushed.  If the daemon provides a multi-platform image store, this selects the platform-variant to push to the registry. If the image is a single-platform image, or if the multi-platform image does not provide a variant matching the given platform, an error is returned.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
+     */
+    public async imagePush(
+        name: string,
+        options: {
+            credentials: Credentials | IdentityToken;
+            tag?: string;
+            platform?: Platform;
+            callback: (event: any) => void;
+        },
+    ): Promise<void> {
+        const headers: Record<string, string> = {};
+
+        if (options?.credentials) {
+            headers['X-Registry-Auth'] = this.authCredentials(
+                options.credentials,
+            );
+        }
+
+        return this.api.post(
+            `/images/${name}/push`,
+            {
+                tag: options?.tag,
+                platform: options?.platform,
+            },
+            undefined,
+            headers,
+            options?.callback,
+        );
+    }
+
+    /**
+     * Tag an image so that it becomes part of a repository.
+     * Tag an image
+     * @param name Image name or ID to tag.
+     * @param repo The repository to tag in. For example, &#x60;someuser/someimage&#x60;.
+     * @param tag The name of the new tag.
+     */
+    public async imageTag(
+        name: string,
+        repo: string,
+        tag: string,
+    ): Promise<void> {
+        return this.api.post(`/images/${name}/tag`, {
+            repo: repo,
+            tag: tag,
+        });
     }
 
     // -- Exec
