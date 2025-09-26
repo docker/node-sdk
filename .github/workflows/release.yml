@@ -44,9 +44,15 @@ jobs:
 
             - name: Test
               run: npm test
-
+            - name: Version (dry-run)
+              if: ${{ inputs.dryRun }}
+              run: npm version --no-git-tag-version "${{ inputs.version }}"
             - name: Version
-              run: npm version ${{ inputs.version }}
-
+              if: ${{ ! inputs.dryRun }}
+              run: npm version "${{ inputs.version }}"
+            - name: Publish (dry-run)
+              if: ${{ inputs.dryRun }}
+              run: npm publish --provenance --access public --dry-run
             - name: Publish
+              if: ${{ ! inputs.dryRun }}
               run: npm publish --provenance --access public
