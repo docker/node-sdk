@@ -1,9 +1,19 @@
 name: Publish Package
 
 on:
-    push:
-        tags:
-            - "v*"
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Semver version to publish"
+                type: string
+                required: true
+            dryRun:
+                description: "Enable dry run (default: true)"
+                type: boolean
+                default: true
+#    push:
+#        tags:
+#            - "v*"
 
 permissions:
     id-token: write # Required for OIDC
@@ -17,7 +27,7 @@ jobs:
 
             # Uses NPM Trusted Publishers for access to the registry
             # See https://docs.npmjs.com/trusted-publishers
-            - uses: actions/setup-node@4
+            - uses: actions/setup-node@v4
               with:
                   node-version-file: .node-version
                   registry-url: "https://registry.npmjs.org"
