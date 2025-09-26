@@ -1,20 +1,13 @@
-name: Release - Version and Publish Package to NPM
+name: Publish Package
 
 on:
-    workflow_dispatch:
-        inputs:
-            version:
-                description: "Semver version to publish"
-                type: string
-                required: true
-            dryRun:
-                description: "Enable dry run (default: true)"
-                type: boolean
-                default: true
+    push:
+        tags:
+            - "v*"
 
 permissions:
-    id-token: write # Required for NPM Trusted Publishers
-    contents: write # Required to create git tags when versioning with npm version in non-dry-run mode
+    id-token: write # Required for OIDC
+    contents: write # Required to create git tags
 
 jobs:
     release:
@@ -24,28 +17,26 @@ jobs:
 
             # Uses NPM Trusted Publishers for access to the registry
             # See https://docs.npmjs.com/trusted-publishers
-            - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4.0.3
+            - uses: actions/setup-node@4
               with:
                   node-version-file: .node-version
                   registry-url: "https://registry.npmjs.org"
+
             # Ensure npm 11.5.1 or later is installed
             - name: Update npm
               run: npm install -g npm@11.6.1
+
             - name: Install
               run: npm ci
+
             - name: Build
               run: npm run build
+
             - name: Test
               run: npm test
-            - name: Version (dry-run)
-              if: ${{ inputs.dryRun }}
-              run: npm version --no-git-tag-version ${{ inputs.version }}
+
             - name: Version
-              if: ${{ ! inputs.dryRun }}
               run: npm version ${{ inputs.version }}
-            - name: Publish (dry-run)
-              if: ${{ inputs.dryRun }}
-              run: npm publish --provenance --access public --dry-run
+
             - name: Publish
-              if: ${{ ! inputs.dryRun }}
               run: npm publish --provenance --access public
