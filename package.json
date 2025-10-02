@@ -51,12 +51,14 @@
     "format.check": "prettier --check ."
   },
   "dependencies": {
-    "ssh2": "^1.16.0"
+    "ssh2": "^1.16.0",
+    "tar-stream": "^3.1.4"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.23.4",
     "@types/node": "^24.5.2",
     "@types/ssh2": "^1.15.5",
+    "@types/tar-stream": "^3.1.4",
     "oxlint": "^1.16.0",
     "oxlint-tsgolint": "^0.2.0",
     "prettier": "^3.6.2",
