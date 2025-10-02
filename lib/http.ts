@@ -101,7 +101,7 @@ export class HTTPClient {
         options?: {
             params?: Record<string, any>;
             data?: any;
-            callback?: (data: Buffer, encoding?: string) => void;
+            callback?: (data: Buffer, encoding?: BufferEncoding) => void;
             accept?: string;
             headers?: Record<string, string>;
         },
@@ -217,6 +217,8 @@ export class HTTPClient {
                 const contentType = res.headers['content-type'];
                 const { type: mimeType, charset } =
                     parseContentType(contentType);
+                var encoding = (charset || 'utf8') as BufferEncoding;
+
                 const isDockerStream =
                     mimeType === DOCKER_RAW_STREAM ||
                     mimeType === DOCKER_MULTIPLEXED_STREAM;
@@ -224,7 +226,7 @@ export class HTTPClient {
                 if (isDockerStream && callback) {
                     // For upgrade protocols, forward all data directly to callback
                     res.on('data', (data: Buffer) => {
-                        callback(data, charset || 'utf8');
+                        callback(data, encoding);
                     });
 
                     // Resolve immediately with upgrade response
@@ -238,14 +240,14 @@ export class HTTPClient {
                     callback
                 ) {
                     res.on('data', (chunk: Buffer) => {
-                        callback(chunk, charset);
+                        callback(chunk, encoding);
                     });
 
                     res.on('end', () => handleResponseEnd());
                 } else {
                     // Collect response body for non-streaming responses
                     res.on('data', (chunk: Buffer) => {
-                        responseBody += chunk.toString('utf8');
+                        responseBody += chunk.toString(encoding);
                     });
 
                     res.on('end', () => handleResponseEnd(responseBody));

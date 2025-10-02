@@ -38,7 +38,7 @@ _tl;dr:_ You're free to use this code, make any changes you need, have fun with 
 - [x] ContainerTop
 - [x] ContainerLogs
 - [x] ContainerChanges
-- [ ] ContainerExport
+- [x] ContainerExport
 - [x] ContainerStats
 - [x] ContainerResize
 - [x] ContainerStart
@@ -50,7 +50,6 @@ _tl;dr:_ You're free to use this code, make any changes you need, have fun with 
 - [x] ContainerPause
 - [x] ContainerUnpause
 - [x] ContainerAttach
-- [ ] ContainerAttachWebsocket
 - [x] ContainerWait
 - [x] ContainerDelete
 - [x] ContainerArchiveInfo
@@ -61,20 +60,20 @@ _tl;dr:_ You're free to use this code, make any changes you need, have fun with 
 ### Image
 
 - [x] ImageList
-- [ ] ImageBuild
+- [x] ImageBuild
 - [x] BuildPrune
 - [x] ImageCreate
 - [x] ImageInspect
 - [x] ImageHistory
-- [ ] ImagePush
+- [x] ImagePush
 - [x] ImageTag
 - [x] ImageDelete
 - [ ] ImageSearch
 - [x] ImagePrune
-- [ ] ImageCommit
-- [ ] ImageGet
-- [ ] ImageGetAll
-- [ ] ImageLoad
+- [x] ImageCommit
+- [x] ImageGet
+- [x] ImageGetAll
+- [x] ImageLoad
 
 ### Network
 
@@ -122,7 +121,6 @@ _tl;dr:_ You're free to use this code, make any changes you need, have fun with 
 - [x] SystemInfo
 - [x] SystemVersion
 - [x] SystemPing
-- [ ] SystemPingHead
 - [x] SystemEvents
 - [x] SystemDataUsage
 
