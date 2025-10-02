@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as http from 'http';
 import * as tls from 'tls';
-import * as models from './models/index.js';
+import * as types from './types/index.js';
 import { HTTPClient } from './http.js';
 import { SocketAgent } from './socket.js';
 import { Filter } from './filter.js';
@@ -17,19 +17,8 @@ import {
     isFileNotFoundError,
     parseDockerHost,
 } from './util.js';
-import type { Platform } from './models/index.js';
+import type { AuthConfig, Platform } from './types/index.js';
 import type { SecureContextOptions } from 'tls';
-
-export interface Credentials {
-    username: string;
-    password: string;
-    email: string;
-    serveraddress: string;
-}
-
-export interface IdentityToken {
-    token: string;
-}
 
 // noinspection JSUnusedGlobalSymbols
 export class DockerClient {
@@ -259,7 +248,7 @@ export class DockerClient {
 
     // --- Authentication
 
-    public authCredentials(credentials: Credentials | IdentityToken): string {
+    public authCredentials(credentials: any): string {
         const jsonString = JSON.stringify(credentials);
         const base64 = Buffer.from(jsonString, 'utf8').toString('base64');
         // Convert standard Base64 to URL and filename safe alphabet (RFC 4648)
@@ -274,9 +263,9 @@ export class DockerClient {
      * @param authConfig Authentication to check
      */
     public async systemAuth(
-        authConfig: models.AuthConfig,
-    ): Promise<models.SystemAuthResponse> {
-        return this.api.post<models.SystemAuthResponse>('/auth', authConfig);
+        authConfig: types.AuthConfig,
+    ): Promise<types.SystemAuthResponse> {
+        return this.api.post<types.SystemAuthResponse>('/auth', authConfig);
     }
 
     /**
@@ -285,8 +274,8 @@ export class DockerClient {
      */
     public async systemDataUsage(
         type?: Array<'container' | 'image' | 'volume' | 'build-cache'>,
-    ): Promise<models.SystemDataUsageResponse> {
-        return this.api.get<models.SystemDataUsageResponse>('/system/df', {
+    ): Promise<types.SystemDataUsageResponse> {
+        return this.api.get<types.SystemDataUsageResponse>('/system/df', {
             type: type,
         });
     }
@@ -301,7 +290,7 @@ export class DockerClient {
      * @param options.filters Filters to process on the event list. Available filters:  - 'config' config name or ID - 'container' container name or ID - 'daemon' daemon name or ID - 'event' event type - 'image' image name or ID - 'label' image or container label - 'network' network name or ID - 'node' node ID - 'plugin' plugin name or ID - 'scope' local or swarm - 'secret' secret name or ID - 'service' service name or ID - 'type' object to filter by, one of 'container', 'image', 'volume', 'network', 'daemon', 'plugin', 'node', 'service', 'secret' or 'config' - 'volume' volume name
      */
     public async systemEvents(
-        callback: (event: models.EventMessage) => void,
+        callback: (event: types.EventMessage) => void,
         options?: {
             since?: string;
             until?: string;
@@ -313,8 +302,9 @@ export class DockerClient {
             callback: (data: Buffer) => {
                 data.toString('utf-8')
                     .split('\n')
+                    .filter((line) => line.trim() !== '')
                     .forEach((line) => {
-                        callback(JSON.parse(line) as models.EventMessage);
+                        callback(JSON.parse(line) as types.EventMessage);
                     });
             },
         });
@@ -333,16 +323,16 @@ export class DockerClient {
     /**
      * Get system information
      */
-    public async systemInfo(): Promise<models.SystemInfo> {
-        return this.api.get<models.SystemInfo>('/info');
+    public async systemInfo(): Promise<types.SystemInfo> {
+        return this.api.get<types.SystemInfo>('/info');
     }
 
     /**
      * Returns the version of Docker that is running and various information about the system that Docker is running on.
      * Get version
      */
-    public async systemVersion(): Promise<models.SystemVersion> {
-        return this.api.get<models.SystemVersion>('/version');
+    public async systemVersion(): Promise<types.SystemVersion> {
+        return this.api.get<types.SystemVersion>('/version');
     }
 
     // --- Containers API
@@ -378,7 +368,7 @@ export class DockerClient {
     public async containerArchiveInfo(
         id: string,
         path: string,
-    ): Promise<models.FileInfo> {
+    ): Promise<types.FileInfo> {
         return this.api
             .sendHTTPRequest('HEAD', `/containers/${id}/archive`, {
                 params: {
@@ -390,7 +380,7 @@ export class DockerClient {
                     'x-docker-container-path-stat'
                 ] as string;
                 const json = Buffer.from(header, 'base64').toString('utf-8');
-                return models.FileInfo.fromJSON(json);
+                return types.FileInfo.fromJSON(json);
             });
     }
 
@@ -446,8 +436,8 @@ export class DockerClient {
      */
     public async containerChanges(
         id: string,
-    ): Promise<Array<models.FilesystemChange>> {
-        return this.api.get<Array<models.FilesystemChange>>(
+    ): Promise<Array<types.FilesystemChange>> {
+        return this.api.get<Array<types.FilesystemChange>>(
             `/containers/${id}/changes`,
         );
     }
@@ -460,13 +450,13 @@ export class DockerClient {
      * @param options.platform Platform in the format 'os[/arch[/variant]]' used for image lookup.  When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a '404' status.  If the option is not set, the host\&#39;s native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the 'Warnings' field in the response, for example;      WARNING: The requested image\&#39;s platform (linux/arm64/v8) does not              match the detected host platform (linux/amd64) and no              specific platform was requested
      */
     public async containerCreate(
-        spec: models.ContainerCreateRequest,
+        spec: types.ContainerCreateRequest,
         options?: {
             name?: string;
             platform?: string;
         },
-    ): Promise<models.ContainerCreateResponse> {
-        return this.api.post<models.ContainerCreateResponse>(
+    ): Promise<types.ContainerCreateResponse> {
+        return this.api.post<types.ContainerCreateResponse>(
             '/containers/create',
             options,
             spec,
@@ -518,8 +508,8 @@ export class DockerClient {
         options?: {
             size?: boolean;
         },
-    ): Promise<models.ContainerInspectResponse> {
-        return this.api.get<models.ContainerInspectResponse>(
+    ): Promise<types.ContainerInspectResponse> {
+        return this.api.get<types.ContainerInspectResponse>(
             `/containers/${id}/json`,
             options,
         );
@@ -555,8 +545,8 @@ export class DockerClient {
         limit?: number;
         size?: boolean;
         filters?: Filter;
-    }): Promise<Array<models.ContainerSummary>> {
-        return this.api.get<Array<models.ContainerSummary>>(
+    }): Promise<Array<types.ContainerSummary>> {
+        return this.api.get<Array<types.ContainerSummary>>(
             '/containers/json',
             options,
         );
@@ -616,8 +606,8 @@ export class DockerClient {
      */
     public async containerPrune(options?: {
         filters?: string;
-    }): Promise<models.ContainerPruneResponse> {
-        return this.api.post<models.ContainerPruneResponse>(
+    }): Promise<types.ContainerPruneResponse> {
+        return this.api.post<types.ContainerPruneResponse>(
             '/containers/prune',
             options,
         );
@@ -699,8 +689,8 @@ export class DockerClient {
             stream?: boolean;
             oneShot?: boolean;
         },
-    ): Promise<models.ContainerStatsResponse> {
-        return this.api.get<models.ContainerStatsResponse>(
+    ): Promise<types.ContainerStatsResponse> {
+        return this.api.get<types.ContainerStatsResponse>(
             `/containers/${id}/stats`,
             {
                 stream: false, // FIXME implement streaming mode
@@ -741,8 +731,8 @@ export class DockerClient {
         options?: {
             psArgs?: string;
         },
-    ): Promise<models.ContainerTopResponse> {
-        return this.api.get<models.ContainerTopResponse>(
+    ): Promise<types.ContainerTopResponse> {
+        return this.api.get<types.ContainerTopResponse>(
             `/containers/${id}/top`,
             {
                 ps_args: options?.psArgs,
@@ -767,9 +757,9 @@ export class DockerClient {
      */
     public async containerUpdate(
         id: string,
-        update: models.ContainerUpdateRequest,
-    ): Promise<models.ContainerUpdateResponse> {
-        return this.api.post<models.ContainerUpdateResponse>(
+        update: types.ContainerUpdateRequest,
+    ): Promise<types.ContainerUpdateResponse> {
+        return this.api.post<types.ContainerUpdateResponse>(
             `/containers/${id}/update`,
             update,
         );
@@ -787,8 +777,8 @@ export class DockerClient {
         options?: {
             condition?: 'not-running' | 'next-exit' | 'removed';
         },
-    ): Promise<models.ContainerWaitResponse> {
-        return this.api.post<models.ContainerWaitResponse>(
+    ): Promise<types.ContainerWaitResponse> {
+        return this.api.post<types.ContainerWaitResponse>(
             `/containers/${id}/wait`,
             undefined,
             options,
@@ -836,7 +826,7 @@ export class DockerClient {
      */
     public async networkConnect(
         id: string,
-        container: models.NetworkConnectRequest,
+        container: types.NetworkConnectRequest,
     ): Promise<void> {
         return this.api.post(`/networks/${id}/connect`, container);
     }
@@ -846,8 +836,8 @@ export class DockerClient {
      * @param config Network configuration
      */
     public async networkCreate(
-        config: models.NetworkCreateRequest,
-    ): Promise<models.NetworkCreateResponse> {
+        config: types.NetworkCreateRequest,
+    ): Promise<types.NetworkCreateResponse> {
         return this.api.post('/networks/create', undefined, config);
     }
 
@@ -866,7 +856,7 @@ export class DockerClient {
      */
     public async networkDisconnect(
         id: string,
-        container: models.NetworkDisconnectRequest,
+        container: types.NetworkDisconnectRequest,
     ): Promise<void> {
         return this.api.post(`/networks/${id}/disconnect`, container);
     }
@@ -884,7 +874,7 @@ export class DockerClient {
             verbose?: boolean;
             scope?: string;
         },
-    ): Promise<models.NetworkInspect> {
+    ): Promise<types.NetworkInspect> {
         return this.api.get(`/networks/${id}`, options);
     }
 
@@ -896,7 +886,7 @@ export class DockerClient {
      */
     public async networkList(options?: {
         filters?: Filter;
-    }): Promise<Array<models.NetworkSummary>> {
+    }): Promise<Array<types.NetworkSummary>> {
         return this.api.get('/networks', options);
     }
 
@@ -906,7 +896,7 @@ export class DockerClient {
      */
     public async networkPrune(
         filters?: Filter,
-    ): Promise<models.NetworkPruneResponse> {
+    ): Promise<types.NetworkPruneResponse> {
         return this.api.post('/networks/prune', filters);
     }
 
@@ -917,8 +907,8 @@ export class DockerClient {
      * @param spec Volume configuration
      */
     public async volumeCreate(
-        spec: models.VolumeCreateOptions,
-    ): Promise<models.Volume> {
+        spec: types.VolumeCreateOptions,
+    ): Promise<types.Volume> {
         return this.api.post('/volumes/create', undefined, spec, {
             Accept: '*/*',
         });
@@ -944,7 +934,7 @@ export class DockerClient {
      * Inspect a volume
      * @param id Volume name or ID
      */
-    public async volumeInspect(id: string): Promise<models.Volume> {
+    public async volumeInspect(id: string): Promise<types.Volume> {
         return this.api.get(`/volumes/${id}`);
     }
 
@@ -954,7 +944,7 @@ export class DockerClient {
      */
     public async volumeList(
         filters?: Filter,
-    ): Promise<models.VolumeListResponse> {
+    ): Promise<types.VolumeListResponse> {
         return this.api.get(`/volumes`, {
             filters: filters,
         });
@@ -966,7 +956,7 @@ export class DockerClient {
      */
     public async volumePrune(
         filters?: Filter,
-    ): Promise<models.VolumePruneResponse> {
+    ): Promise<types.VolumePruneResponse> {
         return this.api.post('/volumes/prune', {
             filters: filters,
         });
@@ -981,7 +971,7 @@ export class DockerClient {
      */
     public async distributionInspect(
         name: string,
-    ): Promise<models.DistributionInspect> {
+    ): Promise<types.DistributionInspect> {
         return this.api.get(`/distribution/${name}/json`);
     }
 
@@ -999,8 +989,132 @@ export class DockerClient {
         minFreeSpace?: number;
         all?: boolean;
         filters?: Filter;
-    }): Promise<models.BuildPruneResponse> {
+    }): Promise<types.BuildPruneResponse> {
         return this.api.post('/build/prune', options);
+    }
+
+    /**
+     * Build an image from a tar archive with a `Dockerfile` in it.  The `Dockerfile` specifies how the image is built from the tar archive. It is typically in the archive\'s root, but can be at a different path or have a different name by specifying the `dockerfile` parameter. [See the `Dockerfile` reference for more information](https://docs.docker.com/engine/reference/builder/).  The Docker daemon performs a preliminary validation of the `Dockerfile` before starting the build, and returns an error if the syntax is incorrect. After that, each instruction is run one-by-one until the ID of the new image is output.  The build is canceled if the client drops the connection by quitting or being killed.
+     * Build an image
+     *
+     * @param buildContext A tar archive compressed with one of the following algorithms: identity (no compression), gzip, bzip2, xz.
+     * @param dockerfile Path within the build context to the &#x60;Dockerfile&#x60;. This is ignored if &#x60;remote&#x60; is specified and points to an external &#x60;Dockerfile&#x60;.
+     * @param t A name and optional tag to apply to the image in the &#x60;name:tag&#x60; format. If you omit the tag the default &#x60;latest&#x60; value is assumed. You can provide several &#x60;t&#x60; parameters.
+     * @param extrahosts Extra hosts to add to /etc/hosts
+     * @param remote A Git repository URI or HTTP/HTTPS context URI. If the URI points to a single text file, the file’s contents are placed into a file called &#x60;Dockerfile&#x60; and the image is built from that file. If the URI points to a tarball, the file is downloaded by the daemon and the contents therein used as the context for the build. If the URI points to a tarball and the &#x60;dockerfile&#x60; parameter is also specified, there must be a file with the corresponding path inside the tarball.
+     * @param q Suppress verbose build output.
+     * @param nocache Do not use the cache when building the image.
+     * @param cachefrom JSON array of images used for build cache resolution.
+     * @param pull Attempt to pull the image even if an older image exists locally.
+     * @param rm Remove intermediate containers after a successful build.
+     * @param forcerm Always remove intermediate containers, even upon failure.
+     * @param memory Set memory limit for build.
+     * @param memswap Total memory (memory + swap). Set as &#x60;-1&#x60; to disable swap.
+     * @param cpushares CPU shares (relative weight).
+     * @param cpusetcpus CPUs in which to allow execution (e.g., &#x60;0-3&#x60;, &#x60;0,1&#x60;).
+     * @param cpuperiod The length of a CPU period in microseconds.
+     * @param cpuquota Microseconds of CPU time that the container can get in a CPU period.
+     * @param buildargs JSON map of string pairs for build-time variables. Users pass these values at build-time. Docker uses the buildargs as the environment context for commands run via the &#x60;Dockerfile&#x60; RUN instruction, or for variable expansion in other &#x60;Dockerfile&#x60; instructions. This is not meant for passing secret values.  For example, the build arg &#x60;FOO&#x3D;bar&#x60; would become &#x60;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60; in JSON. This would result in the query parameter &#x60;buildargs&#x3D;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60;. Note that &#x60;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60; should be URI component encoded.  [Read more about the buildargs instruction.](https://docs.docker.com/engine/reference/builder/#arg)
+     * @param shmsize Size of &#x60;/dev/shm&#x60; in bytes. The size must be greater than 0. If omitted the system uses 64MB.
+     * @param squash Squash the resulting images layers into a single layer. *(Experimental release only.)*
+     * @param labels Arbitrary key/value labels to set on the image, as a JSON map of string pairs.
+     * @param networkmode Sets the networking mode for the run commands during build. Supported standard values are: &#x60;bridge&#x60;, &#x60;host&#x60;, &#x60;none&#x60;, and &#x60;container:&lt;name|id&gt;&#x60;. Any other value is taken as a custom network\&#39;s name or ID to which this container should connect to.
+     * @param contentType
+     * @param xRegistryConfig This is a base64-encoded JSON object with auth configurations for multiple registries that a build may refer to.  The key is a registry URL, and the value is an auth configuration object, [as described in the authentication section](#section/Authentication). For example:  &#x60;&#x60;&#x60; {   \&quot;docker.example.com\&quot;: {     \&quot;username\&quot;: \&quot;janedoe\&quot;,     \&quot;password\&quot;: \&quot;hunter2\&quot;   },   \&quot;https://index.docker.io/v1/\&quot;: {     \&quot;username\&quot;: \&quot;mobydock\&quot;,     \&quot;password\&quot;: \&quot;conta1n3rize14\&quot;   } } &#x60;&#x60;&#x60;  Only the registry domain name (and port if not the default 443) are required. However, for legacy reasons, the Docker Hub registry must be specified with both a &#x60;https://&#x60; prefix and a &#x60;/v1/&#x60; suffix even though Docker will prefer to use the v2 registry API.
+     * @param platform Platform in the format os[/arch[/variant]]
+     * @param target Target build stage
+     * @param outputs BuildKit output configuration in the format of a stringified JSON array of objects. Each object must have two top-level properties: &#x60;Type&#x60; and &#x60;Attrs&#x60;. The &#x60;Type&#x60; property must be set to \&#39;moby\&#39;. The &#x60;Attrs&#x60; property is a map of attributes for the BuildKit output configuration. See https://docs.docker.com/build/exporters/oci-docker/ for more information.  Example:  &#x60;&#x60;&#x60; [{\&quot;Type\&quot;:\&quot;moby\&quot;,\&quot;Attrs\&quot;:{\&quot;type\&quot;:\&quot;image\&quot;,\&quot;force-compression\&quot;:\&quot;true\&quot;,\&quot;compression\&quot;:\&quot;zstd\&quot;}}] &#x60;&#x60;&#x60;
+     * @param version Version of the builder backend to use.  - &#x60;1&#x60; is the first generation classic (deprecated) builder in the Docker daemon (default) - &#x60;2&#x60; is [BuildKit](https://github.com/moby/buildkit)
+     */
+    public async imageBuild(
+        buildContext: stream.Readable,
+        callback: (event: types.BuildInfo) => void,
+        options?: {
+            dockerfile?: string;
+            tag?: string;
+            extrahosts?: string;
+            remote?: string;
+            quiet?: boolean;
+            nocache?: boolean;
+            cachefrom?: string;
+            pull?: string;
+            rm?: boolean;
+            forcerm?: boolean;
+            memory?: number;
+            memswap?: number;
+            cpushares?: number;
+            cpusetcpus?: string;
+            cpuperiod?: number;
+            cpuquota?: number;
+            buildargs?: string;
+            shmsize?: number;
+            squash?: boolean;
+            labels?: string;
+            networkmode?: string;
+            credentials?: Record<string, AuthConfig>;
+            platform?: string;
+            target?: string;
+            outputs?: string;
+            version?: '1' | '2';
+        },
+    ): Promise<string> {
+        const headers: Record<string, string> = {};
+        headers['Content-Type'] = 'application/x-tar';
+
+        if (options?.credentials) {
+            headers['X-Registry-Config'] = this.authCredentials(
+                options.credentials,
+            );
+        }
+        let imageID: string;
+        return this.api
+            .post(
+                '/build',
+                {
+                    dockerfile: options?.dockerfile,
+                    t: options?.tag,
+                    extrahosts: options?.extrahosts,
+                    remote: options?.remote,
+                    q: options?.quiet,
+                    nocache: options?.nocache,
+                    cachefrom: options?.cachefrom,
+                    pull: options?.pull,
+                    rm: options?.rm,
+                    forcerm: options?.forcerm,
+                    memory: options?.memory,
+                    memswap: options?.memswap,
+                    cpushares: options?.cpushares,
+                    cpusetcpus: options?.cpusetcpus,
+                    cpuperiod: options?.cpuperiod,
+                    cpuquota: options?.cpuquota,
+                    buildargs: options?.buildargs,
+                    shmsize: options?.shmsize,
+                    squash: options?.squash,
+                    labels: options?.labels,
+                    networkmode: options?.networkmode,
+                    platform: options?.platform,
+                    target: options?.target,
+                    outputs: options?.outputs,
+                    version: options?.version || '2',
+                },
+                buildContext,
+                headers,
+                (data: Buffer) => {
+                    data.toString('utf-8')
+                        .split('\n')
+                        .filter((line) => line.trim() !== '')
+                        .forEach((line) => {
+                            let buildInfo = JSON.parse(line) as types.BuildInfo;
+                            if (buildInfo.id === 'moby.image.id') {
+                                imageID = buildInfo.aux?.ID || '';
+                            }
+                            callback(buildInfo);
+                        });
+                },
+            )
+            .then(() => {
+                return imageID;
+            });
     }
 
     /**
@@ -1023,9 +1137,9 @@ export class DockerClient {
             author?: string;
             pause?: boolean;
             changes?: string;
-            containerConfig?: models.ContainerConfig;
+            containerConfig?: types.ContainerConfig;
         },
-    ): Promise<models.IDResponse> {
+    ): Promise<types.IDResponse> {
         return this.api.post(`/commit`, {
             container: container,
             repo: options?.repo,
@@ -1061,7 +1175,7 @@ export class DockerClient {
             repo?: string;
             tag?: string;
             message?: string;
-            credentials?: Credentials | IdentityToken;
+            credentials?: AuthConfig;
             changes?: Array<string>;
             platform?: string;
             inputImage?: string;
@@ -1092,10 +1206,9 @@ export class DockerClient {
             (data: Buffer) => {
                 data.toString('utf-8')
                     .split('\n')
+                    .filter((line) => line.trim() !== '')
                     .forEach((line) => {
-                        if (line) {
-                            callback(JSON.parse(line));
-                        }
+                        callback(JSON.parse(line));
                     });
             },
         );
@@ -1117,7 +1230,7 @@ export class DockerClient {
             noprune?: boolean;
             platforms?: Array<string>;
         },
-    ): Promise<Array<models.ImageDeleteResponseItem>> {
+    ): Promise<Array<types.ImageDeleteResponseItem>> {
         return this.api.delete(`/images/${name}`, options);
     }
 
@@ -1130,7 +1243,7 @@ export class DockerClient {
     public async imageGet(
         name: string,
         w: stream.Writable,
-        platform?: models.Platform,
+        platform?: types.Platform,
     ): Promise<void> {
         return this.api.get(
             `/images/${name}/get`,
@@ -1150,7 +1263,7 @@ export class DockerClient {
      */
     public async imageGetAll(
         names: Array<string>,
-        platform?: models.Platform,
+        platform?: types.Platform,
     ): Promise<stream.Readable> {
         return this.api.get(`/images/get`, {
             names: names,
@@ -1170,7 +1283,7 @@ export class DockerClient {
         options?: {
             platform?: string;
         },
-    ): Promise<Array<models.HistoryResponseItem>> {
+    ): Promise<Array<types.HistoryResponseItem>> {
         return this.api.get(`/image/${name}/history`, options);
     }
 
@@ -1186,7 +1299,7 @@ export class DockerClient {
         options?: {
             manifests?: boolean;
         },
-    ): Promise<models.ImageInspect> {
+    ): Promise<types.ImageInspect> {
         return this.api.get(`/images/${name}/json`, options);
     }
 
@@ -1206,7 +1319,7 @@ export class DockerClient {
         sharedSize?: boolean;
         digests?: boolean;
         manifests?: boolean;
-    }): Promise<Array<models.ImageSummary>> {
+    }): Promise<Array<types.ImageSummary>> {
         return this.api.get('/images/json', options);
     }
 
@@ -1242,7 +1355,7 @@ export class DockerClient {
      */
     public async imagePrune(
         filters?: Filter,
-    ): Promise<models.ImagePruneResponse> {
+    ): Promise<types.ImagePruneResponse> {
         return this.api.post(`/images/prune`, {
             filters: filters,
         });
@@ -1259,7 +1372,7 @@ export class DockerClient {
     public async imagePush(
         name: string,
         options: {
-            credentials: Credentials | IdentityToken;
+            credentials: AuthConfig;
             tag?: string;
             platform?: Platform;
             callback: (event: any) => void;
@@ -1313,8 +1426,8 @@ export class DockerClient {
      */
     public async containerExec(
         id: string,
-        execConfig: models.ExecConfig,
-    ): Promise<models.IDResponse> {
+        execConfig: types.ExecConfig,
+    ): Promise<types.IDResponse> {
         return this.api.post(`/containers/${id}/exec`, undefined, execConfig);
     }
 
@@ -1323,7 +1436,7 @@ export class DockerClient {
      * Inspect an exec instance
      * @param id Exec instance ID
      */
-    public async execInspect(id: string): Promise<models.ExecInspectResponse> {
+    public async execInspect(id: string): Promise<types.ExecInspectResponse> {
         return this.api.get(`/exec/${id}/json`);
     }
 
@@ -1353,7 +1466,7 @@ export class DockerClient {
      */
     public async execStart(
         id: string,
-        execStartConfig?: models.ExecStartConfig,
+        execStartConfig?: types.ExecStartConfig,
     ): Promise<void> {
         return this.api.post(`/exec/${id}/start`, undefined, execStartConfig);
     }

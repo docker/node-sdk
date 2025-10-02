@@ -3,10 +3,11 @@ templateDir: templates
 importFileExtension: .js
 supportsES6: true
 platform: node
+modelPackage: types
 globalProperties:
-    supportingFiles: models/index.ts
+    supportingFiles: types/index.ts
     models: ""
 files:
     model/index.mustache:
         templateType: SupportingFiles
-        destinationFilename: models/index.ts
+        destinationFilename: types/index.ts

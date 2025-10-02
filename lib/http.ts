@@ -30,6 +30,30 @@ export class ConflictError extends Error {
     }
 }
 
+// Function to parse content-type header and extract charset parameter
+function parseContentType(contentType?: string): {
+    type: string;
+    charset?: string;
+} {
+    if (!contentType) {
+        return { type: '' };
+    }
+
+    const parts = contentType.split(';').map((part) => part.trim());
+    const type = parts[0]?.toLowerCase() || '';
+
+    let charset: string | undefined;
+    for (let i = 1; i < parts.length; i++) {
+        const param = parts[i]?.toLowerCase() || '';
+        if (param.startsWith('charset=')) {
+            charset = param.split('=')[1];
+            break;
+        }
+    }
+
+    return { type, charset };
+}
+
 // Function to extract error message from response body
 function getErrorMessageFromResp(
     res: http.IncomingMessage,
@@ -77,7 +101,7 @@ export class HTTPClient {
         options?: {
             params?: Record<string, any>;
             data?: any;
-            callback?: (data: Buffer) => void;
+            callback?: (data: Buffer, encoding?: string) => void;
             accept?: string;
             headers?: Record<string, string>;
         },
@@ -191,14 +215,16 @@ export class HTTPClient {
 
                 // Check for Docker stream content types
                 const contentType = res.headers['content-type'];
+                const { type: mimeType, charset } =
+                    parseContentType(contentType);
                 const isDockerStream =
-                    contentType === DOCKER_RAW_STREAM ||
-                    contentType === DOCKER_MULTIPLEXED_STREAM;
+                    mimeType === DOCKER_RAW_STREAM ||
+                    mimeType === DOCKER_MULTIPLEXED_STREAM;
 
                 if (isDockerStream && callback) {
                     // For upgrade protocols, forward all data directly to callback
                     res.on('data', (data: Buffer) => {
-                        callback(data);
+                        callback(data, charset || 'utf8');
                     });
 
                     // Resolve immediately with upgrade response
@@ -212,7 +238,7 @@ export class HTTPClient {
                     callback
                 ) {
                     res.on('data', (chunk: Buffer) => {
-                        callback(chunk);
+                        callback(chunk, charset);
                     });
 
                     res.on('end', () => handleResponseEnd());
