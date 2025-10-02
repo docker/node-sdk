@@ -299,8 +299,8 @@ export class DockerClient {
     ) {
         await this.api.sendHTTPRequest('GET', '/events', {
             params: options,
-            callback: (data: Buffer) => {
-                data.toString('utf-8')
+            callback: (data: Buffer, encoding?: BufferEncoding) => {
+                data.toString(encoding)
                     .split('\n')
                     .filter((line) => line.trim() !== '')
                     .forEach((line) => {
@@ -489,11 +489,18 @@ export class DockerClient {
     /**
      * Export the contents of a container as a tarball.
      * Export a container
-     * @param options
-     * @param options.id ID or name of the container
+     * @param id ID or name of the container
      */
-    public async containerExport(options?: { id: string }): Promise<void> {
-        // TODO
+    public async containerExport(
+        id: string,
+        w: stream.Writable,
+    ): Promise<void> {
+        return this.api.get<void>(
+            `/containers/${id}/export`,
+            undefined,
+            'application/x-tar',
+            (data: any) => w.write(data),
+        );
     }
 
     /**
@@ -1099,8 +1106,8 @@ export class DockerClient {
                 },
                 buildContext,
                 headers,
-                (data: Buffer) => {
-                    data.toString('utf-8')
+                (data: Buffer, encoding?: BufferEncoding) => {
+                    data.toString(encoding)
                         .split('\n')
                         .filter((line) => line.trim() !== '')
                         .forEach((line) => {
@@ -1203,8 +1210,8 @@ export class DockerClient {
             },
             undefined,
             headers,
-            (data: Buffer) => {
-                data.toString('utf-8')
+            (data: Buffer, encoding?: BufferEncoding) => {
+                data.toString(encoding)
                     .split('\n')
                     .filter((line) => line.trim() !== '')
                     .forEach((line) => {

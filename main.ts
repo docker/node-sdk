@@ -18,14 +18,8 @@ try {
             return value.Id;
         });
 
-    const fileinfo = await docker.containerArchiveInfo(ctr, '/etc/resolv.conf');
-    console.dir(fileinfo, { depth: null });
-
     const out = fs.createWriteStream('/tmp/test.tar');
-    await docker.containerArchive(ctr, '/etc/resolv.conf', out);
-
-    const input = fs.createReadStream('/tmp/test.tar');
-    await docker.putContainerArchive(ctr, '/etc', input);
+    await docker.containerExport(ctr, out);
 
     docker.close();
 } catch (error) {
