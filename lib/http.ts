@@ -85,9 +85,11 @@ export interface HTTPResponse {
  */
 export class HTTPClient {
     private agent: http.Agent;
+    private userAgent: string;
 
-    constructor(agent: http.Agent) {
+    constructor(agent: http.Agent, userAgent: string) {
         this.agent = agent;
+        this.userAgent = userAgent;
     }
 
     close() {
@@ -122,7 +124,7 @@ export class HTTPClient {
             // Prepare headers
             const requestHeaders: Record<string, string> = {
                 Host: 'host',
-                'User-Agent': 'node-sdk/0.0.1',
+                'User-Agent': this.userAgent,
                 Accept: accept,
                 ...headers,
             };

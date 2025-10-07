@@ -24,8 +24,8 @@ import type { SecureContextOptions } from 'tls';
 export class DockerClient {
     private api: HTTPClient;
 
-    constructor(agent: http.Agent) {
-        this.api = new HTTPClient(agent);
+    constructor(agent: http.Agent, userAgent: string = 'docker/node-sdk') {
+        this.api = new HTTPClient(agent, userAgent);
     }
 
     /**
@@ -37,6 +37,7 @@ export class DockerClient {
     static fromDockerHost(
         dockerHost: string,
         certificates?: string | SecureContextOptions,
+        userAgent?: string,
     ): Promise<DockerClient> {
         return new Promise((resolve, reject) => {
             if (dockerHost.startsWith('unix:')) {
@@ -47,7 +48,7 @@ export class DockerClient {
                     const agent = new SocketAgent(() =>
                         net.createConnection(socketPath),
                     );
-                    resolve(new DockerClient(agent));
+                    resolve(new DockerClient(agent, userAgent));
                 } catch (error) {
                     reject(
                         new Error(
@@ -84,7 +85,7 @@ export class DockerClient {
                         );
                     }
 
-                    resolve(new DockerClient(agent));
+                    resolve(new DockerClient(agent, userAgent));
                 } catch (error) {
                     reject(
                         new Error(
@@ -98,7 +99,7 @@ export class DockerClient {
                     const agent = new SocketAgent(
                         SSH.createSocketFactory(dockerHost),
                     );
-                    resolve(new DockerClient(agent));
+                    resolve(new DockerClient(agent, userAgent));
                 } catch (error) {
                     reject(
                         new Error(
@@ -124,6 +125,7 @@ export class DockerClient {
      */
     static async fromDockerContext(
         contextName?: string,
+        userAgent?: string,
     ): Promise<DockerClient> {
         // Use DOCKER_CONTEXT environment variable if contextName not provided
         const targetContext = contextName || process.env.DOCKER_CONTEXT;
@@ -133,12 +135,10 @@ export class DockerClient {
                 'No context name provided and DOCKER_CONTEXT environment variable is not set',
             );
         }
-        const contextsDir = path.join(
-            os.homedir(),
-            '.docker',
-            'contexts',
-            'meta',
-        );
+
+        const configDir = process.env.DOCKER_CONFIG || os.homedir();
+        const contextsDir = path.join(configDir, '.docker', 'contexts', 'meta');
+        const tlsDir = path.join(configDir, '.docker', 'contexts', 'tls');
 
         try {
             // Read all directories in the contexts meta directory
@@ -170,7 +170,17 @@ export class DockerClient {
                                 meta.Endpoints.docker.Host
                             ) {
                                 const dockerHost = meta.Endpoints.docker.Host;
-                                return DockerClient.fromDockerHost(dockerHost);
+                                let certificates: string | undefined =
+                                    undefined;
+                                const tls = path.join(tlsDir, contextDir);
+                                if (fs.existsSync(tls)) {
+                                    certificates = tls;
+                                }
+                                return DockerClient.fromDockerHost(
+                                    dockerHost,
+                                    certificates,
+                                    userAgent,
+                                );
                             } else {
                                 throw new Error(
                                     `Docker context '${targetContext}' found but has no valid Docker endpoint`,
