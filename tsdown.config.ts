@@ -16,6 +16,6 @@ export default defineConfig({
     target: ['es2022', 'node18'],
     platform: 'node',
     tsconfig: './tsconfig.json',
-    nodeProtocol: 'strip',
+    nodeProtocol: true,
     skipNodeModulesBundle: false,
 });
