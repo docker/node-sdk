@@ -17,24 +17,19 @@
   },
   "type": "module",
   "license": "Apache-2.0",
-  "main": "dist/index.mjs",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/index.mjs"
+        "default": "./dist/index.js"
       },
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       },
-      "default": "./dist/index.mjs"
-    },
-    "./dist/*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.mjs",
-      "require": "./dist/*.cjs"
+      "default": "./dist/index.js"
     }
   },
   "files": [
@@ -43,7 +38,7 @@
   ],
   "scripts": {
     "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o lib && npm run format",
-    "build": "npm run generate && tsup",
+    "build": "npm run generate && tsdown",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --type-aware",
@@ -62,7 +57,7 @@
     "oxlint": "^1.16.0",
     "oxlint-tsgolint": "^0.2.0",
     "prettier": "^3.6.2",
-    "tsup": "^8.5.0",
+    "tsdown": "^0.15.6",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },

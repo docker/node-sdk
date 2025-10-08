@@ -1,27 +1,20 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsdown';
 
 export default defineConfig({
     entry: ['lib/index.ts'],
 
     format: ['cjs', 'esm'],
-    dts: true,
+    dts: {
+        sourcemap: true,
+    },
     minify: false,
     outDir: 'dist/',
     clean: true,
     sourcemap: true,
-    bundle: true,
-    splitting: false,
+    unbundle: false,
     treeshake: false,
     target: 'es2022',
     platform: 'node',
     tsconfig: './tsconfig.json',
-    cjsInterop: true,
-    keepNames: true,
     skipNodeModulesBundle: false,
-    outExtension(ctx) {
-        return {
-            dts: '.d.ts',
-            js: ctx.format === 'cjs' ? '.cjs' : '.mjs',
-        };
-    },
 });
