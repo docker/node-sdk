@@ -27,7 +27,8 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4.0.3
+            - name: Setup Node
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4.0.3
               with:
                   cache: npm
                   node-version-file: .node-version
@@ -55,14 +56,19 @@ jobs:
                   npm test
               env:
                   DOCKER_HOST: ${{ steps.engine.outputs.sock }}
-#            - name: Integration Test - ESM Import - Install
-#              run: |
-#                  npm install --install-links --prefix ./test-integration/esm-project
-#            - name: Integration Test - ESM Import - Test
-#              run: |
-#                  npm run test --prefix ./test-integration/esm-project
-#            - name: Integration Test - CJS Import
-#              working-directory: ./test-integration/esm-project
-#              run: |
-#                  npm install --install-links
-#                  npm run test
+
+            - name: Install
+              run: |
+                  npm run build
+
+            - name: Integration tests ESM
+              working-directory: ./test-integration/esm-project
+              run: |
+                  npm install --install-links
+                  npm run test
+
+            - name: Integration tests CJS
+              working-directory: ./test-integration/cjs-project
+              run: |
+                  npm install --install-links
+                  npm run test
