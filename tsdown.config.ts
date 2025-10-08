@@ -13,9 +13,9 @@ export default defineConfig({
     sourcemap: true,
     unbundle: false,
     treeshake: false,
-    target: 'es2022',
+    target: ['es2022', 'node10.16.0'],
     platform: 'node',
     tsconfig: './tsconfig.json',
-    nodeProtocol: true,
+    nodeProtocol: 'strip',
     skipNodeModulesBundle: false,
 });

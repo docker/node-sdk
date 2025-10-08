@@ -63,7 +63,7 @@
     "vitest": "^3.2.4"
   },
   "engines": {
-    "node": ">=22.19.0"
+      "node": ">=10.16.0"
   },
   "packageManager": "npm@10.9.3"
 }
