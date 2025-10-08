@@ -1,16 +1,18 @@
 {
-  "name": "esm-project",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "test": "node --test"
-  },
-  "type": "module",
-  "dependencies": {
-    "@docker/node-sdk": "file:../.."
-  },
-  "devDependencies": {
-    "@types/node": "^24.5.2",
-    "typescript": "^5.9.2"
-  }
+    "name": "esm-project",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "test": "tsx --test import.test.ts",
+        "start": "tsx main.ts"
+    },
+    "type": "module",
+    "dependencies": {
+        "@docker/node-sdk": "file:../.."
+    },
+    "devDependencies": {
+        "@types/node": "^24.5.2",
+        "tsx": "^4.20.6",
+        "typescript": "^5.9.2"
+    }
 }
