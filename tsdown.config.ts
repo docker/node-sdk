@@ -13,7 +13,7 @@ export default defineConfig({
     sourcemap: true,
     unbundle: false,
     treeshake: false,
-    target: ['es2022', 'node10.16.0'],
+    target: ['es2022', 'node18'],
     platform: 'node',
     tsconfig: './tsconfig.json',
     nodeProtocol: 'strip',
