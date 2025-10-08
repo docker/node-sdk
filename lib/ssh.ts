@@ -1,7 +1,7 @@
-import * as net from 'net';
-import { promises as fsPromises } from 'fs';
-import * as path from 'path';
-import * as os from 'os';
+import { Socket } from 'node:net';
+import { promises as fsPromises } from 'node:fs';
+import { join } from 'node:path';
+import { homedir } from 'node:os';
 import { Client } from 'ssh2';
 
 /**
@@ -14,9 +14,9 @@ export class SSH {
      */
     private static async getPrivateKey(): Promise<Buffer | undefined> {
         const keyPaths = [
-            path.join(os.homedir(), '.ssh', 'id_rsa'),
-            path.join(os.homedir(), '.ssh', 'id_ed25519'),
-            path.join(os.homedir(), '.ssh', 'id_ecdsa'),
+            join(homedir(), '.ssh', 'id_rsa'),
+            join(homedir(), '.ssh', 'id_ed25519'),
+            join(homedir(), '.ssh', 'id_ecdsa'),
         ];
 
         for (const keyPath of keyPaths) {
@@ -35,9 +35,7 @@ export class SSH {
      * @param sshHost SSH host string (e.g., "ssh://user@host:22/var/run/docker.sock")
      * @returns Function that creates new SSH socket connections
      */
-    static async createSocketFactory(
-        sshHost: string,
-    ): Promise<() => net.Socket> {
+    static async createSocketFactory(sshHost: string): Promise<() => Socket> {
         // Preload the private key asynchronously
         const privateKey = await SSH.getPrivateKey();
 
@@ -83,7 +81,7 @@ export class SSH {
         // Return factory function that creates new SSH connections
         return () => {
             const conn = new Client();
-            const sshStream = new net.Socket();
+            const sshStream = new Socket();
 
             conn.on('ready', () => {
                 // Create a Unix socket connection through SSH

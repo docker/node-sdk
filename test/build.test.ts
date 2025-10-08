@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
-import * as tar from 'tar-stream';
+import { pack as createTarPack } from 'tar-stream';
 import { fail } from 'node:assert';
 
 test('imageBuild: build image from Dockerfile with tar-stream context', async () => {
@@ -9,7 +9,7 @@ test('imageBuild: build image from Dockerfile with tar-stream context', async ()
     const testTag = 'latest';
 
     try {
-        const pack = tar.pack();
+        const pack = createTarPack();
         pack.entry(
             { name: 'Dockerfile' },
             `FROM scratch

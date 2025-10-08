@@ -1,5 +1,6 @@
-import * as http from 'http';
-import * as stream from 'stream';
+import type { Agent, IncomingMessage, RequestOptions } from 'node:http';
+import { request } from 'node:http';
+import type { Readable, Writable, Duplex } from 'node:stream';
 import { getErrorMessage } from './util.js';
 
 // Docker stream content type constants
@@ -56,7 +57,7 @@ function parseContentType(contentType?: string): {
 
 // Function to extract error message from response body
 function getErrorMessageFromResp(
-    res: http.IncomingMessage,
+    res: IncomingMessage,
     body: string | undefined,
 ): string | undefined {
     const contentType = res.headers['content-type']?.toLowerCase();
@@ -75,7 +76,7 @@ export interface HTTPResponse {
     statusCode?: number;
     headers: { [key: string]: string };
     body?: string;
-    sock?: stream.Duplex;
+    sock?: Duplex;
 }
 
 /**
@@ -84,10 +85,10 @@ export interface HTTPResponse {
  * Handles chunked transfer encoding and provides streaming response callbacks.
  */
 export class HTTPClient {
-    private agent: http.Agent;
+    private agent: Agent;
     private userAgent: string;
 
-    constructor(agent: http.Agent, userAgent: string) {
+    constructor(agent: Agent, userAgent: string) {
         this.agent = agent;
         this.userAgent = userAgent;
     }
@@ -130,7 +131,7 @@ export class HTTPClient {
             };
 
             // Prepare body data and headers
-            let body: string | NodeJS.ReadableStream | undefined;
+            let body: string | Readable | undefined;
             if (data) {
                 // Check if body is a stream
                 if (
@@ -139,7 +140,7 @@ export class HTTPClient {
                     typeof (data as any).read === 'function'
                 ) {
                     // Use chunked transfer encoding for streams
-                    body = data as stream.Readable;
+                    body = data as Readable;
                     requestHeaders['Transfer-Encoding'] = 'chunked';
                 } else {
                     // Convert to JSON string for objects
@@ -150,7 +151,7 @@ export class HTTPClient {
             }
 
             // Create HTTP request options using our instance agent
-            const requestOptions: http.RequestOptions = {
+            const requestOptions: RequestOptions = {
                 method,
                 host: 'dockerhost',
                 path,
@@ -160,7 +161,7 @@ export class HTTPClient {
 
             // Helper function to create response object
             const createResponse = (
-                res: http.IncomingMessage,
+                res: IncomingMessage,
                 body?: string,
             ): HTTPResponse => {
                 const responseHeaders: { [key: string]: string } = {};
@@ -179,7 +180,7 @@ export class HTTPClient {
                 };
             };
 
-            const req = http.request(requestOptions, (res) => {
+            const req = request(requestOptions, (res) => {
                 let responseBody = '';
 
                 // Helper function to handle response completion
@@ -272,7 +273,7 @@ export class HTTPClient {
                     req.write(body);
                     req.end();
                 } else {
-                    const input = body as stream.Readable;
+                    const input = body as Readable;
                     input.pipe(req);
                 }
             } else {
