@@ -2,8 +2,8 @@ import { defineConfig } from 'tsdown';
 
 export default defineConfig({
     entry: ['lib/index.ts'],
-
     format: ['cjs', 'esm'],
+    fixedExtension: true,
     dts: {
         sourcemap: true,
     },
@@ -16,5 +16,6 @@ export default defineConfig({
     target: 'es2022',
     platform: 'node',
     tsconfig: './tsconfig.json',
+    nodeProtocol: true,
     skipNodeModulesBundle: false,
 });
