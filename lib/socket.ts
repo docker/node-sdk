@@ -1,16 +1,16 @@
-import * as net from 'net';
-import type { ClientRequestArgs } from 'http';
-import * as http from 'http';
-import * as stream from 'stream';
+import type { Socket } from 'node:net';
+import type { ClientRequestArgs } from 'node:http';
+import { Agent } from 'node:http';
+import type { Duplex } from 'node:stream';
 
 /**
  * HTTP Agent that creates socket connections using a provided factory function.
  * This allows flexible socket creation strategies while supporting connection pooling.
  */
-export class SocketAgent extends http.Agent {
-    private socketFactory: () => net.Socket;
+export class SocketAgent extends Agent {
+    private socketFactory: () => Socket;
 
-    constructor(createSocketFn: () => net.Socket) {
+    constructor(createSocketFn: () => Socket) {
         super({
             keepAlive: true,
             keepAliveMsecs: 30000,
@@ -26,8 +26,8 @@ export class SocketAgent extends http.Agent {
         // Override createConnection to use our socket factory
         this.createConnection = (
             options: ClientRequestArgs,
-            callback?: (err: Error | null, socket: stream.Duplex) => void,
-        ): stream.Duplex => {
+            callback?: (err: Error | null, socket: Duplex) => void,
+        ): Duplex => {
             const socket = this.socketFactory();
             socket.setNoDelay(true);
             socket.setKeepAlive(true, 30000);

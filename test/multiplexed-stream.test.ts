@@ -1,6 +1,6 @@
 import { assert, test } from 'vitest';
 import { demultiplexStream } from '../lib/multiplexed-stream.js';
-import { Writable } from 'stream';
+import { Writable } from 'node:stream';
 
 function createMockStream(): { stream: Writable; data: Buffer[] } {
     const data: Buffer[] = [];

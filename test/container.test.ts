@@ -1,7 +1,7 @@
 import { assert, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { Filter } from '../lib/filter.js';
-import { Writable } from 'stream';
+import { Writable } from 'node:stream';
 
 // Test Docker Container API functionality
 

@@ -1,9 +1,9 @@
-import * as net from 'net';
-import { promises as fsPromises } from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import * as http from 'http';
-import * as tls from 'tls';
+import { createConnection } from 'node:net';
+import { promises as fsPromises } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import type { Agent } from 'node:http';
+import { connect as tlsConnect } from 'node:tls';
 import * as types from './types/index.js';
 import { HTTPClient } from './http.js';
 import { SocketAgent } from './socket.js';
@@ -18,13 +18,13 @@ import {
     parseDockerHost,
 } from './util.js';
 import type { AuthConfig, Platform } from './types/index.js';
-import type { SecureContextOptions } from 'tls';
+import type { SecureContextOptions } from 'node:tls';
 
 // noinspection JSUnusedGlobalSymbols
 export class DockerClient {
     private api: HTTPClient;
 
-    constructor(agent: http.Agent, userAgent: string = 'docker/node-sdk') {
+    constructor(agent: Agent, userAgent: string = 'docker/node-sdk') {
         this.api = new HTTPClient(agent, userAgent);
     }
 
@@ -45,7 +45,7 @@ export class DockerClient {
 
             try {
                 const agent = new SocketAgent(() =>
-                    net.createConnection(socketPath),
+                    createConnection(socketPath),
                 );
                 return new DockerClient(agent, userAgent);
             } catch (error) {
@@ -67,18 +67,18 @@ export class DockerClient {
                         const tlsOptions =
                             await TLS.loadCertificates(certificates);
                         agent = new SocketAgent(() =>
-                            tls.connect({ host, port, ...tlsOptions }),
+                            tlsConnect({ host, port, ...tlsOptions }),
                         );
                     } else {
                         // certificates is a SecureContextOptions type
                         agent = new SocketAgent(() =>
-                            tls.connect({ host, port, ...certificates }),
+                            tlsConnect({ host, port, ...certificates }),
                         );
                     }
                 } else {
                     // Use SocketAgent with plain TCP socket creation function
                     agent = new SocketAgent(() =>
-                        net.createConnection({ host, port }),
+                        createConnection({ host, port }),
                     );
                 }
 
@@ -124,9 +124,9 @@ export class DockerClient {
             );
         }
 
-        const configDir = process.env.DOCKER_CONFIG || os.homedir();
-        const contextsDir = path.join(configDir, '.docker', 'contexts', 'meta');
-        const tlsDir = path.join(configDir, '.docker', 'contexts', 'tls');
+        const configDir = process.env.DOCKER_CONFIG || homedir();
+        const contextsDir = join(configDir, '.docker', 'contexts', 'meta');
+        const tlsDir = join(configDir, '.docker', 'contexts', 'tls');
 
         try {
             // Read all directories in the contexts meta directory
@@ -138,11 +138,7 @@ export class DockerClient {
                 .map((dirent) => dirent.name);
 
             for (const contextDir of contextDirs) {
-                const metaJsonPath = path.join(
-                    contextsDir,
-                    contextDir,
-                    'meta.json',
-                );
+                const metaJsonPath = join(contextsDir, contextDir, 'meta.json');
 
                 try {
                     const metaContent = await fsPromises.readFile(
@@ -160,7 +156,7 @@ export class DockerClient {
                         ) {
                             const dockerHost = meta.Endpoints.docker.Host;
                             let certificates: string | undefined = undefined;
-                            const tls = path.join(tlsDir, contextDir);
+                            const tls = join(tlsDir, contextDir);
                             try {
                                 await fsPromises.access(tls);
                                 certificates = tls;
@@ -211,7 +207,7 @@ export class DockerClient {
         // Check for DOCKER_CONFIG environment variable, otherwise use default path
         const configPath =
             process.env.DOCKER_CONFIG ||
-            path.join(os.homedir(), '.docker', 'config.json');
+            join(homedir(), '.docker', 'config.json');
 
         try {
             const configContent = await fsPromises.readFile(configPath, 'utf8');

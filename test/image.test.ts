@@ -1,8 +1,7 @@
 import { assert, expect, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { Filter } from '../lib/filter.js';
-import { Writable } from 'stream';
-import { Readable } from 'node:stream';
+import { Writable, Readable } from 'node:stream';
 import type { NotFoundError } from '../lib/http.js';
 
 test('image lifecycle: create container, commit image, export/import, inspect, and prune', async () => {

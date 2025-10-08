@@ -1,7 +1,7 @@
-import { promises as fsPromises } from 'fs';
-import * as path from 'path';
+import { promises as fsPromises } from 'node:fs';
+import { join } from 'node:path';
 import { getErrorMessage } from './util.js';
-import type { SecureContextOptions } from 'tls';
+import type { SecureContextOptions } from 'node:tls';
 
 /**
  * TLS certificate utilities for secure Docker connections
@@ -19,7 +19,7 @@ export class TLS {
 
         try {
             // Load CA certificate
-            const caPath = path.join(certPath, 'ca.pem');
+            const caPath = join(certPath, 'ca.pem');
             try {
                 tlsOptions.ca = await fsPromises.readFile(caPath);
             } catch {
@@ -27,7 +27,7 @@ export class TLS {
             }
 
             // Load client certificate
-            const certPemPath = path.join(certPath, 'cert.pem');
+            const certPemPath = join(certPath, 'cert.pem');
             try {
                 tlsOptions.cert = await fsPromises.readFile(certPemPath);
             } catch {
@@ -35,7 +35,7 @@ export class TLS {
             }
 
             // Load client private key
-            const keyPath = path.join(certPath, 'key.pem');
+            const keyPath = join(certPath, 'key.pem');
             try {
                 tlsOptions.key = await fsPromises.readFile(keyPath);
             } catch {
