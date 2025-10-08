@@ -1,5 +1,5 @@
 import * as net from 'net';
-import * as fs from 'fs';
+import { promises as fsPromises } from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import * as http from 'http';
@@ -34,88 +34,76 @@ export class DockerClient {
      * @param certificates Optional path to directory containing TLS certificates (ca.pem, cert.pem, key.pem) for TCP connections
      * @returns Promise that resolves to a connected DockerClient instance
      */
-    static fromDockerHost(
+    static async fromDockerHost(
         dockerHost: string,
         certificates?: string | SecureContextOptions,
         userAgent?: string,
     ): Promise<DockerClient> {
-        return new Promise((resolve, reject) => {
-            if (dockerHost.startsWith('unix:')) {
-                // Unix socket connection - use SocketAgent with socket creation function
-                const socketPath = dockerHost.substring(5); // Remove "unix:" prefix
+        if (dockerHost.startsWith('unix:')) {
+            // Unix socket connection - use SocketAgent with socket creation function
+            const socketPath = dockerHost.substring(5); // Remove "unix:" prefix
 
-                try {
-                    const agent = new SocketAgent(() =>
-                        net.createConnection(socketPath),
-                    );
-                    resolve(new DockerClient(agent, userAgent));
-                } catch (error) {
-                    reject(
-                        new Error(
-                            `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
-                        ),
-                    );
-                }
-            } else if (dockerHost.startsWith('tcp:')) {
-                // TCP connection - use SocketAgent with TCP socket creation function
-                const defaultPort = certificates ? 2376 : 2375; // Default ports: 2376 for TLS, 2375 for plain
-                const { host, port } = parseDockerHost(dockerHost, defaultPort);
+            try {
+                const agent = new SocketAgent(() =>
+                    net.createConnection(socketPath),
+                );
+                return new DockerClient(agent, userAgent);
+            } catch (error) {
+                throw new Error(
+                    `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
+                );
+            }
+        } else if (dockerHost.startsWith('tcp:')) {
+            // TCP connection - use SocketAgent with TCP socket creation function
+            const defaultPort = certificates ? 2376 : 2375; // Default ports: 2376 for TLS, 2375 for plain
+            const { host, port } = parseDockerHost(dockerHost, defaultPort);
 
-                try {
-                    let agent: SocketAgent;
+            try {
+                let agent: SocketAgent;
 
-                    if (certificates) {
-                        if (typeof certificates === 'string') {
-                            // Use SocketAgent with TLS socket creation function
-                            const tlsOptions =
-                                TLS.loadCertificates(certificates);
-                            agent = new SocketAgent(() =>
-                                tls.connect({ host, port, ...tlsOptions }),
-                            );
-                        } else {
-                            // certificates is a SecureContextOptions type
-                            agent = new SocketAgent(() =>
-                                tls.connect({ host, port, ...certificates }),
-                            );
-                        }
-                    } else {
-                        // Use SocketAgent with plain TCP socket creation function
+                if (certificates) {
+                    if (typeof certificates === 'string') {
+                        // Use SocketAgent with TLS socket creation function
+                        const tlsOptions =
+                            await TLS.loadCertificates(certificates);
                         agent = new SocketAgent(() =>
-                            net.createConnection({ host, port }),
+                            tls.connect({ host, port, ...tlsOptions }),
+                        );
+                    } else {
+                        // certificates is a SecureContextOptions type
+                        agent = new SocketAgent(() =>
+                            tls.connect({ host, port, ...certificates }),
                         );
                     }
+                } else {
+                    // Use SocketAgent with plain TCP socket creation function
+                    agent = new SocketAgent(() =>
+                        net.createConnection({ host, port }),
+                    );
+                }
 
-                    resolve(new DockerClient(agent, userAgent));
-                } catch (error) {
-                    reject(
-                        new Error(
-                            `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
-                        ),
-                    );
-                }
-            } else if (dockerHost.startsWith('ssh:')) {
-                // SSH connection - use SocketAgent with SSH socket creation function
-                try {
-                    const agent = new SocketAgent(
-                        SSH.createSocketFactory(dockerHost),
-                    );
-                    resolve(new DockerClient(agent, userAgent));
-                } catch (error) {
-                    reject(
-                        new Error(
-                            `Failed to create SSH Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
-                        ),
-                    );
-                }
-            } else {
-                reject(
-                    new Error(
-                        `Unsupported Docker host format: ${dockerHost}. Must start with "unix:", "tcp:", or "ssh:"`,
-                    ),
+                return new DockerClient(agent, userAgent);
+            } catch (error) {
+                throw new Error(
+                    `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
                 );
-                return;
             }
-        });
+        } else if (dockerHost.startsWith('ssh:')) {
+            // SSH connection - use SocketAgent with SSH socket creation function
+            try {
+                const socketFactory = await SSH.createSocketFactory(dockerHost);
+                const agent = new SocketAgent(socketFactory);
+                return new DockerClient(agent, userAgent);
+            } catch (error) {
+                throw new Error(
+                    `Failed to create SSH Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
+                );
+            }
+        } else {
+            throw new Error(
+                `Unsupported Docker host format: ${dockerHost}. Must start with "unix:", "tcp:", or "ssh:"`,
+            );
+        }
     }
 
     /**
@@ -142,8 +130,10 @@ export class DockerClient {
 
         try {
             // Read all directories in the contexts meta directory
-            const contextDirs = fs
-                .readdirSync(contextsDir, { withFileTypes: true })
+            const contextEntries = await fsPromises.readdir(contextsDir, {
+                withFileTypes: true,
+            });
+            const contextDirs = contextEntries
                 .filter((dirent) => dirent.isDirectory())
                 .map((dirent) => dirent.name);
 
@@ -155,41 +145,41 @@ export class DockerClient {
                 );
 
                 try {
-                    if (fs.existsSync(metaJsonPath)) {
-                        const metaContent = fs.readFileSync(
-                            metaJsonPath,
-                            'utf8',
-                        );
-                        const meta = JSON.parse(metaContent);
+                    const metaContent = await fsPromises.readFile(
+                        metaJsonPath,
+                        'utf8',
+                    );
+                    const meta = JSON.parse(metaContent);
 
-                        if (meta.Name === targetContext) {
-                            // Found matching context, extract endpoint
-                            if (
-                                meta.Endpoints &&
-                                meta.Endpoints.docker &&
-                                meta.Endpoints.docker.Host
-                            ) {
-                                const dockerHost = meta.Endpoints.docker.Host;
-                                let certificates: string | undefined =
-                                    undefined;
-                                const tls = path.join(tlsDir, contextDir);
-                                if (fs.existsSync(tls)) {
-                                    certificates = tls;
-                                }
-                                return DockerClient.fromDockerHost(
-                                    dockerHost,
-                                    certificates,
-                                    userAgent,
-                                );
-                            } else {
-                                throw new Error(
-                                    `Docker context '${targetContext}' found but has no valid Docker endpoint`,
-                                );
+                    if (meta.Name === targetContext) {
+                        // Found matching context, extract endpoint
+                        if (
+                            meta.Endpoints &&
+                            meta.Endpoints.docker &&
+                            meta.Endpoints.docker.Host
+                        ) {
+                            const dockerHost = meta.Endpoints.docker.Host;
+                            let certificates: string | undefined = undefined;
+                            const tls = path.join(tlsDir, contextDir);
+                            try {
+                                await fsPromises.access(tls);
+                                certificates = tls;
+                            } catch {
+                                // TLS directory doesn't exist, certificates remain undefined
                             }
+                            return DockerClient.fromDockerHost(
+                                dockerHost,
+                                certificates,
+                                userAgent,
+                            );
+                        } else {
+                            throw new Error(
+                                `Docker context '${targetContext}' found but has no valid Docker endpoint`,
+                            );
                         }
                     }
                 } catch (parseError) {
-                    // Skip invalid meta.json files
+                    // Skip invalid meta.json files or files that don't exist
                 }
             }
 
@@ -224,12 +214,7 @@ export class DockerClient {
             path.join(os.homedir(), '.docker', 'config.json');
 
         try {
-            if (!fs.existsSync(configPath)) {
-                // If no config file exists, use default context (usually unix socket)
-                return DockerClient.fromDockerHost('unix:/var/run/docker.sock');
-            }
-
-            const configContent = fs.readFileSync(configPath, 'utf8');
+            const configContent = await fsPromises.readFile(configPath, 'utf8');
             const config = JSON.parse(configContent);
 
             if (config.currentContext) {

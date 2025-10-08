@@ -1,5 +1,5 @@
 import * as net from 'net';
-import * as fs from 'fs';
+import { promises as fsPromises } from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { Client } from 'ssh2';
@@ -12,7 +12,7 @@ export class SSH {
      * Get SSH private key from common locations
      * @returns SSH private key buffer or undefined
      */
-    private static getPrivateKey(): Buffer | undefined {
+    private static async getPrivateKey(): Promise<Buffer | undefined> {
         const keyPaths = [
             path.join(os.homedir(), '.ssh', 'id_rsa'),
             path.join(os.homedir(), '.ssh', 'id_ed25519'),
@@ -21,9 +21,7 @@ export class SSH {
 
         for (const keyPath of keyPaths) {
             try {
-                if (fs.existsSync(keyPath)) {
-                    return fs.readFileSync(keyPath);
-                }
+                return await fsPromises.readFile(keyPath);
             } catch (err) {
                 // Continue to next key
             }
@@ -37,7 +35,12 @@ export class SSH {
      * @param sshHost SSH host string (e.g., "ssh://user@host:22/var/run/docker.sock")
      * @returns Function that creates new SSH socket connections
      */
-    static createSocketFactory(sshHost: string): () => net.Socket {
+    static async createSocketFactory(
+        sshHost: string,
+    ): Promise<() => net.Socket> {
+        // Preload the private key asynchronously
+        const privateKey = await SSH.getPrivateKey();
+
         // Parse SSH connection parameters once
         const sshUrl = sshHost.substring(6); // Remove "ssh://" prefix
 
@@ -121,12 +124,12 @@ export class SSH {
                 );
             });
 
-            // Connect using SSH key authentication (looks for default keys)
+            // Connect using SSH key authentication (preloaded key)
             conn.connect({
                 host,
                 port,
                 username: user,
-                privateKey: SSH.getPrivateKey(),
+                privateKey: privateKey,
                 tryKeyboard: true,
             });
 
