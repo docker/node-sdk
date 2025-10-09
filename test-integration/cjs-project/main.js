@@ -25,7 +25,7 @@ async function main() {
 
         docker.close();
     } catch (error) {
-        console.error(error);
+        console.error(`Error: ${error.message ?? error}`);
     }
 }
 
