@@ -27,7 +27,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Node for Build & Unit Tests
+            - name: Setup Node for Unit Tests
               uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4.0.3
               with:
                   cache: npm
@@ -57,20 +57,13 @@ jobs:
               env:
                   DOCKER_HOST: ${{ steps.engine.outputs.sock }}
 
-    ci-integration:
+    build:
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                node:
-                    - 18
-                    - 20
-                    - 22
         steps:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Node for Build & Unit Tests
+            - name: Setup Node for Build
               uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4.0.3
               with:
                   cache: npm
@@ -83,6 +76,32 @@ jobs:
             - name: Build
               run: |
                   npm run build
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build-output
+                  path: dist/
+
+    ci-integration:
+        runs-on: ubuntu-latest
+        needs: build
+        strategy:
+            fail-fast: false
+            matrix:
+                node:
+                    - 18
+                    - 20
+                    - 22
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: build-output
+                  path: dist
 
             - name: Set up Docker
               id: engine
