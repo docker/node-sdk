@@ -1,11 +1,13 @@
-import { createConnection } from 'node:net';
+import { createConnection, type Socket } from 'node:net';
 import { promises as fsPromises } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { homedir } from 'node:os';
-import type { Agent } from 'node:http';
+import type { Agent } from 'undici';
+import type { SecureContextOptions } from 'node:tls';
 import { connect as tlsConnect } from 'node:tls';
+import type { AuthConfig, BuildInfo, Platform } from './types/index.js';
 import * as types from './types/index.js';
-import { HTTPClient } from './http.js';
+import { APPLICATION_JSON, APPLICATION_NDJSON, HTTPClient } from './http.js';
 import { SocketAgent } from './socket.js';
 import { Filter } from './filter.js';
 import { SSH } from './ssh.js';
@@ -17,10 +19,11 @@ import {
     isFileNotFoundError,
     parseDockerHost,
 } from './util.js';
-import type { AuthConfig, Platform } from './types/index.js';
-import type { SecureContextOptions } from 'node:tls';
+import { WritableStream } from 'node:stream/web';
+import { ReadableStream } from 'stream/web';
+import { JSONStream } from './json-stream.js';
+import { Writable } from 'node:stream';
 
-// noinspection JSUnusedGlobalSymbols
 export class DockerClient {
     private api: HTTPClient;
 
@@ -256,7 +259,13 @@ export class DockerClient {
     public async systemAuth(
         authConfig: types.AuthConfig,
     ): Promise<types.SystemAuthResponse> {
-        return this.api.post<types.SystemAuthResponse>('/auth', authConfig);
+        return this.api
+            .post('/auth', authConfig, undefined, {
+                accept: APPLICATION_JSON,
+            })
+            .then((response) => {
+                return response.json() as Promise<types.SystemAuthResponse>;
+            });
     }
 
     /**
@@ -266,7 +275,7 @@ export class DockerClient {
     public async systemDataUsage(
         type?: Array<'container' | 'image' | 'volume' | 'build-cache'>,
     ): Promise<types.SystemDataUsageResponse> {
-        return this.api.get<types.SystemDataUsageResponse>('/system/df', {
+        return this.api.getJSON<types.SystemDataUsageResponse>('/system/df', {
             type: type,
         });
     }
@@ -288,17 +297,21 @@ export class DockerClient {
             filters?: Filter;
         },
     ) {
-        await this.api.sendHTTPRequest('GET', '/events', {
-            params: options,
-            callback: (data: Buffer, encoding?: BufferEncoding) => {
-                data.toString(encoding)
+        await this.api
+            .get('/events', APPLICATION_NDJSON, {
+                params: options,
+            })
+            .then((response) => {
+                /*
+                            data.toString(encoding)
                     .split('\n')
                     .filter((line) => line.trim() !== '')
                     .forEach((line) => {
                         callback(JSON.parse(line) as types.EventMessage);
                     });
-            },
-        });
+
+             */
+            });
     }
 
     /**
@@ -307,15 +320,15 @@ export class DockerClient {
      */
     public systemPing(): Promise<string> {
         return this.api
-            .sendHTTPRequest('HEAD', '/_ping', { accept: 'text/plain' })
-            .then((response) => response.headers['api-version'] as string);
+            .head('/_ping', { accept: 'text/plain' })
+            .then((response) => response.headers.get('api-version') as string);
     }
 
     /**
      * Get system information
      */
     public async systemInfo(): Promise<types.SystemInfo> {
-        return this.api.get<types.SystemInfo>('/info');
+        return this.api.getJSON<types.SystemInfo>('/info');
     }
 
     /**
@@ -323,7 +336,7 @@ export class DockerClient {
      * Get version
      */
     public async systemVersion(): Promise<types.SystemVersion> {
-        return this.api.get<types.SystemVersion>('/version');
+        return this.api.getJSON<types.SystemVersion>('/version');
     }
 
     // --- Containers API
@@ -338,16 +351,15 @@ export class DockerClient {
     public async containerArchive(
         id: string,
         path: string,
-        out: stream.Writable,
+        out: WritableStream,
     ): Promise<void> {
-        return this.api.get<void>(
-            `/containers/${id}/archive`,
-            {
+        return this.api
+            .get(`/containers/${id}/archive`, 'application/x-tar', {
                 path: path,
-            },
-            'application/x-tar',
-            (data) => out.write(data),
-        );
+            })
+            .then((response) => {
+                response.body?.pipeTo(out);
+            });
     }
 
     /**
@@ -361,15 +373,20 @@ export class DockerClient {
         path: string,
     ): Promise<types.FileInfo> {
         return this.api
-            .sendHTTPRequest('HEAD', `/containers/${id}/archive`, {
+            .head(`/containers/${id}/archive`, {
                 params: {
                     path: path,
                 },
             })
             .then((response) => {
-                const header = response.headers[
-                    'x-docker-container-path-stat'
-                ] as string;
+                const header = response.headers.get(
+                    'x-docker-container-path-stat',
+                );
+                if (!header) {
+                    throw new Error(
+                        'X-Docker-Container-Path-Stat header not found',
+                    );
+                }
                 const json = Buffer.from(header, 'base64').toString('utf-8');
                 return types.FileInfo.fromJSON(json);
             });
@@ -402,22 +419,16 @@ export class DockerClient {
             stderr?: boolean;
         },
     ): Promise<void> {
-        return this.api
-            .sendHTTPRequest('POST', `/containers/${id}/attach`, {
-                params: options,
-                headers: {
-                    Connection: 'Upgrade',
-                    Upgrade: 'tcp',
-                },
-            })
-            .then((response) => {
-                const contentType = response.headers['content-type'];
-                if (contentType === 'application/vnd.docker.raw-stream') {
-                    response.sock?.pipe(stdout);
-                } else {
-                    response.sock?.pipe(demultiplexStream(stdout, stderr));
-                }
-            });
+        const response = await this.api.upgrade(
+            `/containers/${id}/attach`,
+            options,
+        );
+        const contentType = response.headers.get('content-type');
+        if (contentType === 'application/vnd.docker.raw-stream') {
+            response.body?.pipeTo(Writable.toWeb(stdout));
+        } else {
+            response.body?.pipeTo(demultiplexStream(stdout, stderr));
+        }
     }
 
     /**
@@ -428,7 +439,7 @@ export class DockerClient {
     public async containerChanges(
         id: string,
     ): Promise<Array<types.FilesystemChange>> {
-        return this.api.get<Array<types.FilesystemChange>>(
+        return this.api.getJSON<Array<types.FilesystemChange>>(
             `/containers/${id}/changes`,
         );
     }
@@ -447,11 +458,11 @@ export class DockerClient {
             platform?: string;
         },
     ): Promise<types.ContainerCreateResponse> {
-        return this.api.post<types.ContainerCreateResponse>(
-            '/containers/create',
-            options,
-            spec,
-        );
+        return this.api
+            .post('/containers/create', options, spec)
+            .then((response) => {
+                return response.json() as Promise<types.ContainerCreateResponse>;
+            });
     }
 
     /**
@@ -470,28 +481,27 @@ export class DockerClient {
             link?: boolean;
         },
     ): Promise<void> {
-        return this.api.delete<void>(`/containers/${id}`, {
-            v: options?.volumes,
-            force: options?.force,
-            link: options?.link,
-        });
+        return this.api
+            .delete(`/containers/${id}`, {
+                v: options?.volumes,
+                force: options?.force,
+                link: options?.link,
+            })
+            .then((): void => {});
     }
 
     /**
      * Export the contents of a container as a tarball.
      * Export a container
      * @param id ID or name of the container
+     * @param w stream to write container's filesystem content as a TAR archive'
      */
-    public async containerExport(
-        id: string,
-        w: stream.Writable,
-    ): Promise<void> {
-        return this.api.get<void>(
-            `/containers/${id}/export`,
-            undefined,
-            'application/x-tar',
-            (data: any) => w.write(data),
-        );
+    public async containerExport(id: string, w: WritableStream): Promise<void> {
+        return this.api
+            .get(`/containers/${id}/export`, 'application/x-tar')
+            .then((response) => {
+                response.body?.pipeTo(w);
+            });
     }
 
     /**
@@ -507,7 +517,7 @@ export class DockerClient {
             size?: boolean;
         },
     ): Promise<types.ContainerInspectResponse> {
-        return this.api.get<types.ContainerInspectResponse>(
+        return this.api.getJSON<types.ContainerInspectResponse>(
             `/containers/${id}/json`,
             options,
         );
@@ -526,7 +536,7 @@ export class DockerClient {
             signal?: string;
         },
     ): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/kill`, options);
+        return this.api.post(`/containers/${id}/kill`, options).then(() => {});
     }
 
     /**
@@ -544,7 +554,7 @@ export class DockerClient {
         size?: boolean;
         filters?: Filter;
     }): Promise<Array<types.ContainerSummary>> {
-        return this.api.get<Array<types.ContainerSummary>>(
+        return this.api.getJSON<Array<types.ContainerSummary>>(
             '/containers/json',
             options,
         );
@@ -580,12 +590,15 @@ export class DockerClient {
         },
     ): Promise<void> {
         const demux = demultiplexStream(stdout, stderr);
-        return this.api.get(
-            `/containers/${id}/logs`,
-            options,
-            'application/vnd.docker.raw-stream',
-            (data) => demux.write(data),
-        );
+        return this.api
+            .get(
+                `/containers/${id}/logs`,
+                'application/vnd.docker.raw-stream',
+                options,
+            )
+            .then((response) => {
+                response.body?.pipeTo(demux);
+            });
     }
 
     /**
@@ -594,7 +607,7 @@ export class DockerClient {
      * @param id ID or name of the container
      */
     public async containerPause(id: string): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/pause`);
+        return this.api.post(`/containers/${id}/pause`).then(() => {});
     }
 
     /**
@@ -605,10 +618,9 @@ export class DockerClient {
     public async containerPrune(options?: {
         filters?: string;
     }): Promise<types.ContainerPruneResponse> {
-        return this.api.post<types.ContainerPruneResponse>(
-            '/containers/prune',
-            options,
-        );
+        return this.api.post('/containers/prune', options).then((response) => {
+            return response.json() as Promise<types.ContainerPruneResponse>;
+        });
     }
 
     /**
@@ -617,7 +629,9 @@ export class DockerClient {
      * @param name New name for the container
      */
     public async containerRename(id: string, name: string): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/rename?name=${name}`);
+        return this.api
+            .post(`/containers/${id}/rename?name=${name}`)
+            .then(() => {});
     }
 
     /**
@@ -632,10 +646,12 @@ export class DockerClient {
         width: number,
         height: number,
     ): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/resize`, {
-            w: width,
-            h: height,
-        });
+        return this.api
+            .post(`/containers/${id}/resize`, {
+                w: width,
+                h: height,
+            })
+            .then(() => {});
     }
 
     /**
@@ -652,10 +668,12 @@ export class DockerClient {
             timeout?: number;
         },
     ): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/restart`, {
-            signal: options?.signal,
-            t: options?.timeout,
-        });
+        return this.api
+            .post(`/containers/${id}/restart`, {
+                signal: options?.signal,
+                t: options?.timeout,
+            })
+            .then(() => {});
     }
 
     /**
@@ -670,7 +688,7 @@ export class DockerClient {
             detachKeys?: string;
         },
     ): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/start`, options);
+        return this.api.post(`/containers/${id}/start`, options).then(() => {});
     }
 
     /**
@@ -688,7 +706,7 @@ export class DockerClient {
             oneShot?: boolean;
         },
     ): Promise<types.ContainerStatsResponse> {
-        return this.api.get<types.ContainerStatsResponse>(
+        return this.api.getJSON<types.ContainerStatsResponse>(
             `/containers/${id}/stats`,
             {
                 stream: false, // FIXME implement streaming mode
@@ -711,10 +729,12 @@ export class DockerClient {
             timeout?: number;
         },
     ): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/stop`, {
-            signal: options?.signal,
-            t: options?.timeout,
-        });
+        return this.api
+            .post(`/containers/${id}/stop`, {
+                signal: options?.signal,
+                t: options?.timeout,
+            })
+            .then(() => {});
     }
 
     /**
@@ -730,7 +750,7 @@ export class DockerClient {
             psArgs?: string;
         },
     ): Promise<types.ContainerTopResponse> {
-        return this.api.get<types.ContainerTopResponse>(
+        return this.api.getJSON<types.ContainerTopResponse>(
             `/containers/${id}/top`,
             {
                 ps_args: options?.psArgs,
@@ -744,7 +764,7 @@ export class DockerClient {
      * @param id ID or name of the container
      */
     public async containerUnpause(id: string): Promise<void> {
-        return this.api.post<void>(`/containers/${id}/unpause`);
+        return this.api.post(`/containers/${id}/unpause`).then(() => {});
     }
 
     /**
@@ -757,10 +777,11 @@ export class DockerClient {
         id: string,
         update: types.ContainerUpdateRequest,
     ): Promise<types.ContainerUpdateResponse> {
-        return this.api.post<types.ContainerUpdateResponse>(
-            `/containers/${id}/update`,
-            update,
-        );
+        return this.api
+            .post(`/containers/${id}/update`, update)
+            .then((response) => {
+                return response.json() as Promise<types.ContainerUpdateResponse>;
+            });
     }
 
     /**
@@ -776,11 +797,11 @@ export class DockerClient {
             condition?: 'not-running' | 'next-exit' | 'removed';
         },
     ): Promise<types.ContainerWaitResponse> {
-        return this.api.post<types.ContainerWaitResponse>(
-            `/containers/${id}/wait`,
-            undefined,
-            options,
-        );
+        return this.api
+            .post(`/containers/${id}/wait`, undefined, options)
+            .then((response) => {
+                return response.json() as Promise<types.ContainerWaitResponse>;
+            });
     }
 
     /**
@@ -802,16 +823,18 @@ export class DockerClient {
             copyUIDGID?: string;
         },
     ): Promise<void> {
-        return this.api.put(
-            `/containers/${id}/archive`,
-            {
-                path: path,
-                noOverwriteDirNonDir: options?.noOverwriteDirNonDir,
-                copyUIDGID: options?.copyUIDGID,
-            },
-            tar,
-            'application/x-tar',
-        );
+        return this.api
+            .put(
+                `/containers/${id}/archive`,
+                {
+                    path: path,
+                    noOverwriteDirNonDir: options?.noOverwriteDirNonDir,
+                    copyUIDGID: options?.copyUIDGID,
+                },
+                tar,
+                'application/x-tar',
+            )
+            .then(() => {});
     }
 
     // --- Network API
@@ -826,7 +849,9 @@ export class DockerClient {
         id: string,
         container: types.NetworkConnectRequest,
     ): Promise<void> {
-        return this.api.post(`/networks/${id}/connect`, container);
+        return this.api
+            .post(`/networks/${id}/connect`, container)
+            .then(() => {});
     }
 
     /**
@@ -836,7 +861,11 @@ export class DockerClient {
     public async networkCreate(
         config: types.NetworkCreateRequest,
     ): Promise<types.NetworkCreateResponse> {
-        return this.api.post('/networks/create', undefined, config);
+        return this.api
+            .post('/networks/create', undefined, config)
+            .then((response) => {
+                return response.json() as Promise<types.NetworkCreateResponse>;
+            });
     }
 
     /**
@@ -844,7 +873,7 @@ export class DockerClient {
      * @param id Network ID or name
      */
     public async networkDelete(id: string): Promise<void> {
-        return this.api.delete(`/networks/${id}`);
+        return this.api.delete(`/networks/${id}`).then(() => {});
     }
 
     /**
@@ -856,7 +885,9 @@ export class DockerClient {
         id: string,
         container: types.NetworkDisconnectRequest,
     ): Promise<void> {
-        return this.api.post(`/networks/${id}/disconnect`, container);
+        return this.api
+            .post(`/networks/${id}/disconnect`, container)
+            .then(() => {});
     }
 
     /**
@@ -873,7 +904,7 @@ export class DockerClient {
             scope?: string;
         },
     ): Promise<types.NetworkInspect> {
-        return this.api.get(`/networks/${id}`, options);
+        return this.api.getJSON(`/networks/${id}`, options);
     }
 
     /**
@@ -885,7 +916,7 @@ export class DockerClient {
     public async networkList(options?: {
         filters?: Filter;
     }): Promise<Array<types.NetworkSummary>> {
-        return this.api.get('/networks', options);
+        return this.api.getJSON('/networks', options);
     }
 
     /**
@@ -895,7 +926,9 @@ export class DockerClient {
     public async networkPrune(
         filters?: Filter,
     ): Promise<types.NetworkPruneResponse> {
-        return this.api.post('/networks/prune', filters);
+        return this.api.post('/networks/prune', filters).then((response) => {
+            return response.json() as Promise<types.NetworkPruneResponse>;
+        });
     }
 
     // --- Volumes API
@@ -907,9 +940,13 @@ export class DockerClient {
     public async volumeCreate(
         spec: types.VolumeCreateOptions,
     ): Promise<types.Volume> {
-        return this.api.post('/volumes/create', undefined, spec, {
-            Accept: '*/*',
-        });
+        return this.api
+            .post('/volumes/create', undefined, spec, {
+                Accept: '*/*',
+            })
+            .then((response) => {
+                return response.json() as Promise<types.Volume>;
+            });
     }
 
     /**
@@ -925,7 +962,7 @@ export class DockerClient {
             force?: boolean;
         },
     ): Promise<void> {
-        return this.api.delete(`/volumes/${id}`, options);
+        return this.api.delete(`/volumes/${id}`, options).then(() => {});
     }
 
     /**
@@ -933,7 +970,7 @@ export class DockerClient {
      * @param id Volume name or ID
      */
     public async volumeInspect(id: string): Promise<types.Volume> {
-        return this.api.get(`/volumes/${id}`);
+        return this.api.getJSON(`/volumes/${id}`);
     }
 
     /**
@@ -943,7 +980,7 @@ export class DockerClient {
     public async volumeList(
         filters?: Filter,
     ): Promise<types.VolumeListResponse> {
-        return this.api.get(`/volumes`, {
+        return this.api.getJSON(`/volumes`, {
             filters: filters,
         });
     }
@@ -955,9 +992,13 @@ export class DockerClient {
     public async volumePrune(
         filters?: Filter,
     ): Promise<types.VolumePruneResponse> {
-        return this.api.post('/volumes/prune', {
-            filters: filters,
-        });
+        return this.api
+            .post('/volumes/prune', {
+                filters: filters,
+            })
+            .then((response) => {
+                return response.json() as Promise<types.VolumePruneResponse>;
+            });
     }
 
     // --- Image API
@@ -970,7 +1011,7 @@ export class DockerClient {
     public async distributionInspect(
         name: string,
     ): Promise<types.DistributionInspect> {
-        return this.api.get(`/distribution/${name}/json`);
+        return this.api.getJSON(`/distribution/${name}/json`);
     }
 
     /**
@@ -988,7 +1029,9 @@ export class DockerClient {
         all?: boolean;
         filters?: Filter;
     }): Promise<types.BuildPruneResponse> {
-        return this.api.post('/build/prune', options);
+        return this.api.post('/build/prune', options).then((response) => {
+            return response.json() as Promise<types.BuildPruneResponse>;
+        });
     }
 
     /**
@@ -1025,7 +1068,7 @@ export class DockerClient {
      * @param version Version of the builder backend to use.  - &#x60;1&#x60; is the first generation classic (deprecated) builder in the Docker daemon (default) - &#x60;2&#x60; is [BuildKit](https://github.com/moby/buildkit)
      */
     public async imageBuild(
-        buildContext: stream.Readable,
+        buildContext: ReadableStream,
         callback: (event: types.BuildInfo) => void,
         options?: {
             dockerfile?: string;
@@ -1064,55 +1107,48 @@ export class DockerClient {
                 options.credentials,
             );
         }
-        let imageID: string;
-        return this.api
-            .post(
-                '/build',
-                {
-                    dockerfile: options?.dockerfile,
-                    t: options?.tag,
-                    extrahosts: options?.extrahosts,
-                    remote: options?.remote,
-                    q: options?.quiet,
-                    nocache: options?.nocache,
-                    cachefrom: options?.cachefrom,
-                    pull: options?.pull,
-                    rm: options?.rm,
-                    forcerm: options?.forcerm,
-                    memory: options?.memory,
-                    memswap: options?.memswap,
-                    cpushares: options?.cpushares,
-                    cpusetcpus: options?.cpusetcpus,
-                    cpuperiod: options?.cpuperiod,
-                    cpuquota: options?.cpuquota,
-                    buildargs: options?.buildargs,
-                    shmsize: options?.shmsize,
-                    squash: options?.squash,
-                    labels: options?.labels,
-                    networkmode: options?.networkmode,
-                    platform: options?.platform,
-                    target: options?.target,
-                    outputs: options?.outputs,
-                    version: options?.version || '2',
-                },
-                buildContext,
-                headers,
-                (data: Buffer, encoding?: BufferEncoding) => {
-                    data.toString(encoding)
-                        .split('\n')
-                        .filter((line) => line.trim() !== '')
-                        .forEach((line) => {
-                            let buildInfo = JSON.parse(line) as types.BuildInfo;
-                            if (buildInfo.id === 'moby.image.id') {
-                                imageID = buildInfo.aux?.ID || '';
-                            }
-                            callback(buildInfo);
-                        });
-                },
-            )
-            .then(() => {
-                return imageID;
-            });
+        let imageID: string = 'FIXME';
+        const response = await this.api.post(
+            '/build',
+            {
+                dockerfile: options?.dockerfile,
+                t: options?.tag,
+                extrahosts: options?.extrahosts,
+                remote: options?.remote,
+                q: options?.quiet,
+                nocache: options?.nocache,
+                cachefrom: options?.cachefrom,
+                pull: options?.pull,
+                rm: options?.rm,
+                forcerm: options?.forcerm,
+                memory: options?.memory,
+                memswap: options?.memswap,
+                cpushares: options?.cpushares,
+                cpusetcpus: options?.cpusetcpus,
+                cpuperiod: options?.cpuperiod,
+                cpuquota: options?.cpuquota,
+                buildargs: options?.buildargs,
+                shmsize: options?.shmsize,
+                squash: options?.squash,
+                labels: options?.labels,
+                networkmode: options?.networkmode,
+                platform: options?.platform,
+                target: options?.target,
+                outputs: options?.outputs,
+                version: options?.version || '2',
+            },
+            buildContext,
+            headers,
+        );
+        await response.body?.pipeTo(
+            new JSONStream<BuildInfo>((buildInfo) => {
+                if (buildInfo.id === 'moby.image.id') {
+                    imageID = buildInfo.aux?.ID || '';
+                }
+                callback(buildInfo);
+            }),
+        );
+        return imageID;
     }
 
     /**
@@ -1138,16 +1174,20 @@ export class DockerClient {
             containerConfig?: types.ContainerConfig;
         },
     ): Promise<types.IDResponse> {
-        return this.api.post(`/commit`, {
-            container: container,
-            repo: options?.repo,
-            tag: options?.tag,
-            comment: options?.comment,
-            author: options?.author,
-            pause: options?.pause,
-            changes: options?.changes,
-            containerConfig: options?.containerConfig,
-        });
+        return this.api
+            .post(`/commit`, {
+                container: container,
+                repo: options?.repo,
+                tag: options?.tag,
+                comment: options?.comment,
+                author: options?.author,
+                pause: options?.pause,
+                changes: options?.changes,
+                containerConfig: options?.containerConfig,
+            })
+            .then((response) => {
+                return response.json() as Promise<types.IDResponse>;
+            });
     }
 
     /**
@@ -1187,29 +1227,31 @@ export class DockerClient {
             );
         }
 
-        return this.api.post(
-            '/images/create',
-            {
-                fromImage: options?.fromImage,
-                fromSrc: options?.fromSrc,
-                repo: options?.repo,
-                tag: options?.tag,
-                message: options?.message,
-                changes: options?.changes,
-                platform: options?.platform,
-                inputImage: options?.inputImage,
-            },
-            undefined,
-            headers,
-            (data: Buffer, encoding?: BufferEncoding) => {
+        return this.api
+            .post(
+                '/images/create',
+                {
+                    fromImage: options?.fromImage,
+                    fromSrc: options?.fromSrc,
+                    repo: options?.repo,
+                    tag: options?.tag,
+                    message: options?.message,
+                    changes: options?.changes,
+                    platform: options?.platform,
+                    inputImage: options?.inputImage,
+                },
+                undefined,
+                headers,
+                /*(data: Buffer, encoding?: BufferEncoding) => {
                 data.toString(encoding)
                     .split('\n')
                     .filter((line) => line.trim() !== '')
                     .forEach((line) => {
                         callback(JSON.parse(line));
                     });
-            },
-        );
+            },*/
+            )
+            .then(() => {});
     }
 
     /**
@@ -1229,28 +1271,33 @@ export class DockerClient {
             platforms?: Array<string>;
         },
     ): Promise<Array<types.ImageDeleteResponseItem>> {
-        return this.api.delete(`/images/${name}`, options);
+        return this.api.delete(`/images/${name}`, options).then((response) => {
+            return response.json() as Promise<
+                Array<types.ImageDeleteResponseItem>
+            >;
+        });
     }
 
     /**
      * Get a tarball containing all images and metadata for a repository.  If `name` is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned. If `name` is an image ID, similarly only that image (and its parents) are returned, but with the exclusion of the `repositories` file in the tarball, as there were no image names referenced.  ### Image tarball format  An image tarball contains [Content as defined in the OCI Image Layout Specification](https://github.com/opencontainers/image-spec/blob/v1.1.1/image-layout.md#content).  Additionally, includes the manifest.json file associated with a backwards compatible docker save format.  If the tarball defines a repository, the tarball should also include a `repositories` file at the root that contains a list of repository and tag names mapped to layer IDs.  ```json {   \"hello-world\": {     \"latest\": \"565a9d68a73f6706862bfe8409a7f659776d4d60a8d096eb4a3cbce6999cc2a1\"   } } ```
      * Export an image
      * @param name Image name or ID
+     * @param w stream to write the tarball to
      * @param platform JSON encoded OCI platform describing a platform which will be used to select a platform-specific image to be saved if the image is multi-platform. If not provided, the full multi-platform image will be saved.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
      */
     public async imageGet(
         name: string,
-        w: stream.Writable,
+        w: WritableStream,
         platform?: types.Platform,
     ): Promise<void> {
-        return this.api.get(
+        const response = await this.api.get(
             `/images/${name}/get`,
+            'application/x-tar',
             {
                 platform: platform,
             },
-            'application/x-tar',
-            (data: any) => w.write(data),
         );
+        await response.body?.pipeTo(w);
     }
 
     /**
@@ -1262,11 +1309,18 @@ export class DockerClient {
     public async imageGetAll(
         names: Array<string>,
         platform?: types.Platform,
-    ): Promise<stream.Readable> {
-        return this.api.get(`/images/get`, {
-            names: names,
-            platform: platform,
-        });
+    ): Promise<ReadableStream> {
+        return this.api
+            .get(`/images/get`, 'application/x-tar', {
+                names: names,
+                platform: platform,
+            })
+            .then((response) => {
+                if (!response.body) {
+                    throw new Error('No response body');
+                }
+                return response.body;
+            });
     }
 
     /**
@@ -1282,7 +1336,7 @@ export class DockerClient {
             platform?: string;
         },
     ): Promise<Array<types.HistoryResponseItem>> {
-        return this.api.get(`/image/${name}/history`, options);
+        return this.api.getJSON(`/image/${name}/history`, options);
     }
 
     /**
@@ -1298,7 +1352,7 @@ export class DockerClient {
             manifests?: boolean;
         },
     ): Promise<types.ImageInspect> {
-        return this.api.get(`/images/${name}/json`, options);
+        return this.api.getJSON(`/images/${name}/json`, options);
     }
 
     /**
@@ -1318,7 +1372,7 @@ export class DockerClient {
         digests?: boolean;
         manifests?: boolean;
     }): Promise<Array<types.ImageSummary>> {
-        return this.api.get('/images/json', options);
+        return this.api.getJSON('/images/json', options);
     }
 
     /**
@@ -1329,22 +1383,18 @@ export class DockerClient {
      * @param imagesTarball Tar archive containing images
      */
     public async imageLoad(
-        imagesTarball: stream.Readable,
+        imagesTarball: ReadableStream,
         options?: {
             quiet?: boolean;
             platform?: Platform;
             callback?: (event: any) => void;
         },
     ): Promise<void> {
-        return this.api.post(
-            `/images/load`,
-            options,
-            imagesTarball,
-            {
+        return this.api
+            .post(`/images/load`, options, imagesTarball, {
                 'Content-Type': 'application/x-tar',
-            },
-            options?.callback,
-        );
+            })
+            .then(() => {});
     }
 
     /**
@@ -1354,9 +1404,13 @@ export class DockerClient {
     public async imagePrune(
         filters?: Filter,
     ): Promise<types.ImagePruneResponse> {
-        return this.api.post(`/images/prune`, {
-            filters: filters,
-        });
+        return this.api
+            .post(`/images/prune`, {
+                filters: filters,
+            })
+            .then((response) => {
+                return response.json() as Promise<types.ImagePruneResponse>;
+            });
     }
 
     /**
@@ -1384,7 +1438,7 @@ export class DockerClient {
             );
         }
 
-        return this.api.post(
+        const response = await this.api.post(
             `/images/${name}/push`,
             {
                 tag: options?.tag,
@@ -1392,7 +1446,14 @@ export class DockerClient {
             },
             undefined,
             headers,
-            options?.callback,
+            // FIXME options?.callback,
+        );
+        await response.body?.pipeTo(
+            new WritableStream({
+                write(chunk: any) {
+                    options?.callback(JSON.parse(chunk));
+                },
+            }),
         );
     }
 
@@ -1408,10 +1469,12 @@ export class DockerClient {
         repo: string,
         tag: string,
     ): Promise<void> {
-        return this.api.post(`/images/${name}/tag`, {
-            repo: repo,
-            tag: tag,
-        });
+        return this.api
+            .post(`/images/${name}/tag`, {
+                repo: repo,
+                tag: tag,
+            })
+            .then(() => {});
     }
 
     // -- Exec
@@ -1426,7 +1489,11 @@ export class DockerClient {
         id: string,
         execConfig: types.ExecConfig,
     ): Promise<types.IDResponse> {
-        return this.api.post(`/containers/${id}/exec`, undefined, execConfig);
+        return this.api
+            .post(`/containers/${id}/exec`, undefined, execConfig)
+            .then((response) => {
+                return response.json() as Promise<types.IDResponse>;
+            });
     }
 
     /**
@@ -1435,7 +1502,7 @@ export class DockerClient {
      * @param id Exec instance ID
      */
     public async execInspect(id: string): Promise<types.ExecInspectResponse> {
-        return this.api.get(`/exec/${id}/json`);
+        return this.api.getJSON(`/exec/${id}/json`);
     }
 
     /**
@@ -1450,10 +1517,12 @@ export class DockerClient {
         width: number,
         height: number,
     ): Promise<void> {
-        return this.api.post<void>(`/exec/${id}/resize`, {
-            w: width,
-            h: height,
-        });
+        return this.api
+            .post(`/exec/${id}/resize`, {
+                w: width,
+                h: height,
+            })
+            .then(() => {});
     }
 
     /**
@@ -1466,6 +1535,8 @@ export class DockerClient {
         id: string,
         execStartConfig?: types.ExecStartConfig,
     ): Promise<void> {
-        return this.api.post(`/exec/${id}/start`, undefined, execStartConfig);
+        return this.api
+            .post(`/exec/${id}/start`, undefined, execStartConfig)
+            .then(() => {});
     }
 }

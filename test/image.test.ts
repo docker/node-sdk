@@ -63,18 +63,14 @@ test('image lifecycle: create container, commit image, export/import, inspect, a
 
         // Step 3: Get image as tar file
         console.log('  Exporting image as tar file...');
-        const tarData: Buffer[] = [];
+        const tarData: Uint8Array[] = [];
 
         await client.imageGet(
             testImageName,
-            new Writable({
-                write(chunk, encoding, callback) {
-                    const data =
-                        typeof chunk === 'string'
-                            ? Buffer.from(chunk, encoding)
-                            : chunk;
-                    tarData.push(data);
-                    callback();
+            new WritableStream({
+                write(chunk: Uint8Array, controller) {
+                    // console.log(`    Writing chunk: ${chunk.length} bytes`);
+                    tarData.push(chunk);
                 },
             }),
         );
@@ -100,7 +96,7 @@ test('image lifecycle: create container, commit image, export/import, inspect, a
 
         // Step 5: Load image from tar file
         console.log('  Loading image from tar file...');
-        await client.imageLoad(Readable.from(tarBuffer));
+        await client.imageLoad(Readable.toWeb(Readable.from(tarBuffer)));
         console.log('    Image loaded from tar file');
 
         // Step 6: Inspect the loaded image to confirm successful load
