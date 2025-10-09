@@ -108,188 +108,8 @@ export class HTTPClient {
             accept?: string;
             headers?: Record<string, string>;
         },
-    ): Promise<HTTPResponse> {
-        return new Promise((resolve, reject) => {
-            const {
-                params,
-                data,
-                callback,
-                accept = 'application/json',
-                headers = {},
-            } = options || {};
-
-            // Build query string and construct full path
-            const queryString = this.buildQueryString(params);
-            const path = `${uri}${queryString}`;
-
-            // Prepare headers
-            const requestHeaders: Record<string, string> = {
-                Host: 'host',
-                'User-Agent': this.userAgent,
-                Accept: accept,
-                ...headers,
-            };
-
-            // Prepare body data and headers
-            let body: string | Readable | undefined;
-            if (data) {
-                // Check if body is a stream
-                if (
-                    typeof data === 'object' &&
-                    'read' in data &&
-                    typeof (data as any).read === 'function'
-                ) {
-                    // Use chunked transfer encoding for streams
-                    body = data as Readable;
-                    requestHeaders['Transfer-Encoding'] = 'chunked';
-                } else {
-                    // Convert to JSON string for objects
-                    body = JSON.stringify(data);
-                    requestHeaders['Content-Type'] = 'application/json';
-                    requestHeaders['Content-Length'] = body.length.toString();
-                }
-            }
-
-            // Create HTTP request options using our instance agent
-            const requestOptions: RequestOptions = {
-                method,
-                host: 'dockerhost',
-                path,
-                headers: requestHeaders,
-                agent: this.agent,
-            };
-
-            // Helper function to create response object
-            const createResponse = (
-                res: IncomingMessage,
-                body?: string,
-            ): HTTPResponse => {
-                const responseHeaders: { [key: string]: string } = {};
-                // Convert headers to lowercase keys
-                Object.entries(res.headers).forEach(([key, value]) => {
-                    responseHeaders[key.toLowerCase()] = Array.isArray(value)
-                        ? value.join(', ')
-                        : value || '';
-                });
-
-                return {
-                    statusCode: res.statusCode,
-                    statusMessage: res.statusMessage,
-                    headers: responseHeaders,
-                    body,
-                };
-            };
-
-            const req = request(requestOptions, (res) => {
-                let responseBody = '';
-
-                // Helper function to handle response completion
-                const handleResponseEnd = (body?: string) => {
-                    const response = createResponse(res, body);
-
-                    if (res.statusCode && res.statusCode >= 400) {
-                        const errorMessage =
-                            getErrorMessageFromResp(res, body) ?? '';
-                        if (res.statusCode === 404) {
-                            reject(new NotFoundError(errorMessage));
-                        } else if (res.statusCode === 401) {
-                            reject(new UnauthorizedError(errorMessage));
-                        } else if (res.statusCode === 409) {
-                            reject(new ConflictError(errorMessage));
-                        } else {
-                            reject(new Error(errorMessage));
-                        }
-                    } else {
-                        resolve(response);
-                    }
-                };
-
-                // Helper function to handle response errors
-                const handleResponseError = (error: Error) => {
-                    reject(
-                        new Error(
-                            `Response stream error: ${getErrorMessage(error)}`,
-                        ),
-                    );
-                };
-
-                // Set up common error handler
-                res.on('error', handleResponseError);
-
-                // Check for Docker stream content types
-                const contentType = res.headers['content-type'];
-                const { type: mimeType, charset } =
-                    parseContentType(contentType);
-                var encoding = (charset || 'utf8') as BufferEncoding;
-
-                const isDockerStream =
-                    mimeType === DOCKER_RAW_STREAM ||
-                    mimeType === DOCKER_MULTIPLEXED_STREAM;
-
-                if (isDockerStream && callback) {
-                    // For upgrade protocols, forward all data directly to callback
-                    res.on('data', (data: Buffer) => {
-                        callback(data, encoding);
-                    });
-
-                    // Resolve immediately with upgrade response
-                    resolve(createResponse(res));
-                    return;
-                }
-
-                // Handle chunked responses with callback
-                if (
-                    res.headers['transfer-encoding'] === 'chunked' &&
-                    callback
-                ) {
-                    res.on('data', (chunk: Buffer) => {
-                        callback(chunk, encoding);
-                    });
-
-                    res.on('end', () => handleResponseEnd());
-                } else {
-                    // Collect response body for non-streaming responses
-                    res.on('data', (chunk: Buffer) => {
-                        responseBody += chunk.toString(encoding);
-                    });
-
-                    res.on('end', () => handleResponseEnd(responseBody));
-                }
-            });
-
-            req.on('error', (error) => {
-                reject(new Error(`Request error: ${error.message}`));
-            });
-
-            req.on('upgrade', (res, socket, head) => {
-                const resp = createResponse(res);
-                resp.sock = socket;
-                resolve(resp);
-            });
-
-            // Write request body
-            if (body) {
-                if (typeof body === 'string') {
-                    req.write(body);
-                    req.end();
-                } else {
-                    const input = body as Readable;
-                    input.pipe(req);
-                }
-            } else {
-                req.end();
-            }
-        });
-    }
-
-    private handleResponse<T>(response: HTTPResponse): T {
-        const contentType = response.headers['content-type']?.toLowerCase();
-        if (contentType?.includes('application/json') && response.body) {
-            const parsedBody = JSON.parse(response.body);
-            return parsedBody as T;
-        } else {
-            return response.body as T;
-        }
+    ): Promise<Response> {
+        return null
     }
 
     private buildQueryString(params?: Record<string, any>): string {
@@ -316,17 +136,40 @@ export class HTTPClient {
         return queryString ? `?${queryString}` : '';
     }
 
-    public async get<T>(
+    public async head<T>(
         uri: string,
         params?: Record<string, any>,
-        accept?: string,
-        callback?: (data: Buffer) => boolean,
+    ): Promise<Response> {
+        const queryString = this.buildQueryString(params);
+        return fetch(`${uri}${queryString}`, {
+            method: 'HEAD',
+            headers: {
+                'User-Agent': this.userAgent,
+            },
+        });
+    }
+
+    public async get(
+        uri: string,
+        accept: string,
+        params?: Record<string, any>,
+    ): Promise<Response> {
+        const queryString = this.buildQueryString(params);
+        return fetch(`${uri}${queryString}`, {
+            method: 'GET',
+            headers: {
+                'User-Agent': this.userAgent,
+                Accept: accept,
+            },
+        });
+    }
+
+    public async getJSON<T>(
+        uri: string,
+        params?: Record<string, any>,
     ): Promise<T> {
-        return this.sendHTTPRequest('GET', uri, {
-            params: params,
-            accept: accept,
-            callback: callback,
-        }).then((response) => this.handleResponse<T>(response));
+        return this.get(uri, 'application/json', params)
+            .then((response) => { return response.json() as T })
     }
 
     public async post<T>(
@@ -334,14 +177,18 @@ export class HTTPClient {
         params?: Record<string, any>,
         data?: object,
         headers?: Record<string, string>,
-        callback?: (data: Buffer) => void,
-    ): Promise<T> {
-        return this.sendHTTPRequest('POST', uri, {
-            params: params,
-            data: data,
-            headers: headers,
-            callback: callback,
-        }).then((response) => this.handleResponse<T>(response));
+    ): Promise<Response> {
+        const queryString = this.buildQueryString(params);
+        const requestHeaders: Record<string, string> = {
+            'User-Agent': this.userAgent,
+            ...headers,
+        };
+
+        return fetch(`${uri}${queryString}`, {
+            method: 'POST',
+            headers: requestHeaders,
+            body: JSON.stringify(data),
+        });
     }
 
     public async put<T>(
@@ -349,22 +196,28 @@ export class HTTPClient {
         params: Record<string, any>,
         data: object,
         type: string,
-    ): Promise<T> {
-        return this.sendHTTPRequest('PUT', uri, {
-            params: params,
-            data: data,
+    ): Promise<Response> {
+        const queryString = this.buildQueryString(params);
+        return fetch(`${uri}${queryString}`, {
+            method: 'PUT',
             headers: {
+                'User-Agent': this.userAgent,
                 'Content-Type': type,
             },
-        }).then((response) => this.handleResponse<T>(response));
+            body: JSON.stringify(data),
+        })
     }
 
     public async delete<T>(
         uri: string,
         params?: Record<string, any>,
-    ): Promise<T> {
-        return this.sendHTTPRequest('DELETE', uri, { params: params }).then(
-            (response) => this.handleResponse<T>(response),
-        );
+    ): Promise<Response> {
+        const queryString = this.buildQueryString(params);
+        return fetch(`${uri}${queryString}`, {
+            method: 'DELETE',
+            headers: {
+                'User-Agent': this.userAgent,
+            },
+        });
     }
 }
