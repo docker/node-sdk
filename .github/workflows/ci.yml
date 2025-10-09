@@ -31,11 +31,11 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Node v${{ matrix.node }}
+            - name: Setup Node for Build & Unit Tests
               uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4.0.3
               with:
                   cache: npm
-                  node-version: ${{ matrix.node }}
+                  node-version-file: .node-version
 
             - name: Install
               run: |
@@ -64,6 +64,12 @@ jobs:
             - name: Build
               run: |
                   npm run build
+
+            - name: Setup Node v${{ matrix.node }} for Integration Tests
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4.0.3
+              with:
+                  cache: npm
+                  node-version: ${{ matrix.node }}
 
             - name: Integration tests ESM
               working-directory: ./test-integration/esm-project
