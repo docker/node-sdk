@@ -24,7 +24,7 @@ COPY test.txt /test.txt
         let eventCount = 0;
         const builtImage = await client
             .imageBuild(
-                Readable.toWeb(pack),
+                Readable.toWeb(pack, { strategy: { highWaterMark: 16384 } }),
                 (event) => {
                     eventCount++;
                     buildEvents.push(event);
