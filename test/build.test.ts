@@ -2,6 +2,7 @@ import { expect, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { pack as createTarPack } from 'tar-stream';
 import { fail } from 'node:assert';
+import { Readable } from 'node:stream';
 
 test('imageBuild: build image from Dockerfile with tar-stream context', async () => {
     const client = await DockerClient.fromDockerConfig();
@@ -23,7 +24,7 @@ COPY test.txt /test.txt
         let eventCount = 0;
         const builtImage = await client
             .imageBuild(
-                pack,
+                Readable.toWeb(pack),
                 (event) => {
                     eventCount++;
                     buildEvents.push(event);
