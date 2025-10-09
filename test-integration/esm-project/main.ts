@@ -23,6 +23,6 @@ try {
     await docker.containerExport(ctr, out);
 
     docker.close();
-} catch (error) {
-    console.error(error);
+} catch (error: any) {
+    console.error(`Error: ${error?.message ?? error}`);
 }
