@@ -1,5 +1,6 @@
 const { DockerClient } = require('@docker/node-sdk');
 const fs = require('fs');
+const os = require('os');
 
 async function main() {
     try {
@@ -19,7 +20,7 @@ async function main() {
                 return value.Id;
             });
 
-        const out = fs.createWriteStream('/tmp/test.tar');
+        const out = fs.createWriteStream(os.tmpdir() + '/test.tar');
         await docker.containerExport(ctr, out);
 
         docker.close();
