@@ -19,7 +19,7 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "removeComments": true,
+        "removeComments": false,
         "moduleDetection": "force",
         "verbatimModuleSyntax": true,
         "noUncheckedIndexedAccess": true,
