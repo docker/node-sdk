@@ -1,5 +1,6 @@
 import { DockerClient } from '@docker/node-sdk';
 import { createWriteStream } from 'node:fs';
+import { tmpdir } from 'node:os';
 
 try {
     const docker = await DockerClient.fromDockerConfig();
@@ -18,7 +19,7 @@ try {
             return value.Id;
         });
 
-    const out = createWriteStream('/tmp/test.tar');
+    const out = createWriteStream(tmpdir() + '/test.tar');
     await docker.containerExport(ctr, out);
 
     docker.close();
