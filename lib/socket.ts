@@ -1,54 +1,26 @@
-import type { Socket } from 'node:net';
-import type { ClientRequestArgs } from 'node:http';
-import { Agent } from 'node:http';
-import type { Duplex } from 'node:stream';
+import { Agent } from 'undici';
+import { createConnection, type Socket } from 'node:net';
 
 /**
  * HTTP Agent that creates socket connections using a provided factory function.
  * This allows flexible socket creation strategies while supporting connection pooling.
  */
 export class SocketAgent extends Agent {
-    private socketFactory: () => Socket;
-
     constructor(createSocketFn: () => Socket) {
         super({
-            keepAlive: true,
-            keepAliveMsecs: 30000,
-            maxSockets: Infinity,
-            maxFreeSockets: 10,
-            maxTotalSockets: Infinity,
-            timeout: 120000,
-            scheduling: 'lifo',
-        });
+            connect: (options, callback) => {
+                const socket = createSocketFn();
 
-        this.socketFactory = createSocketFn;
-
-        // Override createConnection to use our socket factory
-        this.createConnection = (
-            options: ClientRequestArgs,
-            callback?: (err: Error | null, socket: Duplex) => void,
-        ): Duplex => {
-            const socket = this.socketFactory();
-            socket.setNoDelay(true);
-            socket.setKeepAlive(true, 30000);
-            socket.setTimeout(0);
-
-            if (callback) {
-                const onConnect = () => {
-                    socket.removeListener('error', onError);
+                socket.on('connect', () => {
                     callback(null, socket);
-                };
+                });
 
-                const onError = (error: Error) => {
-                    socket.removeListener('connect', onConnect);
-                    callback(error, socket);
-                };
+                socket.on('error', (err) => {
+                    callback(err, null);
+                });
 
-                socket.once('connect', onConnect);
-                socket.once('error', onError);
-            }
-
-            return socket;
-        };
+                return socket;
+            },
+        });
     }
 }

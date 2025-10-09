@@ -1,11 +1,12 @@
-import type { Agent, IncomingMessage, RequestOptions } from 'node:http';
-import { request } from 'node:http';
-import type { Readable, Writable, Duplex } from 'node:stream';
-import { getErrorMessage } from './util.js';
+import type { IncomingMessage } from 'node:http';
+import type { ReadableStream } from 'stream/web';
+import { Agent, Response, fetch } from 'undici';
 
 // Docker stream content type constants
 const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
 const DOCKER_MULTIPLEXED_STREAM = 'application/vnd.docker.multiplexed-stream';
+export const APPLICATION_JSON = 'application/json';
+export const APPLICATION_NDJSON = 'application/x-ndjson';
 
 // Custom error class for 404 Not Found responses
 export class NotFoundError extends Error {
@@ -61,22 +62,13 @@ function getErrorMessageFromResp(
     body: string | undefined,
 ): string | undefined {
     const contentType = res.headers['content-type']?.toLowerCase();
-    if (contentType?.includes('application/json') && body) {
+    if (contentType?.includes(APPLICATION_JSON) && body) {
         const jsonBody = JSON.parse(body);
         if (jsonBody.message) {
             return jsonBody.message;
         }
     }
     return res.statusMessage;
-}
-
-// Interface to represent an HTTP response
-export interface HTTPResponse {
-    statusMessage?: string;
-    statusCode?: number;
-    headers: { [key: string]: string };
-    body?: string;
-    sock?: Duplex;
 }
 
 /**
@@ -87,10 +79,12 @@ export interface HTTPResponse {
 export class HTTPClient {
     private agent: Agent;
     private userAgent: string;
+    private baseUrl: string;
 
     constructor(agent: Agent, userAgent: string) {
         this.agent = agent;
         this.userAgent = userAgent;
+        this.baseUrl = 'http://localhost:2375';
     }
 
     close() {
@@ -109,7 +103,7 @@ export class HTTPClient {
             headers?: Record<string, string>;
         },
     ): Promise<Response> {
-        return null
+        throw new Error('sendHTTPRequest method not implemented');
     }
 
     private buildQueryString(params?: Record<string, any>): string {
@@ -136,16 +130,17 @@ export class HTTPClient {
         return queryString ? `?${queryString}` : '';
     }
 
-    public async head<T>(
+    public async head(
         uri: string,
         params?: Record<string, any>,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
-        return fetch(`${uri}${queryString}`, {
+        return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'HEAD',
             headers: {
                 'User-Agent': this.userAgent,
             },
+            dispatcher: this.agent,
         });
     }
 
@@ -155,12 +150,13 @@ export class HTTPClient {
         params?: Record<string, any>,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
-        return fetch(`${uri}${queryString}`, {
+        return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'GET',
             headers: {
                 'User-Agent': this.userAgent,
                 Accept: accept,
             },
+            dispatcher: this.agent,
         });
     }
 
@@ -168,56 +164,92 @@ export class HTTPClient {
         uri: string,
         params?: Record<string, any>,
     ): Promise<T> {
-        return this.get(uri, 'application/json', params)
-            .then((response) => { return response.json() as T })
+        return this.get(uri, APPLICATION_JSON, params).then((response) => {
+            if (response.status === 404) {
+                throw NotFoundError;
+            }
+            return response.json() as T;
+        });
     }
 
-    public async post<T>(
+    public async post(
         uri: string,
         params?: Record<string, any>,
-        data?: object,
+        data?: object | ReadableStream,
         headers?: Record<string, string>,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
         const requestHeaders: Record<string, string> = {
             'User-Agent': this.userAgent,
+            'Content-Type': APPLICATION_JSON,
             ...headers,
         };
+        let body: ReadableStream | string = '';
+        if (data) {
+            if ('getReader' in data && typeof data.getReader === 'function') {
+                body = data as ReadableStream;
+            } else {
+                body = JSON.stringify(data);
+            }
+        }
 
-        return fetch(`${uri}${queryString}`, {
+        return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'POST',
             headers: requestHeaders,
-            body: JSON.stringify(data),
+            body: body,
+            duplex: 'half',
+            dispatcher: this.agent,
         });
     }
 
-    public async put<T>(
+    public async put(
         uri: string,
         params: Record<string, any>,
         data: object,
         type: string,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
-        return fetch(`${uri}${queryString}`, {
+        return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'PUT',
             headers: {
                 'User-Agent': this.userAgent,
                 'Content-Type': type,
             },
             body: JSON.stringify(data),
-        })
+            dispatcher: this.agent,
+        });
     }
 
-    public async delete<T>(
+    public async delete(
         uri: string,
         params?: Record<string, any>,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
-        return fetch(`${uri}${queryString}`, {
+        return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'DELETE',
             headers: {
                 'User-Agent': this.userAgent,
             },
+            dispatcher: this.agent,
+        });
+    }
+
+    public async upgrade(
+        uri: string,
+        params?: Record<string, any>,
+    ): Promise<Response> {
+        const queryString = this.buildQueryString(params);
+        // FIXME To hint potential proxies about connection hijacking,
+        // the Docker client _should_ send connection upgrade headers.
+        // but this is blocked by fetch()
+        return fetch(`${this.baseUrl}${uri}${queryString}`, {
+            method: 'POST',
+            headers: {
+                'User-Agent': this.userAgent,
+                // 'Connection': 'Upgrade',
+                // 'Upgrade': 'tcp',
+            },
+            dispatcher: this.agent,
         });
     }
 }
