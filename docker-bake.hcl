@@ -38,7 +38,7 @@ target "test" {
     extra-hosts = {
         "host.docker.internal" = "host-gateway"
     }
-    output = ["type=cacheonly"]
+    output = ["./out/test"]
 }
 
 target "test-integration" {
@@ -53,5 +53,5 @@ target "test-integration" {
     extra-hosts = {
         "host.docker.internal" = "host-gateway"
     }
-    output = ["type=cacheonly"]
+    output = ["./out/test-integration/node-v${NODE_VERSION}"]
 }

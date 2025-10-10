@@ -16,7 +16,7 @@ RUN npm install
 FROM install-base AS build
 RUN npm run build
 
-FROM build AS test
+FROM build AS test-build
 ENV DOCKER_HOST=tcp://host.docker.internal:2375
 RUN npm test
 
@@ -24,7 +24,7 @@ FROM build AS lint
 ENV DOCKER_HOST=tcp://host.docker.internal:2375
 RUN npm run lint
 
-FROM node:${NODE_TEST_VERSION}-alpine3.21 AS test-integration
+FROM node:${NODE_TEST_VERSION}-alpine3.21 AS test-integration-build
 WORKDIR /workspace
 ENV DOCKER_HOST=tcp://host.docker.internal:2375
 COPY --link --from=build /project                               node-sdk
@@ -44,3 +44,10 @@ COPY --link --from=build /project/dist /
 
 FROM scratch AS types
 COPY --link --from=build /project/lib/types /
+
+FROM scratch AS test
+COPY --link --from=test-build /project/out/test /
+
+FROM scratch AS test-integration
+COPY --link --from=test-integration-build /workspace/cjs-project/junit.xml /cjs-project.junit.xml
+COPY --link --from=test-integration-build /workspace/esm-project/junit.xml /esm-project.junit.xml
