@@ -22,7 +22,6 @@ ENV DOCKER_HOST=tcp://host.docker.internal:2375
 RUN npm test
 
 FROM build AS lint
-ENV DOCKER_HOST=tcp://host.docker.internal:2375
 RUN npm run lint
 
 FROM node:${NODE_TEST_VERSION}-alpine3.21 AS test-integration-build
