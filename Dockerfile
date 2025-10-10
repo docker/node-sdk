@@ -11,7 +11,8 @@ RUN apk add --no-cache \
 FROM base AS install-base
 WORKDIR /project
 COPY . .
-RUN npm install
+RUN --mount=type=cache,target=/root/.npm \
+    npm install
 
 FROM install-base AS build
 RUN npm run build
@@ -30,11 +31,13 @@ ENV DOCKER_HOST=tcp://host.docker.internal:2375
 COPY --link --from=build /project                               node-sdk
 COPY --link --from=build /project/test-integration/cjs-project  cjs-project
 COPY --link --from=build /project/test-integration/esm-project  esm-project
-RUN cd cjs-project && \
+RUN --mount=type=cache,target=/root/.npm \
+    cd cjs-project && \
     npm install ../node-sdk && \
     npm install && \
     npm test
-RUN cd esm-project && \
+RUN --mount=type=cache,target=/root/.npm \
+    cd esm-project && \
     npm install ../node-sdk && \
     npm install && \
     npm test
