@@ -1,4 +1,4 @@
-import { assert, expect, test } from 'vitest';
+import { assert, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { Filter } from '../lib/filter.js';
 import { Writable, Readable } from 'node:stream';

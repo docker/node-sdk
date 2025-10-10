@@ -9,7 +9,16 @@
     "settings": {},
     "rules": {
         "eqeqeq": "error",
-        "import/no-cycle": "error"
+        "import/no-cycle": "error",
+        "no-unused-vars": [
+            "error",
+            {
+                "caughtErrors": "none",
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_",
+                "destructuredArrayIgnorePattern": "^_"
+            }
+        ]
     },
     "overrides": []
 }

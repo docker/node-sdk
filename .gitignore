@@ -2,3 +2,5 @@ node_modules
 lib/.openapi-generator
 dist
 .idea
+out
+junit.xml

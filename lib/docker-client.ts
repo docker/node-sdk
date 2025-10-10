@@ -1,6 +1,6 @@
 import { createConnection } from 'node:net';
 import { promises as fsPromises } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { homedir } from 'node:os';
 import type { Agent } from 'node:http';
 import { connect as tlsConnect } from 'node:tls';

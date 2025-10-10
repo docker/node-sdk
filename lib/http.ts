@@ -1,6 +1,6 @@
 import type { Agent, IncomingMessage, RequestOptions } from 'node:http';
 import { request } from 'node:http';
-import type { Readable, Writable, Duplex } from 'node:stream';
+import type { Readable, Duplex } from 'node:stream';
 import { getErrorMessage } from './util.js';
 
 // Docker stream content type constants
@@ -261,7 +261,7 @@ export class HTTPClient {
                 reject(new Error(`Request error: ${error.message}`));
             });
 
-            req.on('upgrade', (res, socket, head) => {
+            req.on('upgrade', (res, socket, _head) => {
                 const resp = createResponse(res);
                 resp.sock = socket;
                 resolve(resp);
