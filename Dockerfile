@@ -17,12 +17,12 @@ RUN --mount=type=cache,target=/root/.npm \
 FROM install-base AS build
 RUN npm run build
 
+FROM build AS lint
+RUN npm run lint
+
 FROM build AS test-build
 ENV DOCKER_HOST=tcp://host.docker.internal:2375
 RUN npm test
-
-FROM build AS lint
-RUN npm run lint
 
 FROM node:${NODE_TEST_VERSION}-alpine3.21 AS test-integration-build
 WORKDIR /workspace
