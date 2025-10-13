@@ -161,10 +161,7 @@ export class HTTPClient {
         });
     }
 
-    public async getJSON<T>(
-        uri: string,
-        params?: Record<string, any>,
-    ): Promise<T> {
+    public getJSON<T>(uri: string, params?: Record<string, any>): Promise<T> {
         return this.get(uri, APPLICATION_JSON, params).then((response) => {
             if (response.status === 404) {
                 throw NotFoundError;
@@ -271,6 +268,6 @@ interface Upgrade {
     socket: Duplex;
 }
 
-function isReadableStream(data: unknown): data is ReadableStream {
+function isReadableStream(data: any): data is ReadableStream {
     return 'getReader' in data && typeof data.getReader === 'function';
 }

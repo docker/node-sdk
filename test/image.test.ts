@@ -31,6 +31,7 @@ test('image lifecycle: create container, commit image, export/import, inspect, a
             },
         });
 
+        console.dir(createResponse, { depth: null });
         containerId = createResponse.Id;
         assert.isNotNull(containerId);
         console.log(`    Container created: ${containerId.substring(0, 12)}`);
