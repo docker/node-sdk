@@ -252,3 +252,12 @@ export * from './VolumeListResponse.js';
 export * from './VolumePruneResponse.js';
 export * from './VolumeUpdateRequest.js';
 export * from './VolumeUsageData.js';
+
+// OCI Registry types
+export * from './Descriptor.js';
+export * from './Manifest.js';
+export * from './OCIIndex.js';
+export * from './RegistryAuth.js';
+export * from './RegistryErrorResponse.js';
+export * from './RegistryPlatform.js';
+export * from './TagsList.js';
