@@ -3,12 +3,12 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
     test: {
-        include: ['**/*.test.ts'],
+        include: ['**/*.test.js'],
         reporters: [
             [
                 'junit',
                 {
-                    suiteName: 'Node-SDK ESM Integration Tests',
+                    suiteName: 'Node-SDK CJS Integration Tests',
                 },
             ],
             'default',

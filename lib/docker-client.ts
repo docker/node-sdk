@@ -1,4 +1,4 @@
-import { createConnection, type Socket } from 'node:net';
+import { createConnection } from 'node:net';
 import { promises as fsPromises } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';

@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "node --test",
+    "test": "vitest run",
     "start": "node main.js"
   },
   "type": "commonjs",
   "main": "main.js",
   "dependencies": {
-    "@docker/node-sdk": "file:../.."
+    "@docker/node-sdk": "file:../..",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,0 +1,8 @@
+.github
+.idea
+dist
+lib/types
+!lib/types/FileInfo.ts
+node_modules
+out
+junit.xml

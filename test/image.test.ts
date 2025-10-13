@@ -1,7 +1,7 @@
-import { assert, expect, test } from 'vitest';
+import { assert, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { Filter } from '../lib/filter.js';
-import { Writable, Readable } from 'node:stream';
+import { Readable } from 'node:stream';
 import type { NotFoundError } from '../lib/http.js';
 
 test('image lifecycle: create container, commit image, export/import, inspect, and prune', async () => {
@@ -69,7 +69,7 @@ test('image lifecycle: create container, commit image, export/import, inspect, a
         await client.imageGet(
             testImageName,
             new WritableStream({
-                write(chunk: Uint8Array, controller) {
+                write(chunk: Uint8Array, _controller) {
                     // console.log(`    Writing chunk: ${chunk.length} bytes`);
                     tarData.push(chunk);
                 },
