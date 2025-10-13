@@ -53,12 +53,21 @@ jobs:
             - name: Version (dry-run)
               if: ${{ inputs.dryRun }}
               run: npm version --no-git-tag-version "${{ inputs.version }}"
+
             - name: Version
               if: ${{ ! inputs.dryRun }}
               run: npm version "${{ inputs.version }}"
+
             - name: Publish (dry-run)
               if: ${{ inputs.dryRun }}
               run: npm publish --provenance --access public --dry-run
+
             - name: Publish
               if: ${{ ! inputs.dryRun }}
               run: npm publish --provenance --access public
+
+            - name: Publish (internal)
+              if: ${{ ! inputs.dryRun }}
+              run: |
+                  echo "@docker=https://npm.pkg.github.com" > .npmrc
+                  npm publish --provenance --scope=@docker
