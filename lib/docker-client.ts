@@ -259,13 +259,10 @@ export class DockerClient {
     public async systemAuth(
         authConfig: types.AuthConfig,
     ): Promise<types.SystemAuthResponse> {
-        return this.api
-            .post('/auth', authConfig, undefined, {
-                accept: APPLICATION_JSON,
-            })
-            .then((response) => {
-                return response.json() as Promise<types.SystemAuthResponse>;
-            });
+        const response = await this.api.post('/auth', authConfig, undefined, {
+            accept: APPLICATION_JSON,
+        });
+        return response.json() as Promise<types.SystemAuthResponse>;
     }
 
     /**
@@ -297,31 +294,29 @@ export class DockerClient {
             filters?: Filter;
         },
     ) {
-        await this.api
-            .get('/events', APPLICATION_NDJSON, {
-                params: options,
-            })
-            .then((response) => {
-                /*
-                            data.toString(encoding)
-                    .split('\n')
-                    .filter((line) => line.trim() !== '')
-                    .forEach((line) => {
-                        callback(JSON.parse(line) as types.EventMessage);
-                    });
-
-             */
+        const response = await this.api.get('/events', APPLICATION_NDJSON, {
+            params: options,
+        });
+        /*
+                    data.toString(encoding)
+            .split('\n')
+            .filter((line) => line.trim() !== '')
+            .forEach((line) => {
+                callback(JSON.parse(line) as types.EventMessage);
             });
+
+         */
     }
 
     /**
      * This is a dummy endpoint you can use to test if the server is accessible.
      * Ping
      */
-    public systemPing(): Promise<string> {
-        return this.api
-            .head('/_ping', { accept: 'text/plain' })
-            .then((response) => response.headers.get('api-version') as string);
+    public async systemPing(): Promise<string> {
+        const response = await this.api.head('/_ping', {
+            accept: 'text/plain',
+        });
+        return response.headers.get('api-version') as string;
     }
 
     /**
@@ -353,13 +348,14 @@ export class DockerClient {
         path: string,
         out: WritableStream,
     ): Promise<void> {
-        return this.api
-            .get(`/containers/${id}/archive`, 'application/x-tar', {
+        const response = await this.api.get(
+            `/containers/${id}/archive`,
+            'application/x-tar',
+            {
                 path: path,
-            })
-            .then((response) => {
-                response.body?.pipeTo(out);
-            });
+            },
+        );
+        await response.body?.pipeTo(out);
     }
 
     /**
@@ -372,24 +368,17 @@ export class DockerClient {
         id: string,
         path: string,
     ): Promise<types.FileInfo> {
-        return this.api
-            .head(`/containers/${id}/archive`, {
-                params: {
-                    path: path,
-                },
-            })
-            .then((response) => {
-                const header = response.headers.get(
-                    'x-docker-container-path-stat',
-                );
-                if (!header) {
-                    throw new Error(
-                        'X-Docker-Container-Path-Stat header not found',
-                    );
-                }
-                const json = Buffer.from(header, 'base64').toString('utf-8');
-                return types.FileInfo.fromJSON(json);
-            });
+        const response = await this.api.head(`/containers/${id}/archive`, {
+            params: {
+                path: path,
+            },
+        });
+        const header = response.headers.get('x-docker-container-path-stat');
+        if (!header) {
+            throw new Error('X-Docker-Container-Path-Stat header not found');
+        }
+        const json = Buffer.from(header, 'base64').toString('utf-8');
+        return types.FileInfo.fromJSON(json);
     }
 
     /**
@@ -457,11 +446,12 @@ export class DockerClient {
             platform?: string;
         },
     ): Promise<types.ContainerCreateResponse> {
-        return this.api
-            .post('/containers/create', options, spec)
-            .then((response) => {
-                return response.json() as Promise<types.ContainerCreateResponse>;
-            });
+        const response = await this.api.post(
+            '/containers/create',
+            options,
+            spec,
+        );
+        return response.json() as Promise<types.ContainerCreateResponse>;
     }
 
     /**
@@ -480,13 +470,11 @@ export class DockerClient {
             link?: boolean;
         },
     ): Promise<void> {
-        return this.api
-            .delete(`/containers/${id}`, {
-                v: options?.volumes,
-                force: options?.force,
-                link: options?.link,
-            })
-            .then((): void => {});
+        await this.api.delete(`/containers/${id}`, {
+            v: options?.volumes,
+            force: options?.force,
+            link: options?.link,
+        });
     }
 
     /**
@@ -496,11 +484,11 @@ export class DockerClient {
      * @param w stream to write container's filesystem content as a TAR archive'
      */
     public async containerExport(id: string, w: WritableStream): Promise<void> {
-        return this.api
-            .get(`/containers/${id}/export`, 'application/x-tar')
-            .then((response) => {
-                response.body?.pipeTo(w);
-            });
+        const response = await this.api.get(
+            `/containers/${id}/export`,
+            'application/x-tar',
+        );
+        await response.body?.pipeTo(w);
     }
 
     /**
@@ -535,7 +523,7 @@ export class DockerClient {
             signal?: string;
         },
     ): Promise<void> {
-        return this.api.post(`/containers/${id}/kill`, options).then(() => {});
+        await this.api.post(`/containers/${id}/kill`, options);
     }
 
     /**
@@ -589,15 +577,12 @@ export class DockerClient {
         },
     ): Promise<void> {
         const demux = demultiplexStream(stdout, stderr);
-        return this.api
-            .get(
-                `/containers/${id}/logs`,
-                'application/vnd.docker.raw-stream',
-                options,
-            )
-            .then((response) => {
-                response.body?.pipeTo(Writable.toWeb(demux));
-            });
+        const response = await this.api.get(
+            `/containers/${id}/logs`,
+            'application/vnd.docker.raw-stream',
+            options,
+        );
+        await response.body?.pipeTo(Writable.toWeb(demux));
     }
 
     /**
@@ -606,7 +591,7 @@ export class DockerClient {
      * @param id ID or name of the container
      */
     public async containerPause(id: string): Promise<void> {
-        return this.api.post(`/containers/${id}/pause`).then(() => {});
+        await this.api.post(`/containers/${id}/pause`);
     }
 
     /**
@@ -617,9 +602,8 @@ export class DockerClient {
     public async containerPrune(options?: {
         filters?: string;
     }): Promise<types.ContainerPruneResponse> {
-        return this.api.post('/containers/prune', options).then((response) => {
-            return response.json() as Promise<types.ContainerPruneResponse>;
-        });
+        const response = await this.api.post('/containers/prune', options);
+        return response.json() as Promise<types.ContainerPruneResponse>;
     }
 
     /**
@@ -628,9 +612,7 @@ export class DockerClient {
      * @param name New name for the container
      */
     public async containerRename(id: string, name: string): Promise<void> {
-        return this.api
-            .post(`/containers/${id}/rename?name=${name}`)
-            .then(() => {});
+        await this.api.post(`/containers/${id}/rename?name=${name}`);
     }
 
     /**
@@ -645,12 +627,10 @@ export class DockerClient {
         width: number,
         height: number,
     ): Promise<void> {
-        return this.api
-            .post(`/containers/${id}/resize`, {
-                w: width,
-                h: height,
-            })
-            .then(() => {});
+        await this.api.post(`/containers/${id}/resize`, {
+            w: width,
+            h: height,
+        });
     }
 
     /**
@@ -667,12 +647,10 @@ export class DockerClient {
             timeout?: number;
         },
     ): Promise<void> {
-        return this.api
-            .post(`/containers/${id}/restart`, {
-                signal: options?.signal,
-                t: options?.timeout,
-            })
-            .then(() => {});
+        await this.api.post(`/containers/${id}/restart`, {
+            signal: options?.signal,
+            t: options?.timeout,
+        });
     }
 
     /**
@@ -687,7 +665,7 @@ export class DockerClient {
             detachKeys?: string;
         },
     ): Promise<void> {
-        return this.api.post(`/containers/${id}/start`, options).then(() => {});
+        await this.api.post(`/containers/${id}/start`, options);
     }
 
     /**
@@ -728,12 +706,10 @@ export class DockerClient {
             timeout?: number;
         },
     ): Promise<void> {
-        return this.api
-            .post(`/containers/${id}/stop`, {
-                signal: options?.signal,
-                t: options?.timeout,
-            })
-            .then(() => {});
+        await this.api.post(`/containers/${id}/stop`, {
+            signal: options?.signal,
+            t: options?.timeout,
+        });
     }
 
     /**
@@ -763,7 +739,7 @@ export class DockerClient {
      * @param id ID or name of the container
      */
     public async containerUnpause(id: string): Promise<void> {
-        return this.api.post(`/containers/${id}/unpause`).then(() => {});
+        await this.api.post(`/containers/${id}/unpause`);
     }
 
     /**
@@ -776,11 +752,11 @@ export class DockerClient {
         id: string,
         update: types.ContainerUpdateRequest,
     ): Promise<types.ContainerUpdateResponse> {
-        return this.api
-            .post(`/containers/${id}/update`, update)
-            .then((response) => {
-                return response.json() as Promise<types.ContainerUpdateResponse>;
-            });
+        const response = await this.api.post(
+            `/containers/${id}/update`,
+            update,
+        );
+        return response.json() as Promise<types.ContainerUpdateResponse>;
     }
 
     /**
@@ -796,11 +772,12 @@ export class DockerClient {
             condition?: 'not-running' | 'next-exit' | 'removed';
         },
     ): Promise<types.ContainerWaitResponse> {
-        return this.api
-            .post(`/containers/${id}/wait`, undefined, options)
-            .then((response) => {
-                return response.json() as Promise<types.ContainerWaitResponse>;
-            });
+        const response = await this.api.post(
+            `/containers/${id}/wait`,
+            undefined,
+            options,
+        );
+        return response.json() as Promise<types.ContainerWaitResponse>;
     }
 
     /**
@@ -822,18 +799,16 @@ export class DockerClient {
             copyUIDGID?: string;
         },
     ): Promise<void> {
-        return this.api
-            .put(
-                `/containers/${id}/archive`,
-                {
-                    path: path,
-                    noOverwriteDirNonDir: options?.noOverwriteDirNonDir,
-                    copyUIDGID: options?.copyUIDGID,
-                },
-                tar,
-                'application/x-tar',
-            )
-            .then(() => {});
+        await this.api.put(
+            `/containers/${id}/archive`,
+            {
+                path: path,
+                noOverwriteDirNonDir: options?.noOverwriteDirNonDir,
+                copyUIDGID: options?.copyUIDGID,
+            },
+            tar,
+            'application/x-tar',
+        );
     }
 
     // --- Network API
@@ -848,9 +823,7 @@ export class DockerClient {
         id: string,
         container: types.NetworkConnectRequest,
     ): Promise<void> {
-        return this.api
-            .post(`/networks/${id}/connect`, container)
-            .then(() => {});
+        await this.api.post(`/networks/${id}/connect`, container);
     }
 
     /**
@@ -860,11 +833,12 @@ export class DockerClient {
     public async networkCreate(
         config: types.NetworkCreateRequest,
     ): Promise<types.NetworkCreateResponse> {
-        return this.api
-            .post('/networks/create', undefined, config)
-            .then((response) => {
-                return response.json() as Promise<types.NetworkCreateResponse>;
-            });
+        const response = await this.api.post(
+            '/networks/create',
+            undefined,
+            config,
+        );
+        return response.json() as Promise<types.NetworkCreateResponse>;
     }
 
     /**
@@ -872,7 +846,7 @@ export class DockerClient {
      * @param id Network ID or name
      */
     public async networkDelete(id: string): Promise<void> {
-        return this.api.delete(`/networks/${id}`).then(() => {});
+        await this.api.delete(`/networks/${id}`);
     }
 
     /**
@@ -884,9 +858,7 @@ export class DockerClient {
         id: string,
         container: types.NetworkDisconnectRequest,
     ): Promise<void> {
-        return this.api
-            .post(`/networks/${id}/disconnect`, container)
-            .then(() => {});
+        await this.api.post(`/networks/${id}/disconnect`, container);
     }
 
     /**
@@ -925,9 +897,8 @@ export class DockerClient {
     public async networkPrune(
         filters?: Filter,
     ): Promise<types.NetworkPruneResponse> {
-        return this.api.post('/networks/prune', filters).then((response) => {
-            return response.json() as Promise<types.NetworkPruneResponse>;
-        });
+        const response = await this.api.post('/networks/prune', filters);
+        return response.json() as Promise<types.NetworkPruneResponse>;
     }
 
     // --- Volumes API
@@ -939,13 +910,15 @@ export class DockerClient {
     public async volumeCreate(
         spec: types.VolumeCreateOptions,
     ): Promise<types.Volume> {
-        return this.api
-            .post('/volumes/create', undefined, spec, {
+        const response = await this.api.post(
+            '/volumes/create',
+            undefined,
+            spec,
+            {
                 Accept: '*/*',
-            })
-            .then((response) => {
-                return response.json() as Promise<types.Volume>;
-            });
+            },
+        );
+        return response.json() as Promise<types.Volume>;
     }
 
     /**
@@ -961,7 +934,7 @@ export class DockerClient {
             force?: boolean;
         },
     ): Promise<void> {
-        return this.api.delete(`/volumes/${id}`, options).then(() => {});
+        await this.api.delete(`/volumes/${id}`, options);
     }
 
     /**
@@ -991,13 +964,10 @@ export class DockerClient {
     public async volumePrune(
         filters?: Filter,
     ): Promise<types.VolumePruneResponse> {
-        return this.api
-            .post('/volumes/prune', {
-                filters: filters,
-            })
-            .then((response) => {
-                return response.json() as Promise<types.VolumePruneResponse>;
-            });
+        const response = await this.api.post('/volumes/prune', {
+            filters: filters,
+        });
+        return response.json() as Promise<types.VolumePruneResponse>;
     }
 
     // --- Image API
@@ -1028,9 +998,8 @@ export class DockerClient {
         all?: boolean;
         filters?: Filter;
     }): Promise<types.BuildPruneResponse> {
-        return this.api.post('/build/prune', options).then((response) => {
-            return response.json() as Promise<types.BuildPruneResponse>;
-        });
+        const response = await this.api.post('/build/prune', options);
+        return response.json() as Promise<types.BuildPruneResponse>;
     }
 
     /**
@@ -1173,20 +1142,17 @@ export class DockerClient {
             containerConfig?: types.ContainerConfig;
         },
     ): Promise<types.IDResponse> {
-        return this.api
-            .post(`/commit`, {
-                container: container,
-                repo: options?.repo,
-                tag: options?.tag,
-                comment: options?.comment,
-                author: options?.author,
-                pause: options?.pause,
-                changes: options?.changes,
-                containerConfig: options?.containerConfig,
-            })
-            .then((response) => {
-                return response.json() as Promise<types.IDResponse>;
-            });
+        const response = await this.api.post(`/commit`, {
+            container: container,
+            repo: options?.repo,
+            tag: options?.tag,
+            comment: options?.comment,
+            author: options?.author,
+            pause: options?.pause,
+            changes: options?.changes,
+            containerConfig: options?.containerConfig,
+        });
+        return response.json() as Promise<types.IDResponse>;
     }
 
     /**
@@ -1226,22 +1192,21 @@ export class DockerClient {
             );
         }
 
-        return this.api
-            .post(
-                '/images/create',
-                {
-                    fromImage: options?.fromImage,
-                    fromSrc: options?.fromSrc,
-                    repo: options?.repo,
-                    tag: options?.tag,
-                    message: options?.message,
-                    changes: options?.changes,
-                    platform: options?.platform,
-                    inputImage: options?.inputImage,
-                },
-                undefined,
-                headers,
-                /*(data: Buffer, encoding?: BufferEncoding) => {
+        await this.api.post(
+            '/images/create',
+            {
+                fromImage: options?.fromImage,
+                fromSrc: options?.fromSrc,
+                repo: options?.repo,
+                tag: options?.tag,
+                message: options?.message,
+                changes: options?.changes,
+                platform: options?.platform,
+                inputImage: options?.inputImage,
+            },
+            undefined,
+            headers,
+            /*(data: Buffer, encoding?: BufferEncoding) => {
                 data.toString(encoding)
                     .split('\n')
                     .filter((line) => line.trim() !== '')
@@ -1249,8 +1214,7 @@ export class DockerClient {
                         callback(JSON.parse(line));
                     });
             },*/
-            )
-            .then(() => {});
+        );
     }
 
     /**
@@ -1270,11 +1234,8 @@ export class DockerClient {
             platforms?: Array<string>;
         },
     ): Promise<Array<types.ImageDeleteResponseItem>> {
-        return this.api.delete(`/images/${name}`, options).then((response) => {
-            return response.json() as Promise<
-                Array<types.ImageDeleteResponseItem>
-            >;
-        });
+        const response = await this.api.delete(`/images/${name}`, options);
+        return response.json() as Promise<Array<types.ImageDeleteResponseItem>>;
     }
 
     /**
@@ -1309,17 +1270,18 @@ export class DockerClient {
         names: Array<string>,
         platform?: types.Platform,
     ): Promise<ReadableStream> {
-        return this.api
-            .get(`/images/get`, 'application/x-tar', {
+        const response = await this.api.get(
+            `/images/get`,
+            'application/x-tar',
+            {
                 names: names,
                 platform: platform,
-            })
-            .then((response) => {
-                if (!response.body) {
-                    throw new Error('No response body');
-                }
-                return response.body;
-            });
+            },
+        );
+        if (!response.body) {
+            throw new Error('No response body');
+        }
+        return response.body;
     }
 
     /**
@@ -1389,11 +1351,9 @@ export class DockerClient {
             callback?: (event: any) => void;
         },
     ): Promise<void> {
-        return this.api
-            .post(`/images/load`, options, imagesTarball, {
-                'Content-Type': 'application/x-tar',
-            })
-            .then(() => {});
+        await this.api.post(`/images/load`, options, imagesTarball, {
+            'Content-Type': 'application/x-tar',
+        });
     }
 
     /**
@@ -1403,13 +1363,10 @@ export class DockerClient {
     public async imagePrune(
         filters?: Filter,
     ): Promise<types.ImagePruneResponse> {
-        return this.api
-            .post(`/images/prune`, {
-                filters: filters,
-            })
-            .then((response) => {
-                return response.json() as Promise<types.ImagePruneResponse>;
-            });
+        const response = await this.api.post(`/images/prune`, {
+            filters: filters,
+        });
+        return response.json() as Promise<types.ImagePruneResponse>;
     }
 
     /**
@@ -1468,12 +1425,10 @@ export class DockerClient {
         repo: string,
         tag: string,
     ): Promise<void> {
-        return this.api
-            .post(`/images/${name}/tag`, {
-                repo: repo,
-                tag: tag,
-            })
-            .then(() => {});
+        await this.api.post(`/images/${name}/tag`, {
+            repo: repo,
+            tag: tag,
+        });
     }
 
     // -- Exec
@@ -1488,11 +1443,12 @@ export class DockerClient {
         id: string,
         execConfig: types.ExecConfig,
     ): Promise<types.IDResponse> {
-        return this.api
-            .post(`/containers/${id}/exec`, undefined, execConfig)
-            .then((response) => {
-                return response.json() as Promise<types.IDResponse>;
-            });
+        const response = await this.api.post(
+            `/containers/${id}/exec`,
+            undefined,
+            execConfig,
+        );
+        return response.json() as Promise<types.IDResponse>;
     }
 
     /**
@@ -1516,12 +1472,10 @@ export class DockerClient {
         width: number,
         height: number,
     ): Promise<void> {
-        return this.api
-            .post(`/exec/${id}/resize`, {
-                w: width,
-                h: height,
-            })
-            .then(() => {});
+        await this.api.post(`/exec/${id}/resize`, {
+            w: width,
+            h: height,
+        });
     }
 
     /**
@@ -1534,8 +1488,6 @@ export class DockerClient {
         id: string,
         execStartConfig?: types.ExecStartConfig,
     ): Promise<void> {
-        return this.api
-            .post(`/exec/${id}/start`, undefined, execStartConfig)
-            .then(() => {});
+        await this.api.post(`/exec/${id}/start`, undefined, execStartConfig);
     }
 }
