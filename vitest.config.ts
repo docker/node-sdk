@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import { defineConfig, type UserConfig } from 'vite';
 
 export default defineConfig({
     test: {
@@ -25,4 +25,4 @@ export default defineConfig({
             junit: './out/test/junit.xml',
         },
     },
-});
+}) as UserConfig;
