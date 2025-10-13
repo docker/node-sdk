@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig, type UserConfig } from 'vite';
+import { defineConfig, type UserConfig } from 'vitest/config';
 
 export default defineConfig({
     test: {
