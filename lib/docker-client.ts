@@ -2,7 +2,7 @@ import { createConnection, type Socket } from 'node:net';
 import { promises as fsPromises } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
-import type { Agent } from 'undici';
+import type { Agent, Response } from 'undici';
 import type { SecureContextOptions } from 'node:tls';
 import { connect as tlsConnect } from 'node:tls';
 import type { AuthConfig, BuildInfo, Platform } from './types/index.js';
@@ -12,6 +12,7 @@ import { SocketAgent } from './socket.js';
 import { Filter } from './filter.js';
 import { SSH } from './ssh.js';
 import { TLS } from './tls.js';
+
 import * as stream from 'node:stream';
 import { demultiplexStream } from './multiplexed-stream.js';
 import {
@@ -297,15 +298,7 @@ export class DockerClient {
         const response = await this.api.get('/events', APPLICATION_NDJSON, {
             params: options,
         });
-        /*
-                    data.toString(encoding)
-            .split('\n')
-            .filter((line) => line.trim() !== '')
-            .forEach((line) => {
-                callback(JSON.parse(line) as types.EventMessage);
-            });
-
-         */
+        await jsonMessages(response, callback);
     }
 
     /**
@@ -1192,7 +1185,7 @@ export class DockerClient {
             );
         }
 
-        await this.api.post(
+        const response = await this.api.post(
             '/images/create',
             {
                 fromImage: options?.fromImage,
@@ -1206,15 +1199,8 @@ export class DockerClient {
             },
             undefined,
             headers,
-            /*(data: Buffer, encoding?: BufferEncoding) => {
-                data.toString(encoding)
-                    .split('\n')
-                    .filter((line) => line.trim() !== '')
-                    .forEach((line) => {
-                        callback(JSON.parse(line));
-                    });
-            },*/
         );
+        await jsonMessages(response, callback);
     }
 
     /**
@@ -1373,17 +1359,18 @@ export class DockerClient {
      * Push an image to a registry.  If you wish to push an image on to a private registry, that image must already have a tag which references the registry. For example, `registry.example.com/myimage:latest`.  The push is cancelled if the HTTP connection is closed.
      * Push an image
      * @param name Name of the image to push. For example, &#x60;registry.example.com/myimage&#x60;. The image must be present in the local image store with the same name.  The name should be provided without tag; if a tag is provided, it is ignored. For example, &#x60;registry.example.com/myimage:latest&#x60; is considered equivalent to &#x60;registry.example.com/myimage&#x60;.  Use the &#x60;tag&#x60; parameter to specify the tag to push.
+     * @param callback push progress events
      * @param credentials A base64url-encoded auth configuration.  Refer to the [authentication section](#section/Authentication) for details.
      * @param tag Tag of the image to push. For example, &#x60;latest&#x60;. If no tag is provided, all tags of the given image that are present in the local image store are pushed.
      * @param platform JSON-encoded OCI platform to select the platform-variant to push. If not provided, all available variants will attempt to be pushed.  If the daemon provides a multi-platform image store, this selects the platform-variant to push to the registry. If the image is a single-platform image, or if the multi-platform image does not provide a variant matching the given platform, an error is returned.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
      */
     public async imagePush(
         name: string,
+        callback: (event: any) => void,
         options: {
             credentials: AuthConfig;
             tag?: string;
             platform?: Platform;
-            callback: (event: any) => void;
         },
     ): Promise<void> {
         const headers: Record<string, string> = {};
@@ -1402,15 +1389,8 @@ export class DockerClient {
             },
             undefined,
             headers,
-            // FIXME options?.callback,
         );
-        await response.body?.pipeTo(
-            new WritableStream({
-                write(chunk: any) {
-                    options?.callback(JSON.parse(chunk));
-                },
-            }),
-        );
+        await jsonMessages(response, callback);
     }
 
     /**
@@ -1490,4 +1470,26 @@ export class DockerClient {
     ): Promise<void> {
         await this.api.post(`/exec/${id}/start`, undefined, execStartConfig);
     }
+}
+
+// jsonMessages processes a response stream with newline-delimited JSON message and calls the callback for each message.
+async function jsonMessages<T>(
+    response: Response,
+    callback: (message: T) => void,
+) {
+    // FIXME get encoding from response.headers.get('Content-Type');
+    const encoding = 'utf-8';
+    const w = new WritableStream({
+        write(chunk: any) {
+            Buffer.from(chunk)
+                .toString(encoding)
+                .split('\n')
+                .filter((line: string) => line.trim() !== '')
+                .forEach((line: string) => {
+                    console.log(line);
+                    callback(JSON.parse(line));
+                });
+        },
+    });
+    await response.body?.pipeTo(w);
 }
