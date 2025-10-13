@@ -1,6 +1,7 @@
 import type { IncomingMessage } from 'node:http';
 import type { ReadableStream } from 'stream/web';
-import { Agent, Response, fetch } from 'undici';
+import { Agent, Response, fetch, upgrade } from 'undici';
+import { Duplex } from 'stream';
 
 // Docker stream content type constants
 const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
@@ -186,8 +187,8 @@ export class HTTPClient {
         };
         let body: ReadableStream | string = '';
         if (data) {
-            if ('getReader' in data && typeof data.getReader === 'function') {
-                body = data as ReadableStream;
+            if (isReadableStream(data)) {
+                body = data;
             } else {
                 body = JSON.stringify(data);
             }
@@ -237,19 +238,39 @@ export class HTTPClient {
     public async upgrade(
         uri: string,
         params?: Record<string, any>,
-    ): Promise<Response> {
+    ): Promise<Upgrade> {
         const queryString = this.buildQueryString(params);
-        // FIXME To hint potential proxies about connection hijacking,
-        // the Docker client _should_ send connection upgrade headers.
-        // but this is blocked by fetch()
-        return fetch(`${this.baseUrl}${uri}${queryString}`, {
-            method: 'POST',
-            headers: {
-                'User-Agent': this.userAgent,
-                // 'Connection': 'Upgrade',
-                // 'Upgrade': 'tcp',
+        const { headers, socket } = await upgrade(
+            `${this.baseUrl}${uri}${queryString}`,
+            {
+                method: 'POST',
+                headers: {
+                    'User-Agent': this.userAgent,
+                },
+                dispatcher: this.agent,
+                protocol: 'tcp',
             },
-            dispatcher: this.agent,
-        });
+        );
+        const header = headers['content-type'] || '';
+        let content: string;
+        if (Array.isArray(header)) {
+            content = header[0] || '';
+        } else {
+            content = header as string;
+        }
+
+        return {
+            content: content,
+            socket: socket,
+        };
     }
+}
+
+interface Upgrade {
+    content: string;
+    socket: Duplex;
+}
+
+function isReadableStream(data: unknown): data is ReadableStream {
+    return 'getReader' in data && typeof data.getReader === 'function';
 }

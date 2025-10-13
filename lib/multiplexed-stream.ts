@@ -1,14 +1,18 @@
-import { WritableStream } from 'node:stream/web';
-import type { Writable } from 'node:stream';
+import { Writable } from 'node:stream';
+import stream from 'node:stream';
 
 export function demultiplexStream(
-    stdout: Writable,
-    stderr: Writable,
-): WritableStream {
+    stdout: NodeJS.WritableStream,
+    stderr: NodeJS.WritableStream,
+): stream.Writable {
     let buffer = new Uint8Array(0);
 
-    return new WritableStream({
-        write(chunk: Uint8Array, controller) {
+    return new Writable({
+        write(
+            chunk: any,
+            encoding: BufferEncoding,
+            cb: (error?: Error | null) => void,
+        ) {
             try {
                 // Convert chunk to Uint8Array if needed
                 const data =
@@ -52,20 +56,10 @@ export function demultiplexStream(
                         break;
                     }
                 }
+                cb();
             } catch (error) {
-                controller.error(
-                    error instanceof Error ? error : new Error(String(error)),
-                );
+                cb(error as Error);
             }
-        },
-
-        close() {
-            // Stream is being closed, nothing special to do
-        },
-
-        abort(reason) {
-            // Stream is being aborted
-            console.error('Demultiplex stream aborted:', reason);
         },
     });
 }
