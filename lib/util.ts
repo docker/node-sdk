@@ -25,7 +25,7 @@ export function getErrorMessage(error: unknown): string | undefined {
 export function parseIntWithDefault(
     value: string | undefined,
     defaultValue: number,
-) {
+): number {
     if (value === undefined) {
         return defaultValue;
     }

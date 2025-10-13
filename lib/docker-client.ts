@@ -237,8 +237,8 @@ export class DockerClient {
         }
     }
 
-    public close() {
-        this.api.close();
+    public close(): Promise<void> {
+        return this.api.close();
     }
 
     // --- Authentication
@@ -294,7 +294,7 @@ export class DockerClient {
             until?: string;
             filters?: Filter;
         },
-    ) {
+    ): Promise<void> {
         const response = await this.api.get('/events', APPLICATION_NDJSON, {
             params: options,
         });

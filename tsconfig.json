@@ -2,7 +2,7 @@
     "compilerOptions": {
         "lib": ["ES2022"],
         "strict": true,
-        "allowJs": true,
+        "allowJs": false,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "moduleResolution": "NodeNext",
@@ -13,6 +13,7 @@
         "rootDir": "./lib",
         "declaration": true,
         "declarationMap": true,
+        "isolatedDeclarations": true,
         "sourceMap": true,
         "allowImportingTsExtensions": true,
         "allowSyntheticDefaultImports": true,

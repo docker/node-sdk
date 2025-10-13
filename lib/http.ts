@@ -88,8 +88,8 @@ export class HTTPClient {
         this.baseUrl = 'http://localhost:2375';
     }
 
-    close() {
-        this.agent.destroy();
+    close(): Promise<void> {
+        return this.agent.destroy();
     }
 
     // Method to send an HTTP request with method, URI and parameters
