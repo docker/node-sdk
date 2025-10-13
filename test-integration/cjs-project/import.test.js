@@ -1,5 +1,5 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
+import { test, assert } from 'vitest';
+
 const { DockerClient } = require('@docker/node-sdk');
 
 test('CJS module should import correctly', () => {

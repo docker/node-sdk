@@ -1,5 +1,5 @@
 import { Agent } from 'undici';
-import { createConnection, type Socket } from 'node:net';
+import { type Socket } from 'node:net';
 
 /**
  * HTTP Agent that creates socket connections using a provided factory function.

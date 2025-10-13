@@ -1,70 +1,72 @@
 {
-  "name": "@docker/node-sdk",
-  "author": "Docker Inc.",
-  "description": "TypeScript SDK for Docker API",
-  "keywords": [
-    "docker",
-    "moby"
-  ],
-  "version": "0.0.4",
-  "homepage": "https://github.com/docker/node-sdk",
-  "bugs": {
-    "url": "https://github.com/docker/node-sdk/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/docker/node-sdk"
-  },
-  "type": "module",
-  "license": "Apache-2.0",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.cts",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      },
-      "default": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist",
-    "lib"
-  ],
-  "scripts": {
-    "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o lib && npm run format",
-    "build": "npm run generate && tsdown",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit",
-    "lint": "oxlint --type-aware",
-    "format": "prettier --write .",
-    "format.check": "prettier --check ."
-  },
-  "dependencies": {
-    "ssh2": "^1.16.0",
-    "tar-stream": "^3.1.4",
-    "undici": "^6.22.0"
-  },
-  "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.23.4",
-    "@types/node": "^24.5.2",
-    "@types/ssh2": "^1.15.5",
-    "@types/tar-stream": "^3.1.4",
-    "oxlint": "^1.16.0",
-    "oxlint-tsgolint": "^0.2.0",
-    "prettier": "^3.6.2",
-    "tsdown": "^0.15.6",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
-  },
-  "engines": {
-    "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
-  },
-  "packageManager": "npm@10.9.3"
+    "name": "@docker/node-sdk",
+    "author": "Docker Inc.",
+    "description": "TypeScript SDK for Docker API",
+    "keywords": [
+        "docker",
+        "moby"
+    ],
+    "version": "0.0.4",
+    "homepage": "https://github.com/docker/node-sdk",
+    "bugs": {
+        "url": "https://github.com/docker/node-sdk/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/docker/node-sdk"
+    },
+    "type": "module",
+    "license": "Apache-2.0",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.cts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.mts",
+                "default": "./dist/index.mjs"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/index.cjs"
+            },
+            "default": "./dist/index.cjs"
+        }
+    },
+    "files": [
+        "dist",
+        "lib"
+    ],
+    "scripts": {
+        "generate": "openapi-generator-cli generate -i swagger.yaml -c openapi-config.yaml -o lib && npm run format.types",
+        "build": "npm run generate && tsdown",
+        "test": "vitest run --coverage",
+        "typecheck": "tsc --noEmit",
+        "lint": "oxlint --type-aware",
+        "format": "prettier --write .",
+        "format.types": "prettier --write lib/types",
+        "format.check": "prettier --check ."
+    },
+    "dependencies": {
+        "ssh2": "^1.16.0",
+        "tar-stream": "^3.1.4",
+        "undici": "^6.22.0"
+    },
+    "devDependencies": {
+        "@openapitools/openapi-generator-cli": "^2.23.4",
+        "@types/node": "^24.5.2",
+        "@types/ssh2": "^1.15.5",
+        "@types/tar-stream": "^3.1.4",
+        "@vitest/coverage-v8": "^3.2.4",
+        "oxlint": "^1.16.0",
+        "oxlint-tsgolint": "^0.2.0",
+        "prettier": "^3.6.2",
+        "tsdown": "^0.15.6",
+        "typescript": "^5.9.2",
+        "vitest": "^3.2.4"
+    },
+    "engines": {
+        "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
+    },
+    "packageManager": "npm@10.9.3"
 }

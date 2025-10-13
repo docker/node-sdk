@@ -4,8 +4,8 @@ import { Agent, Response, fetch, upgrade } from 'undici';
 import { Duplex } from 'stream';
 
 // Docker stream content type constants
-const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
-const DOCKER_MULTIPLEXED_STREAM = 'application/vnd.docker.multiplexed-stream';
+const _DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
+const _DOCKER_MULTIPLEXED_STREAM = 'application/vnd.docker.multiplexed-stream';
 export const APPLICATION_JSON = 'application/json';
 export const APPLICATION_NDJSON = 'application/x-ndjson';
 
@@ -34,7 +34,7 @@ export class ConflictError extends Error {
 }
 
 // Function to parse content-type header and extract charset parameter
-function parseContentType(contentType?: string): {
+function _parseContentType(contentType?: string): {
     type: string;
     charset?: string;
 } {
@@ -58,7 +58,7 @@ function parseContentType(contentType?: string): {
 }
 
 // Function to extract error message from response body
-function getErrorMessageFromResp(
+function _getErrorMessageFromResp(
     res: IncomingMessage,
     body: string | undefined,
 ): string | undefined {
@@ -94,9 +94,9 @@ export class HTTPClient {
 
     // Method to send an HTTP request with method, URI and parameters
     public sendHTTPRequest(
-        method: string,
-        uri: string,
-        options?: {
+        _method: string,
+        _uri: string,
+        _options?: {
             params?: Record<string, any>;
             data?: any;
             callback?: (data: Buffer, encoding?: BufferEncoding) => void;
