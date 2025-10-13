@@ -3,12 +3,13 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "test": "tsx --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=junit.xml",
+        "test": "vitest run --typecheck",
         "start": "tsx main.ts"
     },
     "type": "module",
     "dependencies": {
-        "@docker/node-sdk": "file:../.."
+        "@docker/node-sdk": "file:../..",
+        "vitest": "^3.2.4"
     },
     "devDependencies": {
         "@types/node": "^24.5.2",

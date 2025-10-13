@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsdown';
+import { defineConfig, type UserConfig } from 'tsdown';
 
 export default defineConfig({
     entry: ['lib/index.ts'],
@@ -18,4 +18,4 @@ export default defineConfig({
     tsconfig: './tsconfig.json',
     nodeProtocol: true,
     skipNodeModulesBundle: false,
-});
+}) as UserConfig;
