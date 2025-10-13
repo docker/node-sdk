@@ -69,5 +69,4 @@ jobs:
             - name: Publish (internal)
               if: ${{ ! inputs.dryRun }}
               run: |
-                  echo "@docker=https://npm.pkg.github.com" > .npmrc
-                  npm publish --provenance --scope=@docker
+                  npm publish --registry https://npm.pkg.github.com
