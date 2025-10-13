@@ -423,11 +423,10 @@ export class DockerClient {
             `/containers/${id}/attach`,
             options,
         );
-        const contentType = response.headers.get('content-type');
-        if (contentType === 'application/vnd.docker.raw-stream') {
-            response.body?.pipeTo(Writable.toWeb(stdout));
+        if (response.content === 'application/vnd.docker.raw-stream') {
+            response.socket.pipe(stdout);
         } else {
-            response.body?.pipeTo(demultiplexStream(stdout, stderr));
+            response.socket.pipe(demultiplexStream(stdout, stderr));
         }
     }
 
@@ -597,7 +596,7 @@ export class DockerClient {
                 options,
             )
             .then((response) => {
-                response.body?.pipeTo(demux);
+                response.body?.pipeTo(Writable.toWeb(demux));
             });
     }
 

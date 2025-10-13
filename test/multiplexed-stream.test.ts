@@ -32,9 +32,7 @@ test('should write stdout message to stdout stream', async () => {
     const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(1, 'Hello stdout');
 
-    const writer = demuxStream.getWriter();
-    await writer.write(new Uint8Array(message));
-    await writer.close();
+    await demuxStream.write(message);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), 'Hello stdout');
@@ -48,9 +46,7 @@ test('should write stderr message to stderr stream', async () => {
     const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(2, 'Hello stderr');
 
-    const writer = demuxStream.getWriter();
-    await writer.write(new Uint8Array(message));
-    await writer.close();
+    await demuxStream.write(message);
 
     assert.deepEqual(stderrData.length, 1);
     assert.deepEqual(stderrData[0]?.toString(), 'Hello stderr');
@@ -64,9 +60,7 @@ test('should ignore unknown stream types', async () => {
     const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(3, 'Unknown stream');
 
-    const writer = demuxStream.getWriter();
-    await writer.write(new Uint8Array(message));
-    await writer.close();
+    await demuxStream.write(message);
 
     assert.deepEqual(stdoutData.length, 0);
     assert.deepEqual(stderrData.length, 0);
@@ -81,9 +75,7 @@ test('should handle multiple messages in single chunk', async () => {
     const message2 = createMultiplexedMessage(2, 'First stderr');
     const combined = Buffer.concat([message1, message2]);
 
-    const writer = demuxStream.getWriter();
-    await writer.write(new Uint8Array(combined));
-    await writer.close();
+    await demuxStream.write(combined);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), 'First stdout');
@@ -98,17 +90,14 @@ test('should handle incomplete messages across multiple chunks', async () => {
     const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(1, 'Split message');
 
-    const writer = demuxStream.getWriter();
-
     // Send first half
     const firstHalf = message.subarray(0, 10);
-    await writer.write(new Uint8Array(firstHalf));
+    await demuxStream.write(firstHalf);
     assert.deepEqual(stdoutData.length, 0); // Should not write yet
 
     // Send second half
     const secondHalf = message.subarray(10);
-    await writer.write(new Uint8Array(secondHalf));
-    await writer.close();
+    await demuxStream.write(secondHalf);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), 'Split message');
@@ -121,9 +110,7 @@ test('should handle empty content', async () => {
     const demuxStream = demultiplexStream(stdout, stderr);
     const message = createMultiplexedMessage(1, '');
 
-    const writer = demuxStream.getWriter();
-    await writer.write(new Uint8Array(message));
-    await writer.close();
+    await demuxStream.write(message);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), '');
@@ -135,11 +122,8 @@ test('should handle very short incomplete chunks', async () => {
 
     const demuxStream = demultiplexStream(stdout, stderr);
 
-    const writer = demuxStream.getWriter();
-
     // Send only 4 bytes (less than minimum header size of 8)
-    await writer.write(new TextEncoder().encode('test'));
-    await writer.close();
+    await demuxStream.write(new TextEncoder().encode('test'));
 
     assert.deepEqual(stdoutData.length, 0);
     assert.deepEqual(stderrData.length, 0);
@@ -153,9 +137,7 @@ test('should handle large content', async () => {
     const largeContent = 'x'.repeat(10000);
     const message = createMultiplexedMessage(1, largeContent);
 
-    const writer = demuxStream.getWriter();
-    await writer.write(new Uint8Array(message));
-    await writer.close();
+    await demuxStream.write(message);
 
     assert.deepEqual(stdoutData.length, 1);
     assert.deepEqual(stdoutData[0]?.toString(), largeContent);
