@@ -6,7 +6,7 @@
         "docker",
         "moby"
     ],
-    "version": "0.0.6",
+    "version": "0.0.7",
     "homepage": "https://github.com/docker/node-sdk",
     "bugs": {
         "url": "https://github.com/docker/node-sdk/issues"
