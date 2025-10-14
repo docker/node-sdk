@@ -62,7 +62,7 @@ jobs:
 
             - name: Push Tag
               if: ${{ ! inputs.dryRun }}
-              run: git push origin v"${{ inputs.version }}"
+              run: git push origin v${{ inputs.version }}
 
             - name: GitHub Release
               if: ${{ ! inputs.dryRun }}
@@ -70,7 +70,7 @@ jobs:
               with:
                   generateReleaseNotes: true
                   makeLatest: true
-                  tag: v"${{ inputs.version }}"
+                  tag: v${{ inputs.version }}
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - uses: actions/setup-node@v4
