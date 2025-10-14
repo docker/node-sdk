@@ -2,7 +2,7 @@ import { assert, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { Filter } from '../lib/filter.js';
 import { Writable } from 'node:stream';
-import { Logger } from '../lib/logs';
+import { Logger } from '../lib/logs.js';
 
 // Test Docker Container API functionality
 

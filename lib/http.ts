@@ -79,12 +79,17 @@ function _getErrorMessageFromResp(
  */
 export class HTTPClient {
     private agent: Agent;
-    private userAgent: string;
+    private headers: Record<string, string>;
     private baseUrl: string;
 
-    constructor(agent: Agent, userAgent: string) {
+    constructor(
+        agent: Agent,
+        userAgent: string,
+        headers?: Record<string, string>,
+    ) {
         this.agent = agent;
-        this.userAgent = userAgent;
+        this.headers = headers || {};
+        this.headers['User-Agent'] = userAgent;
         this.baseUrl = 'http://localhost:2375';
     }
 
@@ -138,9 +143,7 @@ export class HTTPClient {
         const queryString = this.buildQueryString(params);
         return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'HEAD',
-            headers: {
-                'User-Agent': this.userAgent,
-            },
+            headers: this.headers,
             dispatcher: this.agent,
         });
     }
@@ -154,8 +157,8 @@ export class HTTPClient {
         return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'GET',
             headers: {
-                'User-Agent': this.userAgent,
                 Accept: accept,
+                ...this.headers,
             },
             dispatcher: this.agent,
         });
@@ -178,9 +181,9 @@ export class HTTPClient {
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
         const requestHeaders: Record<string, string> = {
-            'User-Agent': this.userAgent,
             'Content-Type': APPLICATION_JSON,
             ...headers,
+            ...this.headers,
         };
         let body: ReadableStream | string = '';
         if (data) {
@@ -210,8 +213,8 @@ export class HTTPClient {
         return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'PUT',
             headers: {
-                'User-Agent': this.userAgent,
                 'Content-Type': type,
+                ...this.headers,
             },
             body: JSON.stringify(data),
             dispatcher: this.agent,
@@ -225,9 +228,7 @@ export class HTTPClient {
         const queryString = this.buildQueryString(params);
         return fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'DELETE',
-            headers: {
-                'User-Agent': this.userAgent,
-            },
+            headers: this.headers,
             dispatcher: this.agent,
         });
     }
@@ -241,9 +242,7 @@ export class HTTPClient {
             `${this.baseUrl}${uri}${queryString}`,
             {
                 method: 'POST',
-                headers: {
-                    'User-Agent': this.userAgent,
-                },
+                headers: this.headers,
                 dispatcher: this.agent,
                 protocol: 'tcp',
             },
