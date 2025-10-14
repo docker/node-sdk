@@ -23,7 +23,7 @@ async function main() {
         const out = fs.createWriteStream(os.tmpdir() + '/test.tar');
         await docker.containerExport(ctr, out);
 
-        docker.close();
+        await docker.close();
     } catch (error) {
         console.error(`Error: ${error.message ?? error}`);
     }
