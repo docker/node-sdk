@@ -70,3 +70,15 @@ jobs:
               if: ${{ ! inputs.dryRun }}
               run: |
                   npm publish --registry https://npm.pkg.github.com
+
+            - name: Push Tag
+              if: ${{ ! inputs.dryRun }}
+              run: git push origin v"${{ inputs.version }}"
+
+            - name: GitHub Release
+              if: ${{ ! inputs.dryRun }}
+              uses: ncipollo/release-action@v1.20.0
+              with:
+                  generateReleaseNotes: true
+                  makeLatest: true
+                  token: ${{ secrets.GITHUB_TOKEN }}
