@@ -1,3 +1,4 @@
+// oxlint-disable unbound-method
 import { test, assert, expectTypeOf } from 'vitest';
 
 import {
