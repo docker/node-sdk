@@ -55,7 +55,7 @@ jobs:
               run: npm version --no-git-tag-version "${{ inputs.version }}"
 
             - name: Version
-              run: npm version "${{ inputs.version }}"
+              run: npm version "${{ inputs.version }}" --git-tag-version=${{ !inputs.dryRun }}
 
             - name: Publish
               run: npm publish --provenance --access public --dry-run=${{ inputs.dryRun }}
