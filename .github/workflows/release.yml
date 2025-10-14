@@ -68,8 +68,10 @@ jobs:
 
             - name: Publish (internal)
               if: ${{ ! inputs.dryRun }}
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  npm publish --registry https://npm.pkg.github.com
+                  npm publish --provenance --registry https://npm.pkg.github.com
 
             - name: Push Tag
               if: ${{ ! inputs.dryRun }}
