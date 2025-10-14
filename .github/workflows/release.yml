@@ -55,16 +55,10 @@ jobs:
               run: npm version --no-git-tag-version "${{ inputs.version }}"
 
             - name: Version
-              if: ${{ ! inputs.dryRun }}
               run: npm version "${{ inputs.version }}"
 
-            - name: Publish (dry-run)
-              if: ${{ inputs.dryRun }}
-              run: npm publish --provenance --access public --dry-run
-
             - name: Publish
-              if: ${{ ! inputs.dryRun }}
-              run: npm publish --provenance --access public
+              run: npm publish --provenance --access public --dry-run=${{ inputs.dryRun }}
 
             - name: Push Tag
               if: ${{ ! inputs.dryRun }}
@@ -76,6 +70,7 @@ jobs:
               with:
                   generateReleaseNotes: true
                   makeLatest: true
+                  tag: v"${{ inputs.version }}"
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - uses: actions/setup-node@v4
@@ -85,6 +80,5 @@ jobs:
                   always-auth: "true"
 
             - name: Publish (internal)
-              if: ${{ ! inputs.dryRun }}
               run: |
-                  npm publish --provenance
+                  npm publish --provenance --dry-run=${{ inputs.dryRun }}
