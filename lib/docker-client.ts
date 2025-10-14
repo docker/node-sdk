@@ -28,8 +28,12 @@ import { Writable } from 'node:stream';
 export class DockerClient {
     private api: HTTPClient;
 
-    constructor(agent: Agent, userAgent: string = 'docker/node-sdk') {
-        this.api = new HTTPClient(agent, userAgent);
+    constructor(
+        agent: Agent,
+        userAgent: string = 'docker/node-sdk',
+        headers?: Record<string, string>,
+    ) {
+        this.api = new HTTPClient(agent, userAgent, headers);
     }
 
     /**
@@ -42,6 +46,7 @@ export class DockerClient {
         dockerHost: string,
         certificates?: string | SecureContextOptions,
         userAgent?: string,
+        headers?: Record<string, string>,
     ): Promise<DockerClient> {
         if (dockerHost.startsWith('unix:')) {
             // Unix socket connection - use SocketAgent with socket creation function
@@ -51,7 +56,7 @@ export class DockerClient {
                 const agent = new SocketAgent(() =>
                     createConnection(socketPath),
                 );
-                return new DockerClient(agent, userAgent);
+                return new DockerClient(agent, userAgent, headers);
             } catch (error) {
                 throw new Error(
                     `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
@@ -86,7 +91,7 @@ export class DockerClient {
                     );
                 }
 
-                return new DockerClient(agent, userAgent);
+                return new DockerClient(agent, userAgent, headers);
             } catch (error) {
                 throw new Error(
                     `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
@@ -97,7 +102,7 @@ export class DockerClient {
             try {
                 const socketFactory = await SSH.createSocketFactory(dockerHost);
                 const agent = new SocketAgent(socketFactory);
-                return new DockerClient(agent, userAgent);
+                return new DockerClient(agent, userAgent, headers);
             } catch (error) {
                 throw new Error(
                     `Failed to create SSH Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
@@ -118,6 +123,7 @@ export class DockerClient {
     static async fromDockerContext(
         contextName?: string,
         userAgent?: string,
+        headers?: Record<string, string>,
     ): Promise<DockerClient> {
         // Use DOCKER_CONTEXT environment variable if contextName not provided
         const targetContext = contextName || process.env.DOCKER_CONTEXT;
@@ -171,6 +177,7 @@ export class DockerClient {
                                 dockerHost,
                                 certificates,
                                 userAgent,
+                                headers,
                             );
                         } else {
                             throw new Error(
@@ -199,12 +206,17 @@ export class DockerClient {
      * Reads config.json from DOCKER_CONFIG env var or ~/.docker/config.json to get the currentContext and connects to it
      * @returns Promise that resolves to a connected DockerClient instance
      */
-    static async fromDockerConfig(): Promise<DockerClient> {
+    static async fromDockerConfig(
+        userAgent?: string,
+        headers?: Record<string, string>,
+    ): Promise<DockerClient> {
         // Check for DOCKER_HOST environment variable first - takes precedence over config
         if (process.env.DOCKER_HOST) {
             return DockerClient.fromDockerHost(
                 process.env.DOCKER_HOST,
                 process.env.DOCKER_TLS_CERTDIR,
+                userAgent,
+                headers,
             );
         }
 
@@ -219,10 +231,19 @@ export class DockerClient {
 
             if (config.currentContext) {
                 // Use the specified current context
-                return DockerClient.fromDockerContext(config.currentContext);
+                return DockerClient.fromDockerContext(
+                    config.currentContext,
+                    userAgent,
+                    headers,
+                );
             } else {
                 // No current context specified, use default
-                return DockerClient.fromDockerHost('unix:/var/run/docker.sock');
+                return DockerClient.fromDockerHost(
+                    'unix:/var/run/docker.sock',
+                    undefined,
+                    userAgent,
+                    headers,
+                );
             }
         } catch (error) {
             if (isFileNotFoundError(error)) {
