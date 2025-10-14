@@ -7,7 +7,13 @@ import type { SecureContextOptions } from 'node:tls';
 import { connect as tlsConnect } from 'node:tls';
 import type { AuthConfig, BuildInfo, Platform } from './types/index.js';
 import * as types from './types/index.js';
-import { APPLICATION_JSON, APPLICATION_NDJSON, HTTPClient } from './http.js';
+import {
+    APPLICATION_JSON,
+    APPLICATION_NDJSON,
+    DOCKER_MULTIPLEXED_STREAM,
+    DOCKER_RAW_STREAM,
+    HTTPClient,
+} from './http.js';
 import { SocketAgent } from './socket.js';
 import { Filter } from './filter.js';
 import { SSH } from './ssh.js';
@@ -426,16 +432,27 @@ export class DockerClient {
             `/containers/${id}/attach`,
             options,
         );
-        if (response.content === 'application/vnd.docker.raw-stream') {
-            response.socket.pipe(stdout);
-        } else {
-            if (stderr === null) {
+        switch (response.content) {
+            case DOCKER_RAW_STREAM:
+                response.socket.pipe(stdout);
+                break;
+            case DOCKER_MULTIPLEXED_STREAM:
+                if (stderr === null) {
+                    throw new Error(
+                        'stderr is required to process multiplexed stream',
+                    );
+                }
+                response.socket.pipe(demultiplexStream(stdout, stderr));
+                break;
+            default:
                 throw new Error(
-                    'stderr is required to process multiplexed stream',
+                    'Unsupported content type: ' + response.content,
                 );
-            }
-            response.socket.pipe(demultiplexStream(stdout, stderr));
         }
+        return new Promise((resolve, reject) => {
+            response.socket.once('error', reject);
+            response.socket.once('close', resolve);
+        });
     }
 
     /**
@@ -1485,17 +1502,59 @@ export class DockerClient {
     }
 
     /**
-     * Starts a previously set up ex
      * Start an exec instance
      * @param id Exec instance ID
+     * @param stdout Optional stream to write stdout content
+     * @param stderr Optional stream to write stderr content
      * @param execStartConfig
      */
     public async execStart(
         id: string,
+        stdout: stream.Writable | null,
+        stderr: stream.Writable | null,
         execStartConfig?: types.ExecStartConfig,
     ): Promise<void> {
-        await this.api.post(`/exec/${id}/start`, undefined, execStartConfig);
+        if (execStartConfig?.Detach) {
+            await this.api.post(`/exec/${id}/start`, execStartConfig);
+        } else {
+            if (isWritable(stdout)) {
+                const response = await this.api.upgrade(
+                    `/exec/${id}/start`,
+                    execStartConfig,
+                );
+                switch (response.content) {
+                    case DOCKER_RAW_STREAM:
+                        response.socket.pipe(stdout);
+                        break;
+                    case DOCKER_MULTIPLEXED_STREAM:
+                        if (isWritable(stderr)) {
+                            response.socket.pipe(
+                                demultiplexStream(stdout, stderr),
+                            );
+                            break;
+                        } else {
+                            throw new Error(
+                                'stderr is required to process multiplexed stream',
+                            );
+                        }
+                    default:
+                        throw new Error(
+                            'Unsupported content type: ' + response.content,
+                        );
+                }
+                return new Promise((resolve, reject) => {
+                    response.socket.once('error', reject);
+                    response.socket.once('close', resolve);
+                });
+            } else {
+                throw new Error('stdout is required to process stream');
+            }
+        }
     }
+}
+
+function isWritable(w: Writable | null): w is Writable {
+    return w !== null;
 }
 
 // jsonMessages processes a response stream with newline-delimited JSON message and calls the callback for each message.

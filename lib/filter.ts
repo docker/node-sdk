@@ -1,8 +1,8 @@
 export class Filter {
     private data: Map<string, Set<string>> = new Map();
-
-    set(key: string, values: string[]): void {
+    set(key: string, values: string[]): Filter {
         this.data.set(key, new Set(values));
+        return this;
     }
 
     add(key: string, value: string): Filter {
