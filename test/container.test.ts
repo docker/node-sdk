@@ -2,6 +2,7 @@ import { assert, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { Filter } from '../lib/filter.js';
 import { Writable } from 'node:stream';
+import { Logger } from '../lib/logs';
 
 // Test Docker Container API functionality
 
@@ -40,42 +41,20 @@ test('should receive container stdout on attach', async () => {
         const stdoutData: string[] = [];
         const stderrData: string[] = [];
 
-        const stdout = new Writable({
-            write(
-                chunk: any,
-                encoding: BufferEncoding,
-                callback: (error?: Error | null) => void,
-            ) {
-                const data = chunk.toString();
-                stdoutData.push(data);
-                console.log(`    STDOUT: ${JSON.stringify(data)}`);
-                callback();
-            },
-        });
-
-        const stderr = new Writable({
-            write(
-                chunk: any,
-                encoding: BufferEncoding,
-                callback: (error?: Error | null) => void,
-            ) {
-                const data = chunk.toString();
-                stderrData.push(data);
-                console.log(`    STDERR: ${JSON.stringify(data)}`);
-                callback();
-            },
-        });
-
         // Attach to container before starting
         console.log('  Attaching to container...');
         const attachPromise = client.containerAttach(
             containerId,
-            stdout,
-            stderr,
+            new Logger((line: string) => {
+                stdoutData.push(line);
+            }),
+            new Logger((line: string) => {
+                stderrData.push(line);
+            }),
             {
                 stream: true,
                 stdout: true,
-                stderr: true,
+                stderr: false,
             },
         );
 
