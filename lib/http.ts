@@ -4,8 +4,9 @@ import { Agent, Response, fetch, upgrade } from 'undici';
 import { Duplex } from 'stream';
 
 // Docker stream content type constants
-const _DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
-const _DOCKER_MULTIPLEXED_STREAM = 'application/vnd.docker.multiplexed-stream';
+export const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
+export const DOCKER_MULTIPLEXED_STREAM =
+    'application/vnd.docker.multiplexed-stream';
 export const APPLICATION_JSON = 'application/json';
 export const APPLICATION_NDJSON = 'application/x-ndjson';
 

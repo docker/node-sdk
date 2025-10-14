@@ -82,10 +82,9 @@ jobs:
               with:
                   node-version-file: .node-version
                   registry-url: https://npm.pkg.github.com
-                  always-auth: 'true'
+                  always-auth: "true"
 
             - name: Publish (internal)
               if: ${{ ! inputs.dryRun }}
               run: |
                   npm publish --provenance
-

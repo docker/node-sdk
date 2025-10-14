@@ -15,6 +15,7 @@ export class Logger extends Writable {
         encoding: BufferEncoding,
         callback: (error?: Error | null) => void,
     ): void {
+        console.log(chunk.toString());
         try {
             this.buffer += chunk.toString();
 
