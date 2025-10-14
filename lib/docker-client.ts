@@ -391,7 +391,7 @@ export class DockerClient {
     public async containerAttach(
         id: string,
         stdout: stream.Writable,
-        stderr: stream.Writable,
+        stderr: stream.Writable | null,
         options?: {
             detachKeys?: string;
             logs?: boolean;
@@ -408,6 +408,11 @@ export class DockerClient {
         if (response.content === 'application/vnd.docker.raw-stream') {
             response.socket.pipe(stdout);
         } else {
+            if (stderr === null) {
+                throw new Error(
+                    'stderr is required to process multiplexed stream',
+                );
+            }
             response.socket.pipe(demultiplexStream(stdout, stderr));
         }
     }
