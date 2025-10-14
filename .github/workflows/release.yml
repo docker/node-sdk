@@ -81,4 +81,4 @@ jobs:
 
             - name: Publish (internal)
               run: |
-                  npm publish --provenance --dry-run=${{ inputs.dryRun }}
+                  npm publish --provenance --access public --dry-run=${{ inputs.dryRun }}
