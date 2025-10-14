@@ -30,7 +30,7 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version-file: .node-version
-                  registry-url: "https://registry.npmjs.org"
+                  registry-url: https://registry.npmjs.org
 
             # Ensure npm 11.5.1 or later is installed
             - name: Update npm
@@ -66,13 +66,6 @@ jobs:
               if: ${{ ! inputs.dryRun }}
               run: npm publish --provenance --access public
 
-            - name: Publish (internal)
-              if: ${{ ! inputs.dryRun }}
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  npm publish --provenance --registry https://npm.pkg.github.com
-
             - name: Push Tag
               if: ${{ ! inputs.dryRun }}
               run: git push origin v"${{ inputs.version }}"
@@ -84,3 +77,15 @@ jobs:
                   generateReleaseNotes: true
                   makeLatest: true
                   token: ${{ secrets.GITHUB_TOKEN }}
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .node-version
+                  registry-url: https://npm.pkg.github.com
+                  always-auth: 'true'
+
+            - name: Publish (internal)
+              if: ${{ ! inputs.dryRun }}
+              run: |
+                  npm publish --provenance
+
