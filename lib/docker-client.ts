@@ -243,11 +243,16 @@ export class DockerClient {
                 // Use the specified current context
                 return await DockerClient.fromDockerContext(
                     config.currentContext,
+                    userAgent,
+                    headers,
                 );
             } else {
                 // No current context specified, use default
                 return await DockerClient.fromDockerHost(
                     'unix:/var/run/docker.sock',
+                    undefined,
+                    userAgent,
+                    headers,
                 );
             }
         } catch (error) {
