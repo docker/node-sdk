@@ -1,4 +1,5 @@
-import { test, assert } from 'vitest';
+const test = require('node:test');
+const assert = require('node:assert/strict');
 
 const { DockerClient } = require('@docker/node-sdk');
 

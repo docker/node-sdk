@@ -2,10 +2,10 @@ import { createConnection } from 'node:net';
 import { promises as fsPromises } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
-import type { Agent, Response } from 'undici';
+import type { Agent } from 'undici';
 import type { SecureContextOptions } from 'node:tls';
 import { connect as tlsConnect } from 'node:tls';
-import type { AuthConfig, BuildInfo, Platform } from './types/index.js';
+import type { AuthConfig, Platform } from './types/index.js';
 import * as types from './types/index.js';
 import {
     APPLICATION_JSON,
@@ -66,6 +66,7 @@ export class DockerClient {
             } catch (error) {
                 throw new Error(
                     `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
+                    { cause: error },
                 );
             }
         } else if (dockerHost.startsWith('tcp:')) {
@@ -101,6 +102,7 @@ export class DockerClient {
             } catch (error) {
                 throw new Error(
                     `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
+                    { cause: error },
                 );
             }
         } else if (dockerHost.startsWith('ssh:')) {
@@ -112,6 +114,7 @@ export class DockerClient {
             } catch (error) {
                 throw new Error(
                     `Failed to create SSH Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
+                    { cause: error },
                 );
             }
         } else {
@@ -179,7 +182,7 @@ export class DockerClient {
                             } catch {
                                 // TLS directory doesn't exist, certificates remain undefined
                             }
-                            return DockerClient.fromDockerHost(
+                            return await DockerClient.fromDockerHost(
                                 dockerHost,
                                 certificates,
                                 userAgent,
@@ -201,6 +204,7 @@ export class DockerClient {
             if (isFileNotFoundError(error)) {
                 throw new Error(
                     `Docker contexts directory not found: ${contextsDir}`,
+                    { cause: error },
                 );
             }
             throw error;
@@ -237,18 +241,13 @@ export class DockerClient {
 
             if (config.currentContext) {
                 // Use the specified current context
-                return DockerClient.fromDockerContext(
+                return await DockerClient.fromDockerContext(
                     config.currentContext,
-                    userAgent,
-                    headers,
                 );
             } else {
                 // No current context specified, use default
-                return DockerClient.fromDockerHost(
+                return await DockerClient.fromDockerHost(
                     'unix:/var/run/docker.sock',
-                    undefined,
-                    userAgent,
-                    headers,
                 );
             }
         } catch (error) {
@@ -258,6 +257,7 @@ export class DockerClient {
             } else if (error instanceof SyntaxError) {
                 throw new Error(
                     `Invalid JSON in Docker config file: ${configPath}`,
+                    { cause: error },
                 );
             }
             throw error;
@@ -332,7 +332,7 @@ export class DockerClient {
         const response = await this.api.head('/_ping', {
             accept: 'text/plain',
         });
-        return response.headers.get('api-version') as string;
+        return response.headers.get('api-version')!;
     }
 
     /**
@@ -1039,33 +1039,34 @@ export class DockerClient {
      * Build an image
      *
      * @param buildContext A tar archive compressed with one of the following algorithms: identity (no compression), gzip, bzip2, xz.
-     * @param dockerfile Path within the build context to the &#x60;Dockerfile&#x60;. This is ignored if &#x60;remote&#x60; is specified and points to an external &#x60;Dockerfile&#x60;.
-     * @param t A name and optional tag to apply to the image in the &#x60;name:tag&#x60; format. If you omit the tag the default &#x60;latest&#x60; value is assumed. You can provide several &#x60;t&#x60; parameters.
-     * @param extrahosts Extra hosts to add to /etc/hosts
-     * @param remote A Git repository URI or HTTP/HTTPS context URI. If the URI points to a single text file, the file's contents are placed into a file called &#x60;Dockerfile&#x60; and the image is built from that file. If the URI points to a tarball, the file is downloaded by the daemon and the contents therein used as the context for the build. If the URI points to a tarball and the &#x60;dockerfile&#x60; parameter is also specified, there must be a file with the corresponding path inside the tarball.
-     * @param q Suppress verbose build output.
-     * @param nocache Do not use the cache when building the image.
-     * @param cachefrom JSON array of images used for build cache resolution.
-     * @param pull Attempt to pull the image even if an older image exists locally.
-     * @param rm Remove intermediate containers after a successful build.
-     * @param forcerm Always remove intermediate containers, even upon failure.
-     * @param memory Set memory limit for build.
-     * @param memswap Total memory (memory + swap). Set as &#x60;-1&#x60; to disable swap.
-     * @param cpushares CPU shares (relative weight).
-     * @param cpusetcpus CPUs in which to allow execution (e.g., &#x60;0-3&#x60;, &#x60;0,1&#x60;).
-     * @param cpuperiod The length of a CPU period in microseconds.
-     * @param cpuquota Microseconds of CPU time that the container can get in a CPU period.
-     * @param buildargs JSON map of string pairs for build-time variables. Users pass these values at build-time. Docker uses the buildargs as the environment context for commands run via the &#x60;Dockerfile&#x60; RUN instruction, or for variable expansion in other &#x60;Dockerfile&#x60; instructions. This is not meant for passing secret values.  For example, the build arg &#x60;FOO&#x3D;bar&#x60; would become &#x60;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60; in JSON. This would result in the query parameter &#x60;buildargs&#x3D;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60;. Note that &#x60;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60; should be URI component encoded.  [Read more about the buildargs instruction.](https://docs.docker.com/engine/reference/builder/#arg)
-     * @param shmsize Size of &#x60;/dev/shm&#x60; in bytes. The size must be greater than 0. If omitted the system uses 64MB.
-     * @param squash Squash the resulting images layers into a single layer. *(Experimental release only.)*
-     * @param labels Arbitrary key/value labels to set on the image, as a JSON map of string pairs.
-     * @param networkmode Sets the networking mode for the run commands during build. Supported standard values are: &#x60;bridge&#x60;, &#x60;host&#x60;, &#x60;none&#x60;, and &#x60;container:&lt;name|id&gt;&#x60;. Any other value is taken as a custom network\&#39;s name or ID to which this container should connect to.
-     * @param contentType
-     * @param xRegistryConfig This is a base64-encoded JSON object with auth configurations for multiple registries that a build may refer to.  The key is a registry URL, and the value is an auth configuration object, [as described in the authentication section](#section/Authentication). For example:  &#x60;&#x60;&#x60; {   \&quot;docker.example.com\&quot;: {     \&quot;username\&quot;: \&quot;janedoe\&quot;,     \&quot;password\&quot;: \&quot;hunter2\&quot;   },   \&quot;https://index.docker.io/v1/\&quot;: {     \&quot;username\&quot;: \&quot;mobydock\&quot;,     \&quot;password\&quot;: \&quot;conta1n3rize14\&quot;   } } &#x60;&#x60;&#x60;  Only the registry domain name (and port if not the default 443) are required. However, for legacy reasons, the Docker Hub registry must be specified with both a &#x60;https://&#x60; prefix and a &#x60;/v1/&#x60; suffix even though Docker will prefer to use the v2 registry API.
-     * @param platform Platform in the format os[/arch[/variant]]
-     * @param target Target build stage
-     * @param outputs BuildKit output configuration in the format of a stringified JSON array of objects. Each object must have two top-level properties: &#x60;Type&#x60; and &#x60;Attrs&#x60;. The &#x60;Type&#x60; property must be set to \&#39;moby\&#39;. The &#x60;Attrs&#x60; property is a map of attributes for the BuildKit output configuration. See https://docs.docker.com/build/exporters/oci-docker/ for more information.  Example:  &#x60;&#x60;&#x60; [{\&quot;Type\&quot;:\&quot;moby\&quot;,\&quot;Attrs\&quot;:{\&quot;type\&quot;:\&quot;image\&quot;,\&quot;force-compression\&quot;:\&quot;true\&quot;,\&quot;compression\&quot;:\&quot;zstd\&quot;}}] &#x60;&#x60;&#x60;
-     * @param version Version of the builder backend to use.  - &#x60;1&#x60; is the first generation classic (deprecated) builder in the Docker daemon (default) - &#x60;2&#x60; is [BuildKit](https://github.com/moby/buildkit)
+     * @param options
+     * @param options.dockerfile Path within the build context to the &#x60;Dockerfile&#x60;. This is ignored if &#x60;remote&#x60; is specified and points to an external &#x60;Dockerfile&#x60;.
+     * @param options.t A name and optional tag to apply to the image in the &#x60;name:tag&#x60; format. If you omit the tag the default &#x60;latest&#x60; value is assumed. You can provide several &#x60;t&#x60; parameters.
+     * @param options.extrahosts Extra hosts to add to /etc/hosts
+     * @param options.remote A Git repository URI or HTTP/HTTPS context URI. If the URI points to a single text file, the file's contents are placed into a file called &#x60;Dockerfile&#x60; and the image is built from that file. If the URI points to a tarball, the file is downloaded by the daemon and the contents therein used as the context for the build. If the URI points to a tarball and the &#x60;dockerfile&#x60; parameter is also specified, there must be a file with the corresponding path inside the tarball.
+     * @param options.q Suppress verbose build output.
+     * @param options.nocache Do not use the cache when building the image.
+     * @param options.cachefrom JSON array of images used for build cache resolution.
+     * @param options.pull Attempt to pull the image even if an older image exists locally.
+     * @param options.rm Remove intermediate containers after a successful build.
+     * @param options.forcerm Always remove intermediate containers, even upon failure.
+     * @param options.memory Set memory limit for build.
+     * @param options.memswap Total memory (memory + swap). Set as &#x60;-1&#x60; to disable swap.
+     * @param options.cpushares CPU shares (relative weight).
+     * @param options.cpusetcpus CPUs in which to allow execution (e.g., &#x60;0-3&#x60;, &#x60;0,1&#x60;).
+     * @param options.cpuperiod The length of a CPU period in microseconds.
+     * @param options.cpuquota Microseconds of CPU time that the container can get in a CPU period.
+     * @param options.buildargs JSON map of string pairs for build-time variables. Users pass these values at build-time. Docker uses the buildargs as the environment context for commands run via the &#x60;Dockerfile&#x60; RUN instruction, or for variable expansion in other &#x60;Dockerfile&#x60; instructions. This is not meant for passing secret values.  For example, the build arg &#x60;FOO&#x3D;bar&#x60; would become &#x60;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60; in JSON. This would result in the query parameter &#x60;buildargs&#x3D;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60;. Note that &#x60;{\&quot;FOO\&quot;:\&quot;bar\&quot;}&#x60; should be URI component encoded.  [Read more about the buildargs instruction.](https://docs.docker.com/engine/reference/builder/#arg)
+     * @param options.shmsize Size of &#x60;/dev/shm&#x60; in bytes. The size must be greater than 0. If omitted the system uses 64MB.
+     * @param options.squash Squash the resulting images layers into a single layer. *(Experimental release only.)*
+     * @param options.labels Arbitrary key/value labels to set on the image, as a JSON map of string pairs.
+     * @param options.networkmode Sets the networking mode for the run commands during build. Supported standard values are: &#x60;bridge&#x60;, &#x60;host&#x60;, &#x60;none&#x60;, and &#x60;container:&lt;name|id&gt;&#x60;. Any other value is taken as a custom network\&#39;s name or ID to which this container should connect to.
+     * @param options.contentType
+     * @param options.xRegistryConfig This is a base64-encoded JSON object with auth configurations for multiple registries that a build may refer to.  The key is a registry URL, and the value is an auth configuration object, [as described in the authentication section](#section/Authentication). For example:  &#x60;&#x60;&#x60; {   \&quot;docker.example.com\&quot;: {     \&quot;username\&quot;: \&quot;janedoe\&quot;,     \&quot;password\&quot;: \&quot;hunter2\&quot;   },   \&quot;https://index.docker.io/v1/\&quot;: {     \&quot;username\&quot;: \&quot;mobydock\&quot;,     \&quot;password\&quot;: \&quot;conta1n3rize14\&quot;   } } &#x60;&#x60;&#x60;  Only the registry domain name (and port if not the default 443) are required. However, for legacy reasons, the Docker Hub registry must be specified with both a &#x60;https://&#x60; prefix and a &#x60;/v1/&#x60; suffix even though Docker will prefer to use the v2 registry API.
+     * @param options.platform Platform in the format os[/arch[/variant]]
+     * @param options.target Target build stage
+     * @param options.outputs BuildKit output configuration in the format of a stringified JSON array of objects. Each object must have two top-level properties: &#x60;Type&#x60; and &#x60;Attrs&#x60;. The &#x60;Type&#x60; property must be set to \&#39;moby\&#39;. The &#x60;Attrs&#x60; property is a map of attributes for the BuildKit output configuration. See https://docs.docker.com/build/exporters/oci-docker/ for more information.  Example:  &#x60;&#x60;&#x60; [{\&quot;Type\&quot;:\&quot;moby\&quot;,\&quot;Attrs\&quot;:{\&quot;type\&quot;:\&quot;image\&quot;,\&quot;force-compression\&quot;:\&quot;true\&quot;,\&quot;compression\&quot;:\&quot;zstd\&quot;}}] &#x60;&#x60;&#x60;
+     * @param options.version Version of the builder backend to use.  - &#x60;1&#x60; is the first generation classic (deprecated) builder in the Docker daemon (default) - &#x60;2&#x60; is [BuildKit](https://github.com/moby/buildkit)
      */
     public async *imageBuild(
         buildContext: ReadableStream,

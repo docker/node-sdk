@@ -11,17 +11,14 @@ try {
     const v = await docker.systemVersion();
     console.dir(v, { depth: null });
 
-    const ctr = await docker
-        .containerCreate({
-            Image: 'alpine',
-        })
-        .then((value) => {
-            console.dir(value, { depth: null });
-            return value.Id;
-        });
+    const container = await docker.containerCreate({
+        Image: 'alpine',
+    });
+
+    console.dir(container, { depth: null });
 
     const out = createWriteStream(tmpdir() + '/test.tar');
-    await docker.containerExport(ctr, Writable.toWeb(out));
+    await docker.containerExport(container.Id, Writable.toWeb(out));
 
     await docker.close();
 } catch (error: any) {

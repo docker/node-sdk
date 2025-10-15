@@ -67,7 +67,7 @@ function _getErrorMessageFromResp(
     if (contentType?.includes(APPLICATION_JSON) && body) {
         const jsonBody = JSON.parse(body);
         if (jsonBody.message) {
-            return jsonBody.message;
+            return jsonBody.message as string;
         }
     }
     return res.statusMessage;
@@ -253,7 +253,7 @@ export class HTTPClient {
         if (Array.isArray(header)) {
             content = header[0] || '';
         } else {
-            content = header as string;
+            content = header;
         }
 
         return {

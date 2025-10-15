@@ -107,9 +107,9 @@ export class RegistryClient {
     /**
      * Close the client and cleanup resources
      */
-    public close(): void {
+    public async close(): Promise<void> {
         if (this.agent) {
-            this.agent.destroy();
+            await this.agent.destroy();
         }
     }
 
@@ -131,7 +131,7 @@ export class RegistryClient {
         reference: string,
     ): Promise<OCIManifest | OCIImageIndex> {
         const url = `${this.baseUrl}/v2/${repository}/manifests/${reference}`;
-        const headers = await this.buildHeaders({
+        const headers = this.buildHeaders({
             Accept: [
                 MediaTypes.OCI_MANIFEST_V1,
                 MediaTypes.OCI_INDEX_V1,
@@ -164,7 +164,7 @@ export class RegistryClient {
         reference: string,
     ): Promise<string> {
         const url = `${this.baseUrl}/v2/${repository}/manifests/${reference}`;
-        const headers = await this.buildHeaders({
+        const headers = this.buildHeaders({
             Accept: [
                 MediaTypes.OCI_MANIFEST_V1,
                 MediaTypes.OCI_INDEX_V1,
@@ -215,7 +215,7 @@ export class RegistryClient {
     ): Promise<string> {
         const url = `${this.baseUrl}/v2/${repository}/manifests/${reference}`;
         const body = JSON.stringify(manifest);
-        const headers = await this.buildHeaders({
+        const headers = this.buildHeaders({
             'Content-Type': manifest.mediaType || MediaTypes.OCI_MANIFEST_V1,
             'Content-Length': String(Buffer.byteLength(body)),
         });
@@ -257,7 +257,7 @@ export class RegistryClient {
         }
 
         const url = `${this.baseUrl}/v2/${repository}/manifests/${digest}`;
-        const headers = await this.buildHeaders();
+        const headers = this.buildHeaders();
 
         const response = await this.fetch(url, {
             method: 'DELETE',
@@ -284,7 +284,7 @@ export class RegistryClient {
         digest: string,
     ): Promise<ReadableStream> {
         const url = `${this.baseUrl}/v2/${repository}/blobs/${digest}`;
-        const headers = await this.buildHeaders();
+        const headers = this.buildHeaders();
 
         const response = await this.fetch(url, { headers });
         await this.handleResponse(response);
@@ -316,7 +316,7 @@ export class RegistryClient {
         digest: string,
     ): Promise<boolean> {
         const url = `${this.baseUrl}/v2/${repository}/blobs/${digest}`;
-        const headers = await this.buildHeaders();
+        const headers = this.buildHeaders();
 
         const response = await this.fetch(url, {
             method: 'HEAD',
@@ -339,7 +339,7 @@ export class RegistryClient {
      */
     public async deleteBlob(repository: string, digest: string): Promise<void> {
         const url = `${this.baseUrl}/v2/${repository}/blobs/${digest}`;
-        const headers = await this.buildHeaders();
+        const headers = this.buildHeaders();
 
         const response = await this.fetch(url, {
             method: 'DELETE',
@@ -362,7 +362,7 @@ export class RegistryClient {
      */
     public async initiateUpload(repository: string): Promise<string> {
         const url = `${this.baseUrl}/v2/${repository}/blobs/uploads/`;
-        const headers = await this.buildHeaders();
+        const headers = this.buildHeaders();
 
         const response = await this.fetch(url, {
             method: 'POST',
@@ -409,7 +409,7 @@ export class RegistryClient {
         const url = new URL(uploadUrl);
         url.searchParams.set('digest', digest);
 
-        const headers = await this.buildHeaders({
+        const headers = this.buildHeaders({
             'Content-Type': 'application/octet-stream',
         });
 
@@ -463,7 +463,7 @@ export class RegistryClient {
             url.searchParams.set('last', last);
         }
 
-        const headers = await this.buildHeaders();
+        const headers = this.buildHeaders();
         const response = await this.fetch(url.toString(), { headers });
         await this.handleResponse(response);
 
@@ -485,7 +485,7 @@ export class RegistryClient {
      */
     public async checkVersion(): Promise<boolean> {
         const url = `${this.baseUrl}/v2/`;
-        const headers = await this.buildHeaders();
+        const headers = this.buildHeaders();
 
         const response = await this.fetch(url, { headers });
         return response.status === 200;
@@ -512,7 +512,7 @@ export class RegistryClient {
      */
     public async ping(): Promise<void> {
         const url = `${this.baseUrl}/v2/`;
-        const headers = await this.buildHeaders();
+        const headers = this.buildHeaders();
 
         const response = await this.fetch(url, { headers });
 
@@ -526,9 +526,9 @@ export class RegistryClient {
     /**
      * Build request headers with authentication
      */
-    private async buildHeaders(
+    private buildHeaders(
         additional?: Record<string, string>,
-    ): Promise<Record<string, string>> {
+    ): Record<string, string> {
         const headers: Record<string, string> = {
             'User-Agent': this.userAgent,
             ...additional,
@@ -574,9 +574,9 @@ export class RegistryClient {
             if (error instanceof Error && error.message.includes('401')) {
                 // Try to handle auth challenge and retry
                 await this.handleAuthChallenge(url);
-                return await fetch(url, {
+                return fetch(url, {
                     ...fetchOptions,
-                    headers: await this.buildHeaders(
+                    headers: this.buildHeaders(
                         options?.headers as Record<string, string>,
                     ),
                 });
