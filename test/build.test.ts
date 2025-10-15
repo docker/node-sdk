@@ -20,35 +20,32 @@ COPY test.txt /test.txt
         pack.entry({ name: 'test.txt' }, 'Hello from Docker build test!');
         pack.finalize();
 
-        const buildEvents: any[] = [];
-        let eventCount = 0;
-        const builtImage = await client
-            .imageBuild(
+        let builtImage: string | undefined;
+
+        try {
+            for await (const buildInfo of client.imageBuild(
                 Readable.toWeb(pack, { strategy: { highWaterMark: 16384 } }),
-                (event) => {
-                    eventCount++;
-                    buildEvents.push(event);
-                    console.log(
-                        `    Build event ${eventCount}:`,
-                        JSON.stringify(event),
-                    );
-                },
                 {
                     tag: `${testImageName}:${testTag}`,
                     rm: true,
                     forcerm: true,
                 },
-            )
-            .catch((error: any) => {
-                fail(error);
-            });
+            )) {
+                console.log(`    Build event: ${JSON.stringify(buildInfo)}`);
+                // Capture the built image ID when buildinfo.id == 'moby.image.id'
+                if (buildInfo.id === 'moby.image.id') {
+                    builtImage = buildInfo.aux?.ID;
+                }
+            }
+        } catch (error: any) {
+            fail(error);
+        }
 
-        expect(buildEvents.length).toBeGreaterThan(0);
         expect(builtImage).toBeDefined();
 
         // Inspect the built builtImage to confirm it was created successfully
         console.log(`  Inspecting built image ${builtImage}`);
-        const imageInspect = await client.imageInspect(builtImage);
+        const imageInspect = await client.imageInspect(builtImage || '');
         console.log('  Image found! Build was successful.');
 
         expect(imageInspect.RepoTags).toContain(`${testImageName}:${testTag}`);

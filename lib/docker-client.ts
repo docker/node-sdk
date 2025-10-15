@@ -28,7 +28,7 @@ import {
 } from './util.js';
 import { WritableStream } from 'node:stream/web';
 import { ReadableStream } from 'stream/web';
-import { JSONStream } from './json-stream.js';
+import { jsonMessages } from './json-stream.js';
 import { Writable } from 'node:stream';
 
 export class DockerClient {
@@ -308,24 +308,20 @@ export class DockerClient {
     /**
      * Stream real-time events from the server.  Various objects within Docker report events when something happens to them.  Containers report these events: `attach`, `commit`, `copy`, `create`, `destroy`, `detach`, `die`, `exec_create`, `exec_detach`, `exec_start`, `exec_die`, `export`, `health_status`, `kill`, `oom`, `pause`, `rename`, `resize`, `restart`, `start`, `stop`, `top`, `unpause`, `update`, and `prune`  Images report these events: `create`, `delete`, `import`, `load`, `pull`, `push`, `save`, `tag`, `untag`, and `prune`  Volumes report these events: `create`, `mount`, `unmount`, `destroy`, and `prune`  Networks report these events: `create`, `connect`, `disconnect`, `destroy`, `update`, `remove`, and `prune`  The Docker daemon reports these events: `reload`  Services report these events: `create`, `update`, and `remove`  Nodes report these events: `create`, `update`, and `remove`  Secrets report these events: `create`, `update`, and `remove`  Configs report these events: `create`, `update`, and `remove`  The Builder reports `prune` events
      * Monitor events
-     * @param callback
      * @param options
      * @param options.since Show events created since this timestamp then stream new events.
      * @param options.until Show events created until this timestamp then stop streaming.
      * @param options.filters Filters to process on the event list. Available filters:  - 'config' config name or ID - 'container' container name or ID - 'daemon' daemon name or ID - 'event' event type - 'image' image name or ID - 'label' image or container label - 'network' network name or ID - 'node' node ID - 'plugin' plugin name or ID - 'scope' local or swarm - 'secret' secret name or ID - 'service' service name or ID - 'type' object to filter by, one of 'container', 'image', 'volume', 'network', 'daemon', 'plugin', 'node', 'service', 'secret' or 'config' - 'volume' volume name
      */
-    public async systemEvents(
-        callback: (event: types.EventMessage) => void,
-        options?: {
-            since?: string;
-            until?: string;
-            filters?: Filter;
-        },
-    ): Promise<void> {
+    public async *systemEvents(options?: {
+        since?: string;
+        until?: string;
+        filters?: Filter;
+    }): AsyncGenerator<types.EventMessage, void, undefined> {
         const response = await this.api.get('/events', APPLICATION_NDJSON, {
             params: options,
         });
-        await jsonMessages(response, callback);
+        yield* jsonMessages<types.EventMessage>(response);
     }
 
     /**
@@ -1046,7 +1042,7 @@ export class DockerClient {
      * @param dockerfile Path within the build context to the &#x60;Dockerfile&#x60;. This is ignored if &#x60;remote&#x60; is specified and points to an external &#x60;Dockerfile&#x60;.
      * @param t A name and optional tag to apply to the image in the &#x60;name:tag&#x60; format. If you omit the tag the default &#x60;latest&#x60; value is assumed. You can provide several &#x60;t&#x60; parameters.
      * @param extrahosts Extra hosts to add to /etc/hosts
-     * @param remote A Git repository URI or HTTP/HTTPS context URI. If the URI points to a single text file, the file’s contents are placed into a file called &#x60;Dockerfile&#x60; and the image is built from that file. If the URI points to a tarball, the file is downloaded by the daemon and the contents therein used as the context for the build. If the URI points to a tarball and the &#x60;dockerfile&#x60; parameter is also specified, there must be a file with the corresponding path inside the tarball.
+     * @param remote A Git repository URI or HTTP/HTTPS context URI. If the URI points to a single text file, the file's contents are placed into a file called &#x60;Dockerfile&#x60; and the image is built from that file. If the URI points to a tarball, the file is downloaded by the daemon and the contents therein used as the context for the build. If the URI points to a tarball and the &#x60;dockerfile&#x60; parameter is also specified, there must be a file with the corresponding path inside the tarball.
      * @param q Suppress verbose build output.
      * @param nocache Do not use the cache when building the image.
      * @param cachefrom JSON array of images used for build cache resolution.
@@ -1071,9 +1067,8 @@ export class DockerClient {
      * @param outputs BuildKit output configuration in the format of a stringified JSON array of objects. Each object must have two top-level properties: &#x60;Type&#x60; and &#x60;Attrs&#x60;. The &#x60;Type&#x60; property must be set to \&#39;moby\&#39;. The &#x60;Attrs&#x60; property is a map of attributes for the BuildKit output configuration. See https://docs.docker.com/build/exporters/oci-docker/ for more information.  Example:  &#x60;&#x60;&#x60; [{\&quot;Type\&quot;:\&quot;moby\&quot;,\&quot;Attrs\&quot;:{\&quot;type\&quot;:\&quot;image\&quot;,\&quot;force-compression\&quot;:\&quot;true\&quot;,\&quot;compression\&quot;:\&quot;zstd\&quot;}}] &#x60;&#x60;&#x60;
      * @param version Version of the builder backend to use.  - &#x60;1&#x60; is the first generation classic (deprecated) builder in the Docker daemon (default) - &#x60;2&#x60; is [BuildKit](https://github.com/moby/buildkit)
      */
-    public async imageBuild(
+    public async *imageBuild(
         buildContext: ReadableStream,
-        callback: (event: types.BuildInfo) => void,
         options?: {
             dockerfile?: string;
             tag?: string;
@@ -1102,7 +1097,7 @@ export class DockerClient {
             outputs?: string;
             version?: '1' | '2';
         },
-    ): Promise<string> {
+    ): AsyncGenerator<types.BuildInfo, void, undefined> {
         const headers: Record<string, string> = {};
         headers['Content-Type'] = 'application/x-tar';
 
@@ -1111,7 +1106,7 @@ export class DockerClient {
                 options.credentials,
             );
         }
-        let imageID: string = 'FIXME';
+
         const response = await this.api.post(
             '/build',
             {
@@ -1144,15 +1139,8 @@ export class DockerClient {
             buildContext,
             headers,
         );
-        await response.body?.pipeTo(
-            new JSONStream<BuildInfo>((buildInfo) => {
-                if (buildInfo.id === 'moby.image.id') {
-                    imageID = buildInfo.aux?.ID || '';
-                }
-                callback(buildInfo);
-            }),
-        );
-        return imageID;
+
+        yield* jsonMessages<types.BuildInfo>(response);
     }
 
     /**
@@ -1194,7 +1182,6 @@ export class DockerClient {
     /**
      * Pull or import an image.
      * Create an image
-     * @param callback
      * @param options
      * @param options.fromImage Name of the image to pull. If the name includes a tag or digest, specific behavior applies:  - If only 'fromImage' includes a tag, that tag is used. - If both 'fromImage' and 'tag' are provided, 'tag' takes precedence. - If 'fromImage' includes a digest, the image is pulled by digest, and 'tag' is ignored. - If neither a tag nor digest is specified, all tags are pulled.
      * @param options.fromSrc Source to import. The value may be a URL from which the image can be retrieved or '-' to read the image from the request body. This parameter may only be used when importing an image.
@@ -1206,20 +1193,17 @@ export class DockerClient {
      * @param options.platform Platform in the format os[/arch[/variant]].  When used in combination with the 'fromImage' option, the daemon checks if the given image is present in the local image cache with the given OS and Architecture, and otherwise attempts to pull the image. If the option is not set, the host\&#39;s native OS and Architecture are used. If the given image does not exist in the local image cache, the daemon attempts to pull the image with the host\&#39;s native OS and Architecture. If the given image does exists in the local image cache, but its OS or architecture does not match, a warning is produced.  When used with the 'fromSrc' option to import an image from an archive, this option sets the platform information for the imported image. If the option is not set, the host\&#39;s native OS and Architecture are used for the imported image.
      * @param options.inputImage Image content if the value '-' has been specified in fromSrc query parameter
      */
-    public async imageCreate(
-        callback: (event: any) => void,
-        options?: {
-            fromImage?: string;
-            fromSrc?: string;
-            repo?: string;
-            tag?: string;
-            message?: string;
-            credentials?: AuthConfig;
-            changes?: Array<string>;
-            platform?: string;
-            inputImage?: string;
-        },
-    ): Promise<void> {
+    public async *imageCreate(options?: {
+        fromImage?: string;
+        fromSrc?: string;
+        repo?: string;
+        tag?: string;
+        message?: string;
+        credentials?: AuthConfig;
+        changes?: Array<string>;
+        platform?: string;
+        inputImage?: string;
+    }): AsyncGenerator<any, void, undefined> {
         const headers: Record<string, string> = {};
 
         if (options?.credentials) {
@@ -1243,7 +1227,7 @@ export class DockerClient {
             undefined,
             headers,
         );
-        await jsonMessages(response, callback);
+        yield* jsonMessages(response);
     }
 
     /**
@@ -1402,20 +1386,19 @@ export class DockerClient {
      * Push an image to a registry.  If you wish to push an image on to a private registry, that image must already have a tag which references the registry. For example, `registry.example.com/myimage:latest`.  The push is cancelled if the HTTP connection is closed.
      * Push an image
      * @param name Name of the image to push. For example, &#x60;registry.example.com/myimage&#x60;. The image must be present in the local image store with the same name.  The name should be provided without tag; if a tag is provided, it is ignored. For example, &#x60;registry.example.com/myimage:latest&#x60; is considered equivalent to &#x60;registry.example.com/myimage&#x60;.  Use the &#x60;tag&#x60; parameter to specify the tag to push.
-     * @param callback push progress events
-     * @param credentials A base64url-encoded auth configuration.  Refer to the [authentication section](#section/Authentication) for details.
-     * @param tag Tag of the image to push. For example, &#x60;latest&#x60;. If no tag is provided, all tags of the given image that are present in the local image store are pushed.
-     * @param platform JSON-encoded OCI platform to select the platform-variant to push. If not provided, all available variants will attempt to be pushed.  If the daemon provides a multi-platform image store, this selects the platform-variant to push to the registry. If the image is a single-platform image, or if the multi-platform image does not provide a variant matching the given platform, an error is returned.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
+     * @param options push options including credentials
+     * @param options.credentials A base64url-encoded auth configuration.  Refer to the [authentication section](#section/Authentication) for details.
+     * @param options.tag Tag of the image to push. For example, &#x60;latest&#x60;. If no tag is provided, all tags of the given image that are present in the local image store are pushed.
+     * @param options.platform JSON-encoded OCI platform to select the platform-variant to push. If not provided, all available variants will attempt to be pushed.  If the daemon provides a multi-platform image store, this selects the platform-variant to push to the registry. If the image is a single-platform image, or if the multi-platform image does not provide a variant matching the given platform, an error is returned.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
      */
-    public async imagePush(
+    public async *imagePush(
         name: string,
-        callback: (event: any) => void,
         options: {
             credentials: AuthConfig;
             tag?: string;
             platform?: Platform;
         },
-    ): Promise<void> {
+    ): AsyncGenerator<any, void, undefined> {
         const headers: Record<string, string> = {};
 
         if (options?.credentials) {
@@ -1433,7 +1416,7 @@ export class DockerClient {
             undefined,
             headers,
         );
-        await jsonMessages(response, callback);
+        yield* jsonMessages(response);
     }
 
     /**
@@ -1555,26 +1538,4 @@ export class DockerClient {
 
 function isWritable(w: Writable | null): w is Writable {
     return w !== null;
-}
-
-// jsonMessages processes a response stream with newline-delimited JSON message and calls the callback for each message.
-async function jsonMessages<T>(
-    response: Response,
-    callback: (message: T) => void,
-) {
-    // FIXME get encoding from response.headers.get('Content-Type');
-    const encoding = 'utf-8';
-    const w = new WritableStream({
-        write(chunk: any) {
-            Buffer.from(chunk)
-                .toString(encoding)
-                .split('\n')
-                .filter((line: string) => line.trim() !== '')
-                .forEach((line: string) => {
-                    console.log(line);
-                    callback(JSON.parse(line));
-                });
-        },
-    });
-    await response.body?.pipeTo(w);
 }

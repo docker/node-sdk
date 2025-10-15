@@ -13,15 +13,12 @@ test('should receive container stdout on attach', async () => {
     try {
         // Pull alpine image first
         console.log('  Pulling alpine image...');
-        await client.imageCreate(
-            (event) => {
-                if (event.status) console.log(`    ${event.status}`);
-            },
-            {
-                fromImage: 'docker.io/library/alpine',
-                tag: 'latest',
-            },
-        );
+        for await (const event of client.imageCreate({
+            fromImage: 'docker.io/library/alpine',
+            tag: 'latest',
+        })) {
+            if (event.status) console.log(`    ${event.status}`);
+        }
 
         // Create container with echo command
         console.log('  Creating Alpine container with echo command...');
@@ -114,15 +111,12 @@ test('should collect container output using containerLogs', async () => {
     try {
         // Pull alpine image first (should be cached from previous test)
         console.log('  Pulling alpine image...');
-        await client.imageCreate(
-            (event) => {
-                if (event.status) console.log(`    ${event.status}`);
-            },
-            {
-                fromImage: 'docker.io/library/alpine',
-                tag: 'latest',
-            },
-        );
+        for await (const event of client.imageCreate({
+            fromImage: 'docker.io/library/alpine',
+            tag: 'latest',
+        })) {
+            if (event.status) console.log(`    ${event.status}`);
+        }
 
         // Create container with a command that produces multiple lines of output
         console.log('  Creating Alpine container with multi-line output...');
@@ -252,15 +246,12 @@ test('container lifecycle should work end-to-end', async () => {
     let containerId: string | undefined;
 
     try {
-        await client.imageCreate(
-            (event) => {
-                console.log(event);
-            },
-            {
-                fromImage: 'docker.io/library/nginx',
-                tag: 'latest',
-            },
-        );
+        for await (const event of client.imageCreate({
+            fromImage: 'docker.io/library/nginx',
+            tag: 'latest',
+        })) {
+            console.log(event);
+        }
 
         console.log('  Creating nginx container...');
         // Create container with label

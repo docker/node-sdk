@@ -10,7 +10,7 @@ $ npm version x.y.z
 vx.y.z
 
 # push to git
-$ git push main vx.y.z 
+$ git push main vx.y.z
 ```
 
 GitHub workflow will take care of the rest.
