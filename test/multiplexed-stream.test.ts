@@ -25,7 +25,7 @@ function createMultiplexedMessage(streamType: number, content: string): Buffer {
     return Buffer.concat([header, contentBuffer]);
 }
 
-test('should write stdout message to stdout stream', async () => {
+test('should write stdout message to stdout stream', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
@@ -39,7 +39,7 @@ test('should write stdout message to stdout stream', async () => {
     assert.deepEqual(stderrData.length, 0);
 });
 
-test('should write stderr message to stderr stream', async () => {
+test('should write stderr message to stderr stream', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
@@ -53,7 +53,7 @@ test('should write stderr message to stderr stream', async () => {
     assert.deepEqual(stdoutData.length, 0);
 });
 
-test('should ignore unknown stream types', async () => {
+test('should ignore unknown stream types', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
@@ -66,7 +66,7 @@ test('should ignore unknown stream types', async () => {
     assert.deepEqual(stderrData.length, 0);
 });
 
-test('should handle multiple messages in single chunk', async () => {
+test('should handle multiple messages in single chunk', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
@@ -83,7 +83,7 @@ test('should handle multiple messages in single chunk', async () => {
     assert.deepEqual(stderrData[0]?.toString(), 'First stderr');
 });
 
-test('should handle incomplete messages across multiple chunks', async () => {
+test('should handle incomplete messages across multiple chunks', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: _ } = createMockStream();
 
@@ -103,7 +103,7 @@ test('should handle incomplete messages across multiple chunks', async () => {
     assert.deepEqual(stdoutData[0]?.toString(), 'Split message');
 });
 
-test('should handle empty content', async () => {
+test('should handle empty content', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: _ } = createMockStream();
 
@@ -116,7 +116,7 @@ test('should handle empty content', async () => {
     assert.deepEqual(stdoutData[0]?.toString(), '');
 });
 
-test('should handle very short incomplete chunks', async () => {
+test('should handle very short incomplete chunks', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: stderrData } = createMockStream();
 
@@ -129,7 +129,7 @@ test('should handle very short incomplete chunks', async () => {
     assert.deepEqual(stderrData.length, 0);
 });
 
-test('should handle large content', async () => {
+test('should handle large content', () => {
     const { stream: stdout, data: stdoutData } = createMockStream();
     const { stream: stderr, data: _ } = createMockStream();
 

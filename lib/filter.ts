@@ -1,11 +1,11 @@
 export class Filter {
     private data: Map<string, Set<string>> = new Map();
-    set(key: string, values: string[]): Filter {
+    set(key: string, values: string[]): this {
         this.data.set(key, new Set(values));
         return this;
     }
 
-    add(key: string, value: string): Filter {
+    add(key: string, value: string): this {
         if (!this.data.has(key)) {
             this.data.set(key, new Set());
         }

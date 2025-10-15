@@ -1,6 +1,8 @@
 .PHONY: install
 install:
 	npm install
+	cd test-integration/cjs-project && npm install
+	cd test-integration/esm-project && npm install
 
 .PHONY: build
 build: install

@@ -1,6 +1,7 @@
 const { DockerClient } = require('@docker/node-sdk');
 const fs = require('fs');
 const os = require('os');
+const { Writable } = require('node:stream');
 
 async function main() {
     try {
@@ -11,17 +12,14 @@ async function main() {
         const v = await docker.systemVersion();
         console.dir(v, { depth: null });
 
-        const ctr = await docker
-            .containerCreate({
-                Image: 'alpine',
-            })
-            .then((value) => {
-                console.dir(value, { depth: null });
-                return value.Id;
-            });
+        const container = await docker.containerCreate({
+            Image: 'alpine',
+        });
+
+        console.dir(container, { depth: null });
 
         const out = fs.createWriteStream(os.tmpdir() + '/test.tar');
-        await docker.containerExport(ctr, out);
+        await docker.containerExport(container.Id, Writable.toWeb(out));
 
         await docker.close();
     } catch (error) {

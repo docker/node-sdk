@@ -46,6 +46,7 @@ export class TLS {
         } catch (error) {
             throw new Error(
                 `Failed to load TLS certificates from ${certPath}: ${getErrorMessage(error)}`,
+                { cause: error },
             );
         }
     }

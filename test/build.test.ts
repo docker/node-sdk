@@ -1,7 +1,6 @@
 import { expect, test } from 'vitest';
 import { DockerClient } from '../lib/docker-client.js';
 import { pack as createTarPack } from 'tar-stream';
-import { fail } from 'node:assert';
 import { Readable } from 'node:stream';
 
 test('imageBuild: build image from Dockerfile with tar-stream context', async () => {
@@ -22,23 +21,19 @@ COPY test.txt /test.txt
 
         let builtImage: string | undefined;
 
-        try {
-            for await (const buildInfo of client.imageBuild(
-                Readable.toWeb(pack, { strategy: { highWaterMark: 16384 } }),
-                {
-                    tag: `${testImageName}:${testTag}`,
-                    rm: true,
-                    forcerm: true,
-                },
-            )) {
-                console.log(`    Build event: ${JSON.stringify(buildInfo)}`);
-                // Capture the built image ID when buildinfo.id == 'moby.image.id'
-                if (buildInfo.id === 'moby.image.id') {
-                    builtImage = buildInfo.aux?.ID;
-                }
+        for await (const buildInfo of client.imageBuild(
+            Readable.toWeb(pack, { strategy: { highWaterMark: 16384 } }),
+            {
+                tag: `${testImageName}:${testTag}`,
+                rm: true,
+                forcerm: true,
+            },
+        )) {
+            console.log(`    Build event: ${JSON.stringify(buildInfo)}`);
+            // Capture the built image ID when buildinfo.id == 'moby.image.id'
+            if (buildInfo.id === 'moby.image.id') {
+                builtImage = buildInfo.aux?.ID;
             }
-        } catch (error: any) {
-            fail(error);
         }
 
         expect(builtImage).toBeDefined();

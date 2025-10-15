@@ -1,5 +1,9 @@
+function isObject(value: unknown): value is object {
+    return value !== null && typeof value === 'object';
+}
+
 export function isFileNotFoundError(error: unknown): boolean {
-    return (error as NodeJS.ErrnoException)?.code === 'ENOENT';
+    return isObject(error) && 'code' in error && error.code === 'ENOENT';
 }
 
 export function getErrorMessage(error: unknown): string | undefined {
@@ -13,7 +17,7 @@ export function getErrorMessage(error: unknown): string | undefined {
         return error.message;
     }
     if (
-        typeof error === 'object' &&
+        isObject(error) &&
         'message' in error &&
         typeof error.message === 'string'
     ) {
