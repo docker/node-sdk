@@ -1,43 +1,62 @@
-import { WritableStream } from 'node:stream/web';
+import type { Response } from 'undici';
 
-export class JSONStream<T> extends WritableStream {
-    private buffer: string = '';
-
-    constructor(onJSON?: (jsonObj: T) => void) {
-        super({
-            write: (chunk: Uint8Array) => {
-                this.processChunk(chunk, onJSON);
-            },
-            close: () => {
-                if (this.buffer.trim() && onJSON) {
-                    this.processLine(this.buffer.trim(), onJSON);
-                }
-            },
-        });
+// jsonMessages processes a response stream with newline-delimited JSON messages and yields each parsed message.
+export async function* jsonMessages<T>(
+    response: Response,
+): AsyncGenerator<T, void, undefined> {
+    if (!response.body) {
+        throw new Error('No response body');
     }
 
-    private processChunk(
-        chunk: Uint8Array,
-        onJSON?: (jsonObj: any) => void,
-    ): void {
-        const text = new TextDecoder().decode(chunk);
-        this.buffer += text;
+    // Extract charset from Content-Type header, default to utf-8
+    const contentType = response.headers.get('content-type') || '';
+    const charsetMatch = contentType.match(/charset=([^;]+)/i);
+    let charset = 'utf-8';
+    if (charsetMatch && charsetMatch[1]) {
+        charset = charsetMatch[1].trim();
+    }
 
-        const lines = this.buffer.split('\n');
-        this.buffer = lines.pop() || '';
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder(charset);
+    let buffer = '';
 
-        for (const line of lines) {
-            if (line.trim() && onJSON) {
-                this.processLine(line.trim(), onJSON);
+    try {
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; // Keep the last incomplete line in buffer
+
+            for (const line of lines) {
+                const trimmedLine = line.trim();
+                if (trimmedLine !== '') {
+                    try {
+                        yield JSON.parse(trimmedLine) as T;
+                    } catch (error) {
+                        console.warn(
+                            'Failed to parse JSON line:',
+                            trimmedLine,
+                            error,
+                        );
+                    }
+                }
             }
         }
-    }
 
-    private processLine(line: string, onJSON: (jsonObj: any) => void): void {
-        try {
-            onJSON(JSON.parse(line) as T);
-        } catch (error) {
-            console.error(`Failed to parse JSON line: ${line}`, error);
+        // Process any remaining data in buffer
+        if (buffer.trim() !== '') {
+            try {
+                yield JSON.parse(buffer.trim()) as T;
+            } catch (error) {
+                console.warn('Failed to parse final JSON line:', buffer, error);
+            }
         }
+    } finally {
+        reader.releaseLock();
     }
 }

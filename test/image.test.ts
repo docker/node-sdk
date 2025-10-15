@@ -12,15 +12,12 @@ test('image lifecycle: create container, commit image, export/import, inspect, a
     try {
         // Step 1: Pull alpine image and create container
         console.log('  Pulling alpine image...');
-        await client.imageCreate(
-            (event) => {
-                if (event.status) console.log(`    ${event.status}`);
-            },
-            {
-                fromImage: 'docker.io/library/alpine',
-                tag: 'latest',
-            },
-        );
+        for await (const event of client.imageCreate({
+            fromImage: 'docker.io/library/alpine',
+            tag: 'latest',
+        })) {
+            if (event.status) console.log(`    ${event.status}`);
+        }
 
         console.log('  Creating Alpine container...');
         const createResponse = await client.containerCreate({

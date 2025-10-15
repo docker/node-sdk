@@ -11,15 +11,12 @@ test('should execute ps command in running container and capture output', async 
     try {
         // Pull alpine image first
         console.log('  Pulling alpine image...');
-        await client.imageCreate(
-            (event) => {
-                if (event.status) console.log(`    ${event.status}`);
-            },
-            {
-                fromImage: 'docker.io/library/alpine',
-                tag: 'latest',
-            },
-        );
+        for await (const event of client.imageCreate({
+            fromImage: 'docker.io/library/alpine',
+            tag: 'latest',
+        })) {
+            if (event.status) console.log(`    ${event.status}`);
+        }
 
         // Create container with sleep infinity to keep it running
         console.log('  Creating Alpine container with sleep infinity...');
