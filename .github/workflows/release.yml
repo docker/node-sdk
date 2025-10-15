@@ -25,7 +25,6 @@ jobs:
         steps:
             - uses: actions/checkout@v5
               with:
-                # checkout a full working copy so we can tag the commit
                 fetch-depth: 0
 
             # Uses NPM Trusted Publishers for access to the registry
@@ -61,7 +60,9 @@ jobs:
 
             - name: Push Tag
               if: ${{ ! inputs.dryRun }}
-              run: git push origin v${{ inputs.version }}
+              run: |
+                git push origin main
+                git push origin v${{ inputs.version }}
 
             - name: GitHub Release
               if: ${{ ! inputs.dryRun }}
@@ -76,5 +77,5 @@ jobs:
               env:
                   NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
               run: |
-                  echo "//npm.pkg.github.com/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+                  npm config set "//npm.pkg.github.com/:_authToken=${NPM_AUTH_TOKEN}"
                   npm publish --provenance --access public --dry-run=${{ inputs.dryRun }} --registry=https://npm.pkg.github.com/
