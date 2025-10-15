@@ -1,31 +1,18 @@
 name: Publish Package
 
 on:
-    workflow_dispatch:
-        inputs:
-            version:
-                description: "Semver version to publish"
-                type: string
-                required: true
-            dryRun:
-                description: "Enable dry run (default: true)"
-                type: boolean
-                default: true
-#    push:
-#        tags:
-#            - "v*"
+    push:
+        tags:
+            - "v*"
 
 permissions:
     id-token: write # Required for OIDC
-    contents: write # Required to create git tags
 
 jobs:
     release:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v5
-              with:
-                fetch-depth: 0
 
             # Uses NPM Trusted Publishers for access to the registry
             # See https://docs.npmjs.com/trusted-publishers
@@ -47,22 +34,8 @@ jobs:
             - name: Test
               run: npm test
 
-            - name: Configure Git
-              run: |
-                  git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-                  git config --global user.name "${GITHUB_ACTOR}"
-
-            - name: Version
-              run: npm version "${{ inputs.version }}" --git-tag-version=${{ !inputs.dryRun }}
-
             - name: Publish
               run: npm publish --provenance --access public --dry-run=${{ inputs.dryRun }}
-
-            - name: Push Tag
-              if: ${{ ! inputs.dryRun }}
-              run: |
-                git push origin main
-                git push origin v${{ inputs.version }}
 
             - name: GitHub Release
               if: ${{ ! inputs.dryRun }}
@@ -70,7 +43,6 @@ jobs:
               with:
                   generateReleaseNotes: true
                   makeLatest: true
-                  tag: v${{ inputs.version }}
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Publish (internal)
