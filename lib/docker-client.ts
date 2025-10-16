@@ -34,6 +34,13 @@ import { Writable } from 'node:stream';
 export class DockerClient {
     private api: HTTPClient;
 
+    /**
+     * Create a new DockerClient instance
+     * You should use the static fromDockerHost or fromDockerConfig methods instead
+     * @param agent Undici agent for HTTP connections
+     * @param userAgent User agent string for requests (defaults to 'docker/node-sdk')
+     * @param headers Optional additional headers to include in requests
+     */
     constructor(
         agent: Agent,
         userAgent: string = 'docker/node-sdk',
@@ -269,12 +276,21 @@ export class DockerClient {
         }
     }
 
+    /**
+     * Close the Docker client connection
+     * @returns Promise that resolves when the connection is closed
+     */
     public close(): Promise<void> {
         return this.api.close();
     }
 
     // --- Authentication
 
+    /**
+     * Encode authentication credentials for registry access
+     * @param credentials Authentication credentials object
+     * @returns Base64 URL-safe encoded credentials string
+     */
     public authCredentials(credentials: any): string {
         const jsonString = JSON.stringify(credentials);
         const base64 = Buffer.from(jsonString, 'utf8').toString('base64');
@@ -331,7 +347,7 @@ export class DockerClient {
 
     /**
      * This is a dummy endpoint you can use to test if the server is accessible.
-     * Ping
+     * @returns Promise that resolves when the connection is successful and returns API version
      */
     public async systemPing(): Promise<string> {
         const response = await this.api.head('/_ping', {
@@ -1446,10 +1462,11 @@ export class DockerClient {
     // -- Exec
 
     /**
-     * Run a command inside a runnin
+     * Run a command inside a running container
      * Create an exec instance
-     * @param id ID or name of conta
-     * @param execConfig Exec config
+     * @param id ID or name of container
+     * @param execConfig Exec configuration options
+     * @returns Promise that resolves to exec instance ID response
      */
     public async containerExec(
         id: string,
@@ -1464,20 +1481,22 @@ export class DockerClient {
     }
 
     /**
-     * Return low-level information
+     * Return low-level information about an exec instance
      * Inspect an exec instance
      * @param id Exec instance ID
+     * @returns Promise that resolves to exec instance details
      */
     public async execInspect(id: string): Promise<types.ExecInspectResponse> {
         return this.api.getJSON(`/exec/${id}/json`);
     }
 
     /**
-     * Resize the TTY session used b
+     * Resize the TTY session used by an exec instance
      * Resize an exec instance
      * @param id Exec instance ID
-     * @param height Height of the TTY se
-     * @param width Width of the TTY ses
+     * @param width Width of the TTY session in characters
+     * @param height Height of the TTY session in characters
+     * @returns Promise that resolves when the resize is complete
      */
     public async execResize(
         id: string,
@@ -1495,7 +1514,8 @@ export class DockerClient {
      * @param id Exec instance ID
      * @param stdout Optional stream to write stdout content
      * @param stderr Optional stream to write stderr content
-     * @param execStartConfig
+     * @param execStartConfig Configuration options for starting the exec instance
+     * @returns Promise that resolves when the exec instance completes
      */
     public async execStart(
         id: string,
