@@ -7,6 +7,8 @@ modelPackage: types
 globalProperties:
     supportingFiles: types/index.ts
     models: ""
+modelNameMappings:
+    BuildInfo: JSONMessage
 files:
     model/index.mustache:
         templateType: SupportingFiles

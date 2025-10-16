@@ -22,7 +22,7 @@ import { type ErrorDetail } from '../types/ErrorDetail.js';
 import { type ImageID } from '../types/ImageID.js';
 import { type ProgressDetail } from '../types/ProgressDetail.js';
 
-export interface BuildInfo {
+export interface JSONMessage {
     id?: string;
 
     stream?: string;

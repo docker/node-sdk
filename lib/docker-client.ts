@@ -1103,7 +1103,7 @@ export class DockerClient {
             outputs?: string;
             version?: '1' | '2';
         },
-    ): AsyncGenerator<types.BuildInfo, void, undefined> {
+    ): AsyncGenerator<types.JSONMessage, void, undefined> {
         const headers: Record<string, string> = {};
         headers['Content-Type'] = 'application/x-tar';
 
@@ -1146,7 +1146,7 @@ export class DockerClient {
             headers,
         );
 
-        yield* jsonMessages<types.BuildInfo>(response);
+        yield* jsonMessages<types.JSONMessage>(response);
     }
 
     /**
@@ -1209,7 +1209,7 @@ export class DockerClient {
         changes?: Array<string>;
         platform?: string;
         inputImage?: string;
-    }): AsyncGenerator<any, void, undefined> {
+    }): AsyncGenerator<types.JSONMessage, void, undefined> {
         const headers: Record<string, string> = {};
 
         if (options?.credentials) {
@@ -1233,7 +1233,7 @@ export class DockerClient {
             undefined,
             headers,
         );
-        yield* jsonMessages(response);
+        yield* jsonMessages<types.JSONMessage>(response);
     }
 
     /**
@@ -1400,11 +1400,11 @@ export class DockerClient {
     public async *imagePush(
         name: string,
         options: {
-            credentials: AuthConfig;
+            credentials?: AuthConfig;
             tag?: string;
             platform?: Platform;
         },
-    ): AsyncGenerator<any, void, undefined> {
+    ): AsyncGenerator<types.JSONMessage, void, undefined> {
         const headers: Record<string, string> = {};
 
         if (options?.credentials) {
@@ -1422,7 +1422,7 @@ export class DockerClient {
             undefined,
             headers,
         );
-        yield* jsonMessages(response);
+        yield* jsonMessages<types.JSONMessage>(response);
     }
 
     /**
