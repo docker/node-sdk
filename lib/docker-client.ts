@@ -30,6 +30,7 @@ import { WritableStream } from 'node:stream/web';
 import { ReadableStream } from 'stream/web';
 import { jsonMessages } from './json-stream.js';
 import { Writable } from 'node:stream';
+import * as os from 'node:os';
 
 export class DockerClient {
     private api: HTTPClient;
@@ -51,7 +52,7 @@ export class DockerClient {
 
     /**
      * Create a DockerClient instance from a Docker host string
-     * @param dockerHost Docker host string (e.g., "unix:/var/run/docker.sock", "tcp://localhost:2376", or "ssh://user@host[:port][/path/to/docker.sock]")
+     * @param dockerHost Docker host string (e.g., "unix:/var/run/docker.sock", "tcp://localhost:2376", "ssh://user@host[:port][/path/to/docker.sock]", or "/var/run/docker.sock")
      * @param certificates Optional path to directory containing TLS certificates (ca.pem, cert.pem, key.pem) for TCP connections
      * @returns Promise that resolves to a connected DockerClient instance
      */
@@ -64,6 +65,21 @@ export class DockerClient {
         if (dockerHost.startsWith('unix:')) {
             // Unix socket connection - use SocketAgent with socket creation function
             const socketPath = dockerHost.substring(5); // Remove "unix:" prefix
+
+            try {
+                const agent = new SocketAgent(() =>
+                    createConnection(socketPath),
+                );
+                return new DockerClient(agent, userAgent, headers);
+            } catch (error) {
+                throw new Error(
+                    `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
+                    { cause: error },
+                );
+            }
+        } else if (dockerHost.startsWith('npipe:')) {
+            // Windows name pipe connection - use SocketAgent with socket creation function
+            const socketPath = dockerHost.substring(6); // Remove "npipe:" prefix
 
             try {
                 const agent = new SocketAgent(() =>
@@ -125,8 +141,19 @@ export class DockerClient {
                 );
             }
         } else {
+            try {
+                await fsPromises.access(dockerHost);
+                // File exists, treat it as a Unix socket
+                const agent = new SocketAgent(() =>
+                    createConnection(dockerHost),
+                );
+                return new DockerClient(agent, userAgent, headers);
+            } catch (error) {
+                // If file doesn't exist, fall through to original error handling
+            }
+
             throw new Error(
-                `Unsupported Docker host format: ${dockerHost}. Must start with "unix:", "tcp:", or "ssh:"`,
+                `Unsupported Docker host format: ${dockerHost}. Must start with "unix:", "tcp:", "ssh:", or be a valid file path`,
             );
         }
     }
@@ -246,7 +273,7 @@ export class DockerClient {
             const configContent = await fsPromises.readFile(configPath, 'utf8');
             const config = JSON.parse(configContent);
 
-            if (config.currentContext) {
+            if (config.currentContext && config.currentContext !== 'default') {
                 // Use the specified current context
                 return await DockerClient.fromDockerContext(
                     config.currentContext,
@@ -254,9 +281,13 @@ export class DockerClient {
                     headers,
                 );
             } else {
+                let dockerhost = 'unix:/var/run/docker.sock';
+                if (os.platform() === 'win32') {
+                    dockerhost = 'npipe:////./pipe/docker_engine';
+                }
                 // No current context specified, use default
                 return await DockerClient.fromDockerHost(
-                    'unix:/var/run/docker.sock',
+                    dockerhost,
                     undefined,
                     userAgent,
                     headers,
