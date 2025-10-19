@@ -7,7 +7,7 @@ on:
 
 permissions:
     id-token: write # Required for OIDC
-    packages: write # Required for publishing GitHub Release
+    contents: write # Required for publishing GitHub Release
 
 jobs:
     release:
