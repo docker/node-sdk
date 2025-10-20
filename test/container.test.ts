@@ -13,17 +13,17 @@ test('should receive container stdout on attach', async () => {
     try {
         // Pull alpine image first
         console.log('  Pulling alpine image...');
-        for await (const event of client.imageCreate({
-            fromImage: 'docker.io/library/alpine',
-            tag: 'latest',
-        })) {
-            if (event.status) console.log(`    ${event.status}`);
-        }
+        await client
+            .imageCreate({
+                fromImage: 'alpine',
+                tag: 'latest',
+            })
+            .wait();
 
         // Create container with echo command
         console.log('  Creating Alpine container with echo command...');
         const createResponse = await client.containerCreate({
-            Image: 'docker.io/library/alpine:latest',
+            Image: 'alpine',
             Cmd: ['echo', 'hello'],
             Labels: {
                 'test.type': 'container-test',
@@ -111,17 +111,17 @@ test('should collect container output using containerLogs', async () => {
     try {
         // Pull alpine image first (should be cached from previous test)
         console.log('  Pulling alpine image...');
-        for await (const event of client.imageCreate({
-            fromImage: 'docker.io/library/alpine',
-            tag: 'latest',
-        })) {
-            if (event.status) console.log(`    ${event.status}`);
-        }
+        await client
+            .imageCreate({
+                fromImage: 'alpine',
+                tag: 'latest',
+            })
+            .wait();
 
         // Create container with a command that produces multiple lines of output
         console.log('  Creating Alpine container with multi-line output...');
         const createResponse = await client.containerCreate({
-            Image: 'docker.io/library/alpine:latest',
+            Image: 'alpine',
             Cmd: ['sh', '-c', 'echo "line1"; echo "line2"; echo "line3"'],
             Labels: {
                 'test.type': 'container-logs-test',
@@ -246,18 +246,18 @@ test('container lifecycle should work end-to-end', async () => {
     let containerId: string | undefined;
 
     try {
-        for await (const event of client.imageCreate({
-            fromImage: 'docker.io/library/nginx',
-            tag: 'latest',
-        })) {
-            console.log(event);
-        }
+        await client
+            .imageCreate({
+                fromImage: 'nginx',
+                tag: 'latest',
+            })
+            .wait();
 
         console.log('  Creating nginx container...');
         // Create container with label
         const createResponse = await client.containerCreate(
             {
-                Image: 'docker.io/library/nginx',
+                Image: 'nginx',
                 Labels: {
                     'test.type': 'e2e',
                 },
