@@ -19,24 +19,16 @@ COPY test.txt /test.txt
         pack.entry({ name: 'test.txt' }, 'Hello from Docker build test!');
         pack.finalize();
 
-        let builtImage: string | undefined;
-
-        for await (const buildInfo of client.imageBuild(
-            Readable.toWeb(pack, { strategy: { highWaterMark: 16384 } }),
-            {
-                tag: `${testImageName}:${testTag}`,
-                rm: true,
-                forcerm: true,
-            },
-        )) {
-            console.log(`    Build event: ${JSON.stringify(buildInfo)}`);
-            // Capture the built image ID when buildinfo.id == 'moby.image.id'
-            if (buildInfo.id === 'moby.image.id') {
-                builtImage = buildInfo.aux?.ID;
-            }
-        }
-
-        expect(builtImage).toBeDefined();
+        const builtImage = await client
+            .imageBuild(
+                Readable.toWeb(pack, { strategy: { highWaterMark: 16384 } }),
+                {
+                    tag: `${testImageName}:${testTag}`,
+                    rm: true,
+                    forcerm: true,
+                },
+            )
+            .wait();
 
         // Inspect the built builtImage to confirm it was created successfully
         console.log(`  Inspecting built image ${builtImage}`);

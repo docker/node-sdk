@@ -5,7 +5,7 @@ import { homedir } from 'node:os';
 import type { Agent } from 'undici';
 import type { SecureContextOptions } from 'node:tls';
 import { connect as tlsConnect } from 'node:tls';
-import type { AuthConfig, Platform } from './types/index.js';
+import type { AuthConfig, JSONMessage, Platform } from './types/index.js';
 import * as types from './types/index.js';
 import {
     APPLICATION_JSON,
@@ -499,6 +499,8 @@ export class DockerClient {
             platform?: string;
         },
     ): Promise<types.ContainerCreateResponse> {
+        spec.Image = this.parseDockerRef(spec.Image);
+
         const response = await this.api.post(
             '/containers/create',
             options,
@@ -1089,7 +1091,7 @@ export class DockerClient {
      * @param options.outputs BuildKit output configuration in the format of a stringified JSON array of objects. Each object must have two top-level properties: &#x60;Type&#x60; and &#x60;Attrs&#x60;. The &#x60;Type&#x60; property must be set to \&#39;moby\&#39;. The &#x60;Attrs&#x60; property is a map of attributes for the BuildKit output configuration. See https://docs.docker.com/build/exporters/oci-docker/ for more information.  Example:  &#x60;&#x60;&#x60; [{\&quot;Type\&quot;:\&quot;moby\&quot;,\&quot;Attrs\&quot;:{\&quot;type\&quot;:\&quot;image\&quot;,\&quot;force-compression\&quot;:\&quot;true\&quot;,\&quot;compression\&quot;:\&quot;zstd\&quot;}}] &#x60;&#x60;&#x60;
      * @param options.version Version of the builder backend to use.  - &#x60;1&#x60; is the first generation classic (deprecated) builder in the Docker daemon (default) - &#x60;2&#x60; is [BuildKit](https://github.com/moby/buildkit)
      */
-    public async *imageBuild(
+    public imageBuild(
         buildContext: ReadableStream,
         options?: {
             dockerfile?: string;
@@ -1119,7 +1121,7 @@ export class DockerClient {
             outputs?: string;
             version?: '1' | '2';
         },
-    ): AsyncGenerator<types.JSONMessage, void, undefined> {
+    ): JSONMessages<JSONMessage, string> {
         const headers: Record<string, string> = {};
         headers['Content-Type'] = 'application/x-tar';
 
@@ -1129,7 +1131,7 @@ export class DockerClient {
             );
         }
 
-        const response = await this.api.post(
+        const request = this.api.post(
             '/build',
             {
                 dockerfile: options?.dockerfile,
@@ -1162,7 +1164,31 @@ export class DockerClient {
             headers,
         );
 
-        yield* jsonMessages<types.JSONMessage>(response);
+        return {
+            messages: async function* (): AsyncGenerator<
+                types.JSONMessage,
+                void,
+                undefined
+            > {
+                const response = await request;
+                yield* jsonMessages<types.JSONMessage>(response);
+            },
+            wait: async function (): Promise<string> {
+                let id = '';
+                const response = await request;
+                for await (const message of jsonMessages<types.JSONMessage>(
+                    response,
+                )) {
+                    if (message.errorDetail) {
+                        throw new Error(message.errorDetail?.message);
+                    }
+                    if (message.id === 'moby.image.id') {
+                        id = message?.aux?.ID || '';
+                    }
+                }
+                return id;
+            },
+        };
     }
 
     /**
@@ -1215,7 +1241,7 @@ export class DockerClient {
      * @param options.platform Platform in the format os[/arch[/variant]].  When used in combination with the 'fromImage' option, the daemon checks if the given image is present in the local image cache with the given OS and Architecture, and otherwise attempts to pull the image. If the option is not set, the host\&#39;s native OS and Architecture are used. If the given image does not exist in the local image cache, the daemon attempts to pull the image with the host\&#39;s native OS and Architecture. If the given image does exists in the local image cache, but its OS or architecture does not match, a warning is produced.  When used with the 'fromSrc' option to import an image from an archive, this option sets the platform information for the imported image. If the option is not set, the host\&#39;s native OS and Architecture are used for the imported image.
      * @param options.inputImage Image content if the value '-' has been specified in fromSrc query parameter
      */
-    public async *imageCreate(options?: {
+    public imageCreate(options?: {
         fromImage?: string;
         fromSrc?: string;
         repo?: string;
@@ -1225,7 +1251,7 @@ export class DockerClient {
         changes?: Array<string>;
         platform?: string;
         inputImage?: string;
-    }): AsyncGenerator<types.JSONMessage, void, undefined> {
+    }): JSONMessages<JSONMessage, string> {
         const headers: Record<string, string> = {};
 
         if (options?.credentials) {
@@ -1234,10 +1260,12 @@ export class DockerClient {
             );
         }
 
-        const response = await this.api.post(
+        let ref = this.parseDockerRef(options?.fromImage);
+
+        const request = this.api.post(
             '/images/create',
             {
-                fromImage: options?.fromImage,
+                fromImage: ref,
                 fromSrc: options?.fromSrc,
                 repo: options?.repo,
                 tag: options?.tag,
@@ -1249,7 +1277,45 @@ export class DockerClient {
             undefined,
             headers,
         );
-        yield* jsonMessages<types.JSONMessage>(response);
+
+        return {
+            messages: async function* (): AsyncGenerator<
+                types.JSONMessage,
+                void,
+                undefined
+            > {
+                const response = await request;
+                yield* jsonMessages<types.JSONMessage>(response);
+            },
+            wait: async function (): Promise<string> {
+                let digest = '';
+                const response = await request;
+                for await (const message of jsonMessages<types.JSONMessage>(
+                    response,
+                )) {
+                    if (message.errorDetail) {
+                        throw new Error(message.errorDetail?.message);
+                    }
+                    if (message.status?.startsWith('Digest: ')) {
+                        digest = message.status.substring(8);
+                    }
+                }
+                return digest;
+            },
+        };
+    }
+
+    private parseDockerRef(ref: string | undefined) {
+        if (ref && !ref.includes('/')) {
+            ref = `docker.io/library/${ref}`;
+        } else if (
+            ref &&
+            ref.startsWith('docker.io/') &&
+            ref.split('/').length === 2
+        ) {
+            ref = ref.replace('docker.io/', 'docker.io/library/');
+        }
+        return ref;
     }
 
     /**
@@ -1413,14 +1479,14 @@ export class DockerClient {
      * @param options.tag Tag of the image to push. For example, &#x60;latest&#x60;. If no tag is provided, all tags of the given image that are present in the local image store are pushed.
      * @param options.platform JSON-encoded OCI platform to select the platform-variant to push. If not provided, all available variants will attempt to be pushed.  If the daemon provides a multi-platform image store, this selects the platform-variant to push to the registry. If the image is a single-platform image, or if the multi-platform image does not provide a variant matching the given platform, an error is returned.  Example: &#x60;{\&quot;os\&quot;: \&quot;linux\&quot;, \&quot;architecture\&quot;: \&quot;arm\&quot;, \&quot;variant\&quot;: \&quot;v5\&quot;}&#x60;
      */
-    public async *imagePush(
+    public imagePush(
         name: string,
         options: {
             credentials?: AuthConfig;
             tag?: string;
             platform?: Platform;
         },
-    ): AsyncGenerator<types.JSONMessage, void, undefined> {
+    ): JSONMessages<JSONMessage, void> {
         const headers: Record<string, string> = {};
 
         if (options?.credentials) {
@@ -1429,7 +1495,7 @@ export class DockerClient {
             );
         }
 
-        const response = await this.api.post(
+        const request = this.api.post(
             `/images/${name}/push`,
             {
                 tag: options?.tag,
@@ -1438,7 +1504,28 @@ export class DockerClient {
             undefined,
             headers,
         );
-        yield* jsonMessages<types.JSONMessage>(response);
+
+        return {
+            messages: async function* (): AsyncGenerator<
+                types.JSONMessage,
+                void,
+                undefined
+            > {
+                const response = await request;
+                yield* jsonMessages<types.JSONMessage>(response);
+            },
+            wait: async function (): Promise<void> {
+                const response = await request;
+                for await (const message of jsonMessages<types.JSONMessage>(
+                    response,
+                )) {
+                    if (message.errorDetail) {
+                        throw new Error(message.errorDetail?.message);
+                    }
+                    // noop
+                }
+            },
+        };
     }
 
     /**
@@ -1564,4 +1651,9 @@ export class DockerClient {
 
 function isWritable(w: Writable | null): w is Writable {
     return w !== null;
+}
+
+export interface JSONMessages<T, R> {
+    messages(): AsyncGenerator<T, void, undefined>;
+    wait(): Promise<R>;
 }
