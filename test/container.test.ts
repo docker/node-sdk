@@ -67,6 +67,22 @@ test('should receive container stdout on attach', async () => {
         // Wait for container to finish
         console.log('  Waiting for container to finish...');
         const waitResult = await client.containerWait(containerId);
+
+        // Wait for streams to finish writing all data
+        // This ensures all piped data has been written to our Writable streams
+        await new Promise<void>((resolve) => {
+            // Set a timeout in case streams don't emit 'finish' event
+            const timeout = setTimeout(resolve, 1000);
+            
+            // Wait for stdout stream to finish
+            stdout.once('finish', () => {
+                clearTimeout(timeout);
+                resolve();
+            });
+            
+            // Trigger finish by ending the stream
+            stdout.end();
+        });
         console.log(
             `    Container finished with exit code: ${waitResult.StatusCode}`,
         );
