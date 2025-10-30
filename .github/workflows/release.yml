@@ -36,7 +36,7 @@ jobs:
               run: npm test
 
             - name: Publish
-              run: npm publish --provenance --access public --dry-run=${{ inputs.dryRun }}
+              run: npm publish --provenance --access public --dry-run=${{ inputs.dryRun && 'true' || 'false' }}
 
             - name: GitHub Release
               if: ${{ ! inputs.dryRun }}
@@ -51,4 +51,4 @@ jobs:
                   NPM_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
               run: |
                   npm config set "//npm.pkg.github.com/:_authToken=${NPM_PUBLISH_TOKEN}"
-                  npm publish --provenance --access public --dry-run=${{ inputs.dryRun }} --registry=https://npm.pkg.github.com/
+                  npm publish --provenance --access public --dry-run=${{ inputs.dryRun && 'true' || 'false' }} --registry=https://npm.pkg.github.com/

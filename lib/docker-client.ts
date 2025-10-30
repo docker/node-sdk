@@ -1299,7 +1299,7 @@ export class DockerClient {
                 fromImage: ref,
                 fromSrc: options?.fromSrc,
                 repo: options?.repo,
-                tag: options?.tag,
+                tag: options?.tag || 'latest',
                 message: options?.message,
                 changes: options?.changes,
                 platform: options?.platform,
