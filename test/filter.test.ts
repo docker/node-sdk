@@ -1,4 +1,5 @@
-import { assert, test } from 'vitest';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
 import { Filter } from '../lib/filter.js';
 
 test('Filter should serialize single key with single value to JSON', () => {
@@ -6,7 +7,7 @@ test('Filter should serialize single key with single value to JSON', () => {
     filter.add('type', 'container');
 
     const expected = { type: { container: true } };
-    assert.deepEqual(filter.toJSON(), expected);
+    assert.deepStrictEqual(filter.toJSON(), expected);
 });
 
 test('Filter should serialize single key with multiple values to JSON', () => {
@@ -15,7 +16,7 @@ test('Filter should serialize single key with multiple values to JSON', () => {
     filter.add('type', 'image');
 
     const expected = { type: { container: true, image: true } };
-    assert.deepEqual(filter.toJSON(), expected);
+    assert.deepStrictEqual(filter.toJSON(), expected);
 });
 
 test('Filter should serialize multiple keys to JSON', () => {
@@ -29,10 +30,10 @@ test('Filter should serialize multiple keys to JSON', () => {
         type: { container: true, image: true },
         status: { running: true, stopped: true },
     };
-    assert.deepEqual(filter.toJSON(), expected);
+    assert.deepStrictEqual(filter.toJSON(), expected);
 });
 
 test('Filter should serialize empty filter to empty object', () => {
     const filter = new Filter();
-    assert.deepEqual(filter.toJSON(), {});
+    assert.deepStrictEqual(filter.toJSON(), {});
 });

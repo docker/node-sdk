@@ -1,4 +1,5 @@
-import { assert, test } from 'vitest';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
 import { DockerClient } from '../lib/docker-client.js';
 
 test('network lifecycle: create, inspect, list, delete', async () => {
@@ -22,26 +23,26 @@ test('network lifecycle: create, inspect, list, delete', async () => {
         },
     });
 
-    assert.isNotNull(createdNetwork);
-    assert.isNotNull(createdNetwork.Id);
+    assert.notStrictEqual(createdNetwork, null);
+    assert.notStrictEqual(createdNetwork.Id, null);
     console.log(`  Created network: ${networkName} (${createdNetwork.Id})`);
 
     // 2. Inspect network
     const inspectedNetwork = await client.networkInspect(networkName);
-    assert.isNotNull(inspectedNetwork);
-    assert.equal(inspectedNetwork.Name, networkName);
-    assert.equal(inspectedNetwork.Driver, 'bridge');
-    assert.equal(inspectedNetwork.Labels?.test, 'lifecycle');
-    assert.equal(inspectedNetwork.IPAM?.Driver, 'default');
+    assert.notStrictEqual(inspectedNetwork, null);
+    assert.strictEqual(inspectedNetwork.Name, networkName);
+    assert.strictEqual(inspectedNetwork.Driver, 'bridge');
+    assert.strictEqual(inspectedNetwork.Labels?.test, 'lifecycle');
+    assert.strictEqual(inspectedNetwork.IPAM?.Driver, 'default');
     console.log(`  Inspected network: ${inspectedNetwork.Name}`);
 
     // 3. List networks and verify our network exists
     const networkList = await client.networkList();
-    assert.isNotNull(networkList);
+    assert.notStrictEqual(networkList, null);
     const foundNetwork = networkList.find((n) => n.Name === networkName);
-    assert.isNotNull(foundNetwork);
-    assert.equal(foundNetwork?.Name, networkName);
-    assert.equal(foundNetwork?.Driver, 'bridge');
+    assert.notStrictEqual(foundNetwork, null);
+    assert.strictEqual(foundNetwork?.Name, networkName);
+    assert.strictEqual(foundNetwork?.Driver, 'bridge');
     console.log(`  Found network in list: ${foundNetwork?.Name}`);
 
     // 4. Delete network
@@ -51,9 +52,9 @@ test('network lifecycle: create, inspect, list, delete', async () => {
     // 5. Verify network is deleted by trying to inspect (should fail)
     try {
         await client.networkInspect(networkName);
-        assert.fail('Network should not exist after deletion');
+        throw new Error('Network should not exist after deletion');
     } catch (error: any) {
-        assert.equal(error.name, 'NotFoundError');
+        assert.strictEqual(error.name, 'NotFoundError');
         console.log(`  Confirmed network deletion: ${networkName}`);
     }
 });

@@ -1,4 +1,5 @@
-import { assert, test } from 'vitest';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
 import { DockerClient } from '../lib/docker-client.js';
 import { Logger } from '../lib/logs.js';
 
@@ -29,7 +30,7 @@ test('should execute ps command in running container and capture output', async 
         });
 
         containerId = createResponse.Id;
-        assert.isNotNull(containerId);
+        assert.notStrictEqual(containerId, null);
         console.log(`    Container created: ${containerId.substring(0, 12)}`);
 
         // Start the container
@@ -46,7 +47,7 @@ test('should execute ps command in running container and capture output', async 
         });
 
         const execId = execResponse.Id;
-        assert.isNotNull(execId);
+        assert.notStrictEqual(execId, null);
         console.log(`    Exec instance created: ${execId.substring(0, 12)}`);
 
         // Set up streams to capture output
@@ -73,9 +74,8 @@ test('should execute ps command in running container and capture output', async 
 
         // Check that we received process information in stdout
         const allStdout = stdoutData.join('\n');
-        assert.include(
-            allStdout,
-            'sleep',
+        assert.ok(
+            allStdout.includes('sleep'),
             'Should find sleep process in ps output',
         );
 
@@ -84,8 +84,12 @@ test('should execute ps command in running container and capture output', async 
         const execInfo = await client.execInspect(execId);
         console.log(`    Exec exit code: ${execInfo.ExitCode}`);
 
-        assert.equal(execInfo.ExitCode, 0, 'Exec should complete successfully');
-        assert.equal(
+        assert.strictEqual(
+            execInfo.ExitCode,
+            0,
+            'Exec should complete successfully',
+        );
+        assert.strictEqual(
             execInfo.Running,
             false,
             'Exec should not be running anymore',
