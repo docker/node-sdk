@@ -1,4 +1,5 @@
-import { assert, test, describe } from 'vitest';
+import { test, describe } from 'node:test';
+import assert from 'node:assert/strict';
 import { Logger } from '../lib/logs.js';
 
 describe('Logger', () => {
@@ -11,7 +12,7 @@ describe('Logger', () => {
         logger.write('line1\nline2\nline3\n');
         logger.end();
 
-        assert.deepEqual(lines, ['line1', 'line2', 'line3']);
+        assert.deepStrictEqual(lines, ['line1', 'line2', 'line3']);
     });
 
     test('should handle partial lines across multiple writes', () => {
@@ -25,7 +26,7 @@ describe('Logger', () => {
         logger.write('\nline3\n');
         logger.end();
 
-        assert.deepEqual(lines, ['partial line1', 'line2', 'line3']);
+        assert.deepStrictEqual(lines, ['partial line1', 'line2', 'line3']);
     });
 
     test('should handle remaining buffer on end', () => {
@@ -37,7 +38,7 @@ describe('Logger', () => {
         logger.write('line without newline');
         logger.end();
 
-        assert.deepEqual(lines, ['line without newline']);
+        assert.deepStrictEqual(lines, ['line without newline']);
     });
 
     test('should handle empty lines', () => {
@@ -49,7 +50,7 @@ describe('Logger', () => {
         logger.write('line1\n\nline3\n');
         logger.end();
 
-        assert.deepEqual(lines, ['line1', '', 'line3']);
+        assert.deepStrictEqual(lines, ['line1', '', 'line3']);
     });
 
     test('should handle only newlines', () => {
@@ -61,6 +62,6 @@ describe('Logger', () => {
         logger.write('\n\n\n');
         logger.end();
 
-        assert.deepEqual(lines, ['', '', '']);
+        assert.deepStrictEqual(lines, ['', '', '']);
     });
 });

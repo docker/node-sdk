@@ -1,4 +1,5 @@
-import { assert, test } from 'vitest';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
 import { demultiplexStream } from '../lib/multiplexed-stream.js';
 import { Writable } from 'node:stream';
 
@@ -34,9 +35,9 @@ test('should write stdout message to stdout stream', () => {
 
     demuxStream.write(message);
 
-    assert.deepEqual(stdoutData.length, 1);
-    assert.deepEqual(stdoutData[0]?.toString(), 'Hello stdout');
-    assert.deepEqual(stderrData.length, 0);
+    assert.deepStrictEqual(stdoutData.length, 1);
+    assert.deepStrictEqual(stdoutData[0]?.toString(), 'Hello stdout');
+    assert.deepStrictEqual(stderrData.length, 0);
 });
 
 test('should write stderr message to stderr stream', () => {
@@ -48,9 +49,9 @@ test('should write stderr message to stderr stream', () => {
 
     demuxStream.write(message);
 
-    assert.deepEqual(stderrData.length, 1);
-    assert.deepEqual(stderrData[0]?.toString(), 'Hello stderr');
-    assert.deepEqual(stdoutData.length, 0);
+    assert.deepStrictEqual(stderrData.length, 1);
+    assert.deepStrictEqual(stderrData[0]?.toString(), 'Hello stderr');
+    assert.deepStrictEqual(stdoutData.length, 0);
 });
 
 test('should ignore unknown stream types', () => {
@@ -62,8 +63,8 @@ test('should ignore unknown stream types', () => {
 
     demuxStream.write(message);
 
-    assert.deepEqual(stdoutData.length, 0);
-    assert.deepEqual(stderrData.length, 0);
+    assert.deepStrictEqual(stdoutData.length, 0);
+    assert.deepStrictEqual(stderrData.length, 0);
 });
 
 test('should handle multiple messages in single chunk', () => {
@@ -77,10 +78,10 @@ test('should handle multiple messages in single chunk', () => {
 
     demuxStream.write(combined);
 
-    assert.deepEqual(stdoutData.length, 1);
-    assert.deepEqual(stdoutData[0]?.toString(), 'First stdout');
-    assert.deepEqual(stderrData.length, 1);
-    assert.deepEqual(stderrData[0]?.toString(), 'First stderr');
+    assert.deepStrictEqual(stdoutData.length, 1);
+    assert.deepStrictEqual(stdoutData[0]?.toString(), 'First stdout');
+    assert.deepStrictEqual(stderrData.length, 1);
+    assert.deepStrictEqual(stderrData[0]?.toString(), 'First stderr');
 });
 
 test('should handle incomplete messages across multiple chunks', () => {
@@ -93,14 +94,14 @@ test('should handle incomplete messages across multiple chunks', () => {
     // Send first half
     const firstHalf = message.subarray(0, 10);
     demuxStream.write(firstHalf);
-    assert.deepEqual(stdoutData.length, 0); // Should not write yet
+    assert.deepStrictEqual(stdoutData.length, 0); // Should not write yet
 
     // Send second half
     const secondHalf = message.subarray(10);
     demuxStream.write(secondHalf);
 
-    assert.deepEqual(stdoutData.length, 1);
-    assert.deepEqual(stdoutData[0]?.toString(), 'Split message');
+    assert.deepStrictEqual(stdoutData.length, 1);
+    assert.deepStrictEqual(stdoutData[0]?.toString(), 'Split message');
 });
 
 test('should handle empty content', () => {
@@ -112,8 +113,8 @@ test('should handle empty content', () => {
 
     demuxStream.write(message);
 
-    assert.deepEqual(stdoutData.length, 1);
-    assert.deepEqual(stdoutData[0]?.toString(), '');
+    assert.deepStrictEqual(stdoutData.length, 1);
+    assert.deepStrictEqual(stdoutData[0]?.toString(), '');
 });
 
 test('should handle very short incomplete chunks', () => {
@@ -125,8 +126,8 @@ test('should handle very short incomplete chunks', () => {
     // Send only 4 bytes (less than minimum header size of 8)
     demuxStream.write(new TextEncoder().encode('test'));
 
-    assert.deepEqual(stdoutData.length, 0);
-    assert.deepEqual(stderrData.length, 0);
+    assert.deepStrictEqual(stdoutData.length, 0);
+    assert.deepStrictEqual(stderrData.length, 0);
 });
 
 test('should handle large content', () => {
@@ -139,6 +140,6 @@ test('should handle large content', () => {
 
     demuxStream.write(message);
 
-    assert.deepEqual(stdoutData.length, 1);
-    assert.deepEqual(stdoutData[0]?.toString(), largeContent);
+    assert.deepStrictEqual(stdoutData.length, 1);
+    assert.deepStrictEqual(stdoutData[0]?.toString(), largeContent);
 });

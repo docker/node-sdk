@@ -4,13 +4,13 @@ const assert = require('node:assert/strict');
 const { DockerClient } = require('@docker/node-sdk');
 
 test('CJS module should import correctly', () => {
-    assert.equal(typeof DockerClient, 'function');
-    assert.equal(typeof DockerClient.fromDockerConfig, 'function');
+    assert.strictEqual(typeof DockerClient, 'function');
+    assert.strictEqual(typeof DockerClient.fromDockerConfig, 'function');
 });
 
 test('CJS module should import functional client', async () => {
     const docker = await DockerClient.fromDockerConfig();
     const apiVersion = await docker.systemPing();
-    assert.ok(apiVersion);
+    assert.notStrictEqual(apiVersion, null);
     console.log(`  Docker API version: ${apiVersion}`);
 });
