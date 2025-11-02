@@ -1121,6 +1121,7 @@ export class DockerClient {
      * @param options.target Target build stage
      * @param options.outputs BuildKit output configuration in the format of a stringified JSON array of objects. Each object must have two top-level properties: &#x60;Type&#x60; and &#x60;Attrs&#x60;. The &#x60;Type&#x60; property must be set to \&#39;moby\&#39;. The &#x60;Attrs&#x60; property is a map of attributes for the BuildKit output configuration. See https://docs.docker.com/build/exporters/oci-docker/ for more information.  Example:  &#x60;&#x60;&#x60; [{\&quot;Type\&quot;:\&quot;moby\&quot;,\&quot;Attrs\&quot;:{\&quot;type\&quot;:\&quot;image\&quot;,\&quot;force-compression\&quot;:\&quot;true\&quot;,\&quot;compression\&quot;:\&quot;zstd\&quot;}}] &#x60;&#x60;&#x60;
      * @param options.version Version of the builder backend to use.  - &#x60;1&#x60; is the first generation classic (deprecated) builder in the Docker daemon (default) - &#x60;2&#x60; is [BuildKit](https://github.com/moby/buildkit)
+     * @param options.secrets BuildKit secrets to pass to the build. A record mapping secret IDs to their values. Secrets are exposed in the build at &#x60;/run/secrets/&lt;id&gt;&#x60; when using &#x60;RUN --mount=type=secret,id=&lt;id&gt;&#x60; in the Dockerfile. Requires BuildKit (version: &#x60;2&#x60;). For more information, see https://docs.docker.com/build/building/secrets/
      */
     public imageBuild(
         buildContext: ReadableStream,
@@ -1151,6 +1152,7 @@ export class DockerClient {
             target?: string;
             outputs?: string;
             version?: '1' | '2';
+            secrets?: Record<string, string>;
         },
     ): JSONMessages<JSONMessage, string> {
         const headers: Record<string, string> = {};
@@ -1160,6 +1162,19 @@ export class DockerClient {
             headers['X-Registry-Config'] = this.authCredentials(
                 options.credentials,
             );
+        }
+
+        // Prepare secrets parameter for BuildKit
+        let secretsParam: string | undefined;
+        if (options?.secrets) {
+            // Convert secrets to BuildKit format: array of secret specs
+            const secretSpecs = Object.entries(options.secrets).map(
+                ([id, value]) => ({
+                    ID: id,
+                    Source: value,
+                }),
+            );
+            secretsParam = JSON.stringify(secretSpecs);
         }
 
         const request = this.api.post(
@@ -1190,6 +1205,7 @@ export class DockerClient {
                 target: options?.target,
                 outputs: options?.outputs,
                 version: options?.version || '2',
+                secret: secretsParam,
             },
             buildContext,
             headers,
