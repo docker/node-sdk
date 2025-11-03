@@ -1,7 +1,7 @@
 import type { IncomingMessage } from 'node:http';
 import type { ReadableStream } from 'stream/web';
 import { Agent, Response, fetch, upgrade } from 'undici';
-import { Duplex } from 'stream';
+import { Readable } from 'node:stream';
 
 // Docker stream content type constants
 export const DOCKER_RAW_STREAM = 'application/vnd.docker.raw-stream';
@@ -80,22 +80,29 @@ function _getErrorMessageFromResp(
  */
 export class HTTPClient {
     private agent: Agent;
+    private fetchOptions: object;
     private headers: Record<string, string>;
     private baseUrl: string;
 
     constructor(
         agent: Agent,
+        fetchOptions: object,
         userAgent: string,
         headers?: Record<string, string>,
     ) {
         this.agent = agent;
+        this.fetchOptions = fetchOptions;
         this.headers = headers || {};
         this.headers['User-Agent'] = userAgent;
         this.baseUrl = 'http://localhost:2375';
     }
 
     close(): Promise<void> {
-        return this.agent.destroy();
+        if (this.agent.destroy) {
+            return this.agent.destroy();
+        } else {
+            return Promise.resolve();
+        }
     }
 
     // Method to send an HTTP request with method, URI and parameters
@@ -146,6 +153,7 @@ export class HTTPClient {
             method: 'HEAD',
             headers: this.headers,
             dispatcher: this.agent,
+            ...this.fetchOptions,
         });
     }
 
@@ -162,6 +170,7 @@ export class HTTPClient {
                 ...this.headers,
             },
             dispatcher: this.agent,
+            ...this.fetchOptions,
         });
     }
 
@@ -201,6 +210,7 @@ export class HTTPClient {
             body: body,
             duplex: 'half',
             dispatcher: this.agent,
+            ...this.fetchOptions,
         });
     }
 
@@ -219,6 +229,7 @@ export class HTTPClient {
             },
             body: JSON.stringify(data),
             dispatcher: this.agent,
+            ...this.fetchOptions,
         });
     }
 
@@ -231,6 +242,7 @@ export class HTTPClient {
             method: 'DELETE',
             headers: this.headers,
             dispatcher: this.agent,
+            ...this.fetchOptions,
         });
     }
 
@@ -239,33 +251,71 @@ export class HTTPClient {
         params?: Record<string, any>,
     ): Promise<Upgrade> {
         const queryString = this.buildQueryString(params);
-        const { headers, socket } = await upgrade(
-            `${this.baseUrl}${uri}${queryString}`,
-            {
-                method: 'POST',
-                headers: this.headers,
-                dispatcher: this.agent,
-                protocol: 'tcp',
-            },
-        );
-        const header = headers['content-type'] || '';
-        let content: string;
-        if (Array.isArray(header)) {
-            content = header[0] || '';
-        } else {
-            content = header;
-        }
 
-        return {
-            content: content,
-            socket: socket,
-        };
+        try {
+            const { headers, socket } = await upgrade(
+                `${this.baseUrl}${uri}${queryString}`,
+                {
+                    method: 'POST',
+                    headers: this.headers,
+                    dispatcher: this.agent,
+                    protocol: 'tcp',
+                },
+            );
+            const header = headers['content-type'] || '';
+            let content: string;
+            if (Array.isArray(header)) {
+                content = header[0] || '';
+            } else {
+                content = header;
+            }
+
+            return {
+                content: content,
+                socket: socket,
+            };
+        } catch (error) {
+            // Check if undici.upgrade is not implemented (e.g., in Bun)
+            if (
+                error instanceof Error &&
+                error.message.includes('not yet implemented')
+            ) {
+                // Fall back to a plain POST request
+                // see https://docs.docker.com/reference/api/engine/version/v1.51/#tag/Container/operation/ContainerAttach
+                const response = await fetch(
+                    `${this.baseUrl}${uri}${queryString}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            ...this.headers,
+                        },
+                        dispatcher: this.agent,
+                        ...this.fetchOptions,
+                    },
+                );
+
+                const header = response.headers.get('content-type') || '';
+
+                // Convert the response body to a Node Duplex stream
+                if (!response.body) {
+                    throw new Error('No response body available');
+                }
+
+                const readable = Readable.fromWeb(response.body as any);
+
+                return {
+                    content: header,
+                    socket: readable,
+                };
+            }
+            throw error;
+        }
     }
 }
 
 interface Upgrade {
     content: string;
-    socket: Duplex;
+    socket: Readable;
 }
 
 function isReadableStream(data: any): data is ReadableStream {

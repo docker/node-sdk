@@ -51,9 +51,19 @@ jobs:
               with:
                   version: type=image,version=${{ matrix.engine }}
 
-            - name: Test
+            - name: Test (Node)
               run: |
                   npm test
+              env:
+                  DOCKER_HOST: ${{ steps.engine.outputs.sock }}
+
+            - name: Install Bun
+              uses: oven-sh/setup-bun@v2
+
+            - name: Test (Bun)
+              run: |
+                  bun i
+                  bun --bun test test/*.test.ts
               env:
                   DOCKER_HOST: ${{ steps.engine.outputs.sock }}
 
