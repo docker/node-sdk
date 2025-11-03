@@ -142,11 +142,13 @@ export class HTTPClient {
         params?: Record<string, any>,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
-        return fetch(`${this.baseUrl}${uri}${queryString}`, {
+        const response = await fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'HEAD',
             headers: this.headers,
             dispatcher: this.agent,
         });
+        this.handleError(response);
+        return response;
     }
 
     public async get(
@@ -155,7 +157,7 @@ export class HTTPClient {
         params?: Record<string, any>,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
-        return fetch(`${this.baseUrl}${uri}${queryString}`, {
+        const response = await fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'GET',
             headers: {
                 Accept: accept,
@@ -163,13 +165,12 @@ export class HTTPClient {
             },
             dispatcher: this.agent,
         });
+        this.handleError(response);
+        return response;
     }
 
     public getJSON<T>(uri: string, params?: Record<string, any>): Promise<T> {
         return this.get(uri, APPLICATION_JSON, params).then((response) => {
-            if (response.status === 404) {
-                throw NotFoundError;
-            }
             return response.json() as T;
         });
     }
@@ -195,13 +196,15 @@ export class HTTPClient {
             }
         }
 
-        return fetch(`${this.baseUrl}${uri}${queryString}`, {
+        const response = await fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'POST',
             headers: requestHeaders,
             body: body,
             duplex: 'half',
             dispatcher: this.agent,
         });
+        this.handleError(response);
+        return response;
     }
 
     public async put(
@@ -211,7 +214,7 @@ export class HTTPClient {
         type: string,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
-        return fetch(`${this.baseUrl}${uri}${queryString}`, {
+        const response = await fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': type,
@@ -220,6 +223,8 @@ export class HTTPClient {
             body: JSON.stringify(data),
             dispatcher: this.agent,
         });
+        this.handleError(response);
+        return response;
     }
 
     public async delete(
@@ -227,11 +232,13 @@ export class HTTPClient {
         params?: Record<string, any>,
     ): Promise<Response> {
         const queryString = this.buildQueryString(params);
-        return fetch(`${this.baseUrl}${uri}${queryString}`, {
+        const response = await fetch(`${this.baseUrl}${uri}${queryString}`, {
             method: 'DELETE',
             headers: this.headers,
             dispatcher: this.agent,
         });
+        this.handleError(response);
+        return response;
     }
 
     public async upgrade(
@@ -260,6 +267,17 @@ export class HTTPClient {
             content: content,
             socket: socket,
         };
+    }
+
+    private handleError(response: Response) {
+        switch (response.status) {
+            case 403:
+                throw new UnauthorizedError(response.statusText || 'Forbidden');
+            case 404:
+                throw NotFoundError;
+            case 409:
+                throw new ConflictError(response.statusText || 'Conflict');
+        }
     }
 }
 

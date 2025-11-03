@@ -4,6 +4,7 @@ import { DockerClient } from '../lib/docker-client.js';
 import { Filter } from '../lib/filter.js';
 import { Writable } from 'node:stream';
 import { Logger } from '../lib/logs.js';
+import type { NotFoundError } from '../lib/http.js';
 
 // Test Docker Container API functionality
 
@@ -406,3 +407,25 @@ test(
         }
     },
 );
+
+test('should throw NotFoundError when inspecting non-existing container', async () => {
+    const client = await DockerClient.fromDockerConfig();
+    const nonExistingContainerId = 'nonexistingcontainer1234567890abcdef';
+
+    console.log('  Attempting to inspect non-existing container...');
+
+    // Attempt to inspect a container that doesn't exist
+    await assert.rejects(
+        async () => {
+            await client.containerInspect(nonExistingContainerId);
+        },
+        (err: Error) => {
+            console.log(`    Caught error: ${err.name}`);
+            assert.strictEqual((err as NotFoundError).name, 'NotFoundError');
+            return true;
+        },
+        'Should throw NotFoundError for non-existing container',
+    );
+
+    console.log('    ✓ Test passed: NotFoundError thrown as expected');
+});
