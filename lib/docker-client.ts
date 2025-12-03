@@ -1259,6 +1259,25 @@ export class DockerClient {
     }
 
     /**
+     * Pull an image.
+     * @param image Name of the image to pull. If the name includes a tag or digest, specific behavior applies:  - If only 'fromImage' includes a tag, that tag is used. - If both 'fromImage' and 'tag' are provided, 'tag' takes precedence. - If 'fromImage' includes a digest, the image is pulled by digest, and 'tag' is ignored. - If neither a tag nor digest is specified, all tags are pulled.
+     * @param tag Tag or digest. If empty when pulling an image
+     * @param options.credentials A base64url-encoded auth configuration.  Refer to the [authentication section](#section/Authentication) for details.
+     * @param options.platform Platform in the format os[/arch[/variant]].  When used in combination with the 'fromImage' option, the daemon checks if the given image is present in the local image cache with the given OS and Architecture, and otherwise attempts to pull the image. If the option is not set, the host\&#39;s native OS and Architecture are used. If the given image does not exist in the local image cache, the daemon attempts to pull the image with the host\&#39;s native OS and Architecture. If the given image does exists in the local image cache, but its OS or architecture does not match, a warning is produced.  When used with the 'fromSrc' option to import an image from an archive, this option sets the platform information for the imported image. If the option is not set, the host\&#39;s native OS and Architecture are used for the imported image.
+     */
+    public imagePull(image: string, tag = 'latest', options?: {
+        credentials?: AuthConfig;
+        platform?: string;
+    }): JSONMessages<JSONMessage, string> {
+        return this.imageCreate({
+            fromImage: image,
+            tag: tag,
+            credentials: options?.credentials,
+            platform: options?.platform,
+        })
+    }
+
+    /**
      * Pull or import an image.
      * Create an image
      * @param options
@@ -1299,7 +1318,7 @@ export class DockerClient {
                 fromImage: ref,
                 fromSrc: options?.fromSrc,
                 repo: options?.repo,
-                tag: options?.tag || 'latest',
+                tag: options?.tag,
                 message: options?.message,
                 changes: options?.changes,
                 platform: options?.platform,
