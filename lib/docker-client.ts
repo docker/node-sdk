@@ -478,7 +478,11 @@ export class DockerClient {
     ): Promise<void> {
         const response = await this.api.upgrade(
             `/containers/${id}/attach`,
-            options,
+            options || {
+                stdout: stdout != null,
+                stderr: stderr != null,
+                stream: stdout != null || stderr != null,
+            },
         );
         switch (response.content) {
             case DOCKER_RAW_STREAM:
@@ -1641,6 +1645,18 @@ export class DockerClient {
         stderr: stream.Writable | null,
         execStartConfig?: types.ExecStartConfig,
     ): Promise<void> {
+        // If no output streams and Detach not explicitly set, force detached mode
+        if (
+            stdout === null &&
+            stderr === null &&
+            execStartConfig?.Detach === undefined
+        ) {
+            await this.api.post(`/exec/${id}/start`, {
+                ...execStartConfig,
+                Detach: true,
+            });
+            return;
+        }
         if (execStartConfig?.Detach) {
             await this.api.post(`/exec/${id}/start`, execStartConfig);
         } else {
