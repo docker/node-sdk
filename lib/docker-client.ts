@@ -370,9 +370,7 @@ export class DockerClient {
         until?: string;
         filters?: Filter;
     }): AsyncGenerator<types.EventMessage, void, undefined> {
-        const response = await this.api.get('/events', APPLICATION_NDJSON, {
-            params: options,
-        });
+        const response = await this.api.get('/events', APPLICATION_NDJSON, options);
         yield* jsonMessages<types.EventMessage>(response);
     }
 
