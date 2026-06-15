@@ -12,7 +12,7 @@ FROM base AS install-base
 WORKDIR /project
 COPY . .
 RUN --mount=type=cache,target=/root/.npm \
-    npm install
+    npm ci
 
 FROM install-base AS build
 RUN npm run build
@@ -33,12 +33,12 @@ COPY --link --from=build /project/test-integration/esm-project  esm-project
 RUN --mount=type=cache,target=/root/.npm \
     cd cjs-project && \
     npm install ../node-sdk && \
-    npm install && \
+    npm ci && \
     npm test
 RUN --mount=type=cache,target=/root/.npm \
     cd esm-project && \
     npm install ../node-sdk && \
-    npm install && \
+    npm ci && \
     npm test
 
 FROM scratch AS dist
