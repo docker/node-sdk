@@ -35,7 +35,7 @@ jobs:
 
             - name: Install
               run: |
-                  npm install
+                  npm ci
 
             - name: Format Check
               run: |
@@ -71,7 +71,7 @@ jobs:
 
             - name: Install
               run: |
-                  npm install
+                  npm ci
 
             - name: Build
               run: |
@@ -118,7 +118,7 @@ jobs:
             - name: Integration tests ESM
               working-directory: ./test-integration/esm-project
               run: |
-                  npm install --install-links
+                  npm ci --install-links
                   npm run test
               env:
                   DOCKER_HOST: ${{ steps.engine.outputs.sock }}
@@ -126,7 +126,7 @@ jobs:
             - name: Integration tests CJS
               working-directory: ./test-integration/cjs-project
               run: |
-                  npm install --install-links
+                  npm ci --install-links
                   npm run test
               env:
                   DOCKER_HOST: ${{ steps.engine.outputs.sock }}
