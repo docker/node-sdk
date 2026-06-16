@@ -176,3 +176,25 @@ test(
         }
     },
 );
+
+test('should throw NotFoundError when inspecting non-existing image', async () => {
+    const client = await DockerClient.fromDockerConfig();
+    const nonExistingImageName = 'nonexistingimage:1234567890';
+
+    console.log('  Attempting to inspect non-existing image...');
+
+    // Attempt to inspect an image that doesn't exist
+    await assert.rejects(
+        async () => {
+            await client.imageInspect(nonExistingImageName);
+        },
+        (err: Error) => {
+            console.log(`    Caught error: ${err.name}`);
+            assert.strictEqual((err as NotFoundError).name, 'NotFoundError');
+            return true;
+        },
+        'Should throw NotFoundError for non-existing image',
+    );
+
+    console.log('    ✓ Test passed: NotFoundError thrown as expected');
+});

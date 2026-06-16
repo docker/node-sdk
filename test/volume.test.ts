@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DockerClient } from '../lib/docker-client.js';
+import type { NotFoundError } from '../lib/http.js';
 
 // Test Docker Volume API functionality
 
@@ -49,4 +50,26 @@ test('volume lifecycle: create, inspect, list, delete', async () => {
         assert.strictEqual(error.name, 'NotFoundError');
         console.log(`  Confirmed volume deletion: ${volumeName}`);
     }
+});
+
+test('should throw NotFoundError when inspecting non-existing volume', async () => {
+    const client = await DockerClient.fromDockerConfig();
+    const nonExistingVolumeName = 'nonexistingvolume1234567890';
+
+    console.log('  Attempting to inspect non-existing volume...');
+
+    // Attempt to inspect a volume that doesn't exist
+    await assert.rejects(
+        async () => {
+            await client.volumeInspect(nonExistingVolumeName);
+        },
+        (err: Error) => {
+            console.log(`    Caught error: ${err.name}`);
+            assert.strictEqual((err as NotFoundError).name, 'NotFoundError');
+            return true;
+        },
+        'Should throw NotFoundError for non-existing volume',
+    );
+
+    console.log('    ✓ Test passed: NotFoundError thrown as expected');
 });

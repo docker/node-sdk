@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DockerClient } from '../lib/docker-client.js';
+import type { NotFoundError } from '../lib/http.js';
 
 test('network lifecycle: create, inspect, list, delete', async () => {
     const client = await DockerClient.fromDockerConfig();
@@ -57,4 +58,26 @@ test('network lifecycle: create, inspect, list, delete', async () => {
         assert.strictEqual(error.name, 'NotFoundError');
         console.log(`  Confirmed network deletion: ${networkName}`);
     }
+});
+
+test('should throw NotFoundError when inspecting non-existing network', async () => {
+    const client = await DockerClient.fromDockerConfig();
+    const nonExistingNetworkId = 'nonexistingnetwork1234567890abcdef';
+
+    console.log('  Attempting to inspect non-existing network...');
+
+    // Attempt to inspect a network that doesn't exist
+    await assert.rejects(
+        async () => {
+            await client.networkInspect(nonExistingNetworkId);
+        },
+        (err: Error) => {
+            console.log(`    Caught error: ${err.name}`);
+            assert.strictEqual((err as NotFoundError).name, 'NotFoundError');
+            return true;
+        },
+        'Should throw NotFoundError for non-existing network',
+    );
+
+    console.log('    ✓ Test passed: NotFoundError thrown as expected');
 });
