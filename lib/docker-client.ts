@@ -39,15 +39,17 @@ export class DockerClient {
      * Create a new DockerClient instance
      * You should use the static fromDockerHost or fromDockerConfig methods instead
      * @param agent Undici agent for HTTP connections
+     * @param fetchOptions is used to configure the fetch RequestInit with custom attributes, as required by Bun
      * @param userAgent User agent string for requests (defaults to 'docker/node-sdk')
      * @param headers Optional additional headers to include in requests
      */
     constructor(
         agent: Agent,
+        fetchOptions: object,
         userAgent: string = 'docker/node-sdk',
         headers?: Record<string, string>,
     ) {
-        this.api = new HTTPClient(agent, userAgent, headers);
+        this.api = new HTTPClient(agent, fetchOptions, userAgent, headers);
     }
 
     /**
@@ -70,7 +72,14 @@ export class DockerClient {
                 const agent = new SocketAgent(() =>
                     createConnection(socketPath),
                 );
-                return new DockerClient(agent, userAgent, headers);
+                return new DockerClient(
+                    agent,
+                    {
+                        unix: socketPath,
+                    },
+                    userAgent,
+                    headers,
+                );
             } catch (error) {
                 throw new Error(
                     `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
@@ -85,7 +94,14 @@ export class DockerClient {
                 const agent = new SocketAgent(() =>
                     createConnection(socketPath),
                 );
-                return new DockerClient(agent, userAgent, headers);
+                return new DockerClient(
+                    agent,
+                    {
+                        // unix: socketPath,
+                    },
+                    userAgent,
+                    headers,
+                );
             } catch (error) {
                 throw new Error(
                     `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
@@ -121,7 +137,7 @@ export class DockerClient {
                     );
                 }
 
-                return new DockerClient(agent, userAgent, headers);
+                return new DockerClient(agent, {}, userAgent, headers);
             } catch (error) {
                 throw new Error(
                     `Failed to create Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
@@ -133,7 +149,7 @@ export class DockerClient {
             try {
                 const socketFactory = await SSH.createSocketFactory(dockerHost);
                 const agent = new SocketAgent(socketFactory);
-                return new DockerClient(agent, userAgent, headers);
+                return new DockerClient(agent, {}, userAgent, headers);
             } catch (error) {
                 throw new Error(
                     `Failed to create SSH Docker client for ${dockerHost}: ${getErrorMessage(error)}`,
@@ -147,7 +163,14 @@ export class DockerClient {
                 const agent = new SocketAgent(() =>
                     createConnection(dockerHost),
                 );
-                return new DockerClient(agent, userAgent, headers);
+                return new DockerClient(
+                    agent,
+                    {
+                        unix: dockerHost,
+                    },
+                    userAgent,
+                    headers,
+                );
             } catch (error) {
                 // If file doesn't exist, fall through to original error handling
             }
