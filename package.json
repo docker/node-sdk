@@ -48,9 +48,10 @@
         "format.check": "prettier --check ."
     },
     "dependencies": {
-        "ssh2": "^1.16.0",
-        "tar-stream": "^3.1.4",
         "undici": "^6.22.0"
+    },
+    "peerDependencies": {
+        "ssh2": "^1.16.0"
     },
     "devDependencies": {
         "@openapitools/openapi-generator-cli": "^2.23.4",
@@ -60,6 +61,7 @@
         "oxlint": "^1.16.0",
         "oxlint-tsgolint": "^0.2.0",
         "prettier": "^3.6.2",
+        "tar-stream": "^3.1.4",
         "tsdown": "^0.15.6",
         "tsx": "^4.20.6",
         "typescript": "^5.9.2"

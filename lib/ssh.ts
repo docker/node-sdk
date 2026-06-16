@@ -2,7 +2,6 @@ import { Socket } from 'node:net';
 import { promises as fsPromises } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
-import { Client } from 'ssh2';
 
 /**
  * SSH connection utilities for Docker remote access
@@ -77,6 +76,8 @@ export class SSH {
         } else {
             host = hostPortPart;
         }
+
+        const { Client } = await import('ssh2');
 
         // Return factory function that creates new SSH connections
         return () => {
