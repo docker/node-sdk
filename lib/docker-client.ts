@@ -79,7 +79,7 @@ export class DockerClient {
             }
         } else if (dockerHost.startsWith('npipe:')) {
             // Windows name pipe connection - use SocketAgent with socket creation function
-            const socketPath = dockerHost.substring(6); // Remove "npipe:" prefix
+            const socketPath = dockerHost.replace(/^npipe:\/\//, ''); // Remove "npipe:" prefix
 
             try {
                 const agent = new SocketAgent(() =>
